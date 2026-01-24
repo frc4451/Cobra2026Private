@@ -28,4 +28,9 @@ public final class Constants {
     /** Replaying from a log file. */
     REPLAY
   }
+
+  public static final double triggerPressedThreshold = 0.25;
+  public static final double controllerDeadband = 0.25;
+
+  public static final boolean focEnabled = true;
 }
