@@ -92,12 +92,12 @@ public class SuperStructure extends SubsystemBase {
   }
 
   public Command runFeederCommand(double var) {
-    return Commands.runEnd(
-        () -> feederComponent.runPercentFeeder(var), () -> feederComponent.runPercentFeeder(0.0));
+    return Commands.run(
+        () -> feederComponent.runPercentFeeder(var));
   }
 
   public Command runSpinerCommand(double var) {
-    return Commands.runEnd(
-        () -> feederComponent.runPercentSpiner(var), () -> feederComponent.runPercentSpiner(0.0));
+    return Commands.run(
+        () -> feederComponent.runPercentSpiner(var));
   }
 }

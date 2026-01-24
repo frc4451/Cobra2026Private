@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
@@ -40,6 +39,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFX;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFX;
+import org.robotzgarage.frc2026.util.GarageCommandXboxController;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -52,7 +52,8 @@ public class RobotContainer {
   private final Drive drive;
 
   // Controller
-  private final CommandXboxController controller = new CommandXboxController(0);
+  private final GarageCommandXboxController drivercontroller = new GarageCommandXboxController(0);
+  private final GarageCommandXboxController operatorcontroller = new GarageCommandXboxController(1);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -184,7 +185,8 @@ public class RobotContainer {
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // Configure the button bindings
-    configureButtonBindings();
+    configureDriverBindings(drivercontroller);
+    configureOperatorBindings(operatorcontroller);
 
     DriverStation.silenceJoystickConnectionWarning(true);
   }
@@ -195,7 +197,7 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
-  private void configureButtonBindings() {
+  private void configureDriverBindings(GarageCommandXboxController controller) {
     // Default command, normal field-relative drive
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
@@ -227,6 +229,37 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
                     drive)
                 .ignoringDisable(true));
+  }
+
+  private void configureOperatorBindings(GarageCommandXboxController controller) {
+
+    // Intake Component controlls
+    controller
+        .leftBumper()
+        .onTrue(superstructure.endeffectorIn()); // when left bumper is pressed, move endeffector in
+    controller
+        .rightBumper()
+        .onTrue(superstructure.endeffectorOut()); // when right bumper is pressed, move endeffector
+    // out
+    controller
+        .rightBumper() // when right bumper is pressed
+        .and(superstructure.isEndeffectorOut()) // if endeffector is out
+        .whileTrue(superstructure.runIntakeCommand()); // run intake, while right bumper is held
+
+    // Feeder Component controlls
+    controller.a().whileTrue(superstructure.runShooterCommand());
+
+    controller
+        .a()
+        .and(superstructure.isShooterReady())
+        .whileTrue(
+            Commands.parallel(
+                superstructure.runShooterCommand(),
+                superstructure.runFeederCommand(-0.5),
+                superstructure.runSpinerCommand(0.5)));
+
+    // Shooter Component controlls
+
   }
 
   /**
