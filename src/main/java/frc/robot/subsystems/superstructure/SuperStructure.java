@@ -1,6 +1,8 @@
 package frc.robot.subsystems.superstructure;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -45,13 +47,11 @@ public class SuperStructure extends SubsystemBase {
   }
 
   public Command runShooterCommand() {
-    return Commands.runEnd(
-        () -> shooterComponent.runShooterPercent(0.5), () -> shooterComponent.runShooterPercent(0));
+    return Commands.run(() -> shooterComponent.runShooterPercent(0.5));
   }
 
   public Command runShooterCommand(double var) {
-    return Commands.runEnd(
-        () -> shooterComponent.runShooterPercent(var), () -> shooterComponent.runShooterPercent(0));
+    return Commands.run(() -> shooterComponent.runShooterPercent(var));
   }
 
   public Trigger isShooterReady() {
@@ -92,12 +92,10 @@ public class SuperStructure extends SubsystemBase {
   }
 
   public Command runFeederCommand(double var) {
-    return Commands.run(
-        () -> feederComponent.runPercentFeeder(var));
+    return Commands.run(() -> feederComponent.runPercentFeeder(var));
   }
 
   public Command runSpinerCommand(double var) {
-    return Commands.run(
-        () -> feederComponent.runPercentSpiner(var));
+    return Commands.run(() -> feederComponent.runPercentSpiner(var));
   }
 }

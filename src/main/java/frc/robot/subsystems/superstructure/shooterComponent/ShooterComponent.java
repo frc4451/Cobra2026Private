@@ -11,6 +11,8 @@ import org.robotzgarage.frc2026.subsystems.pivot.Pivot;
 import org.robotzgarage.frc2026.subsystems.pivot.PivotMechanism;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
 
+import edu.wpi.first.units.measure.AngularVelocity;
+
 public class ShooterComponent {
   private final String name = "/SuperStructure/ShooterComponent";
 
@@ -111,7 +113,11 @@ public class ShooterComponent {
     shooter.setPercentOutput(percent);
   }
 
+  public void setShooterVelocity(AngularVelocity velocity) {
+    shooter.setVelocity(velocity);
+  }
+
   public boolean isShooterReady() {
-    return shooter.isNear(RotationsPerSecond.of(10.0));
+    return shooter.isNear(RotationsPerSecond.of(0.125));
   }
 }

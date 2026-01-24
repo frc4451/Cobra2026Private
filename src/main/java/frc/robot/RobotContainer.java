@@ -247,16 +247,18 @@ public class RobotContainer {
         .whileTrue(superstructure.runIntakeCommand()); // run intake, while right bumper is held
 
     // Feeder Component controlls
-    controller.a().whileTrue(superstructure.runShooterCommand());
+    controller
+        .a()
+        .whileTrue(superstructure.runShooterCommand())
+        .whileFalse(superstructure.runShooterCommand(0.0));
 
     controller
         .a()
         .and(superstructure.isShooterReady())
-        .whileTrue(
-            Commands.parallel(
-                superstructure.runShooterCommand(),
-                superstructure.runFeederCommand(-0.5),
-                superstructure.runSpinerCommand(0.5)));
+        .whileTrue(superstructure.runFeederCommand())
+        .whileTrue(superstructure.runSpinerCommand())
+        .whileFalse(superstructure.runFeederCommand(0.0))
+        .whileFalse(superstructure.runSpinerCommand(0.0));
 
     // Shooter Component controlls
 
