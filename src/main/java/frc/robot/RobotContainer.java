@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.bobot_state.BobotState;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -24,7 +25,9 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.vision.VisionConstants;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.robotzgarage.frc2026.subsystems.vision.Vision;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -36,6 +39,9 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
 
+  // Vision testing
+  private final Vision vision;
+
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
 
@@ -44,6 +50,8 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    new BobotState();
+
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
@@ -120,6 +128,15 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureButtonBindings();
+
+    vision =
+        new Vision(
+            VisionConstants.fieldLayout,
+            VisionConstants.aprilTagCamerasConfigs,
+            () -> drive.getRawGyroRotation(),
+            () -> BobotState.getGlobalPose(),
+            BobotState::offerGlobalVisionObservation,
+            BobotState::offerConstrainedVisionObservation);
   }
 
   /**
@@ -157,7 +174,8 @@ public class RobotContainer {
             Commands.runOnce(
                     () ->
                         drive.setPose(
-                            new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
+                            new Pose2d(
+                                drive.getWheelOdometry().getTranslation(), Rotation2d.kZero)),
                     drive)
                 .ignoringDisable(true));
   }

@@ -19,7 +19,6 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -29,8 +28,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -41,12 +38,15 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
+import frc.robot.bobot_state.BobotState;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.PoseObservation;
 
 public class Drive extends SubsystemBase {
   // TunerConstants doesn't include these constants, so they are declared locally
@@ -87,7 +87,7 @@ public class Drive extends SubsystemBase {
       new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
 
   private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
-  private Rotation2d rawGyroRotation = Rotation2d.kZero;
+  @Getter private Rotation2d rawGyroRotation = Rotation2d.kZero;
   private SwerveModulePosition[] lastModulePositions = // For delta tracking
       new SwerveModulePosition[] {
         new SwerveModulePosition(),
@@ -95,7 +95,16 @@ public class Drive extends SubsystemBase {
         new SwerveModulePosition(),
         new SwerveModulePosition()
       };
-  private SwerveDrivePoseEstimator poseEstimator =
+  // Pure Wheel Odometry
+  private SwerveDrivePoseEstimator wheelOdometryPoseEstimator =
+      new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
+
+  // Global Pose with MultiTag/Lowest Ambiguity
+  private SwerveDrivePoseEstimator globalPoseEstimator =
+      new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
+
+  // Constrained Pose with Constrained Pose
+  private SwerveDrivePoseEstimator constrainedPoseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
 
   public Drive(
@@ -118,7 +127,7 @@ public class Drive extends SubsystemBase {
 
     // Configure AutoBuilder for PathPlanner
     AutoBuilder.configure(
-        this::getPose,
+        this::getGlobalPose,
         this::setPose,
         this::getChassisSpeeds,
         this::runVelocity,
@@ -201,11 +210,33 @@ public class Drive extends SubsystemBase {
       }
 
       // Apply update
-      poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
+      wheelOdometryPoseEstimator.updateWithTime(
+          sampleTimestamps[i], rawGyroRotation, modulePositions);
+
+      globalPoseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
+      constrainedPoseEstimator.updateWithTime(
+          sampleTimestamps[i], rawGyroRotation, modulePositions);
     }
 
     // Update gyro alert
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
+
+    // Handle Vision Measurements
+    PoseObservation globalPoseObservation;
+    while ((globalPoseObservation = BobotState.getGlobalVisionObservations().poll()) != null) {
+      globalPoseEstimator.addVisionMeasurement(
+          globalPoseObservation.robotPose().toPose2d(), globalPoseObservation.timestampSeconds());
+    }
+    PoseObservation constrainedPoseObservation;
+    while ((constrainedPoseObservation = BobotState.getConstrainedVisionObservations().poll())
+        != null) {
+      constrainedPoseEstimator.addVisionMeasurement(
+          constrainedPoseObservation.robotPose().toPose2d(),
+          constrainedPoseObservation.timestampSeconds());
+    }
+
+    BobotState.updateGlobalPose(getGlobalPose());
+    BobotState.updateConstrainedPose(getConstrainedPose());
   }
 
   /**
@@ -314,27 +345,18 @@ public class Drive extends SubsystemBase {
 
   /** Returns the current odometry pose. */
   @AutoLogOutput(key = "Odometry/Robot")
-  public Pose2d getPose() {
-    return poseEstimator.getEstimatedPosition();
+  public Pose2d getWheelOdometry() {
+    return wheelOdometryPoseEstimator.getEstimatedPosition();
   }
 
   /** Returns the current odometry rotation. */
   public Rotation2d getRotation() {
-    return getPose().getRotation();
+    return getWheelOdometry().getRotation();
   }
 
   /** Resets the current odometry pose. */
   public void setPose(Pose2d pose) {
-    poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
-  }
-
-  /** Adds a new timestamped vision measurement. */
-  public void addVisionMeasurement(
-      Pose2d visionRobotPoseMeters,
-      double timestampSeconds,
-      Matrix<N3, N1> visionMeasurementStdDevs) {
-    poseEstimator.addVisionMeasurement(
-        visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
+    wheelOdometryPoseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
   }
 
   /** Returns the maximum linear speed in meters per sec. */
@@ -355,5 +377,16 @@ public class Drive extends SubsystemBase {
       new Translation2d(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
       new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)
     };
+  }
+
+  /** Returns the current odometry pose. */
+  @AutoLogOutput(key = "Odometry/Global")
+  public Pose2d getGlobalPose() {
+    return globalPoseEstimator.getEstimatedPosition();
+  }
+
+  @AutoLogOutput(key = "Odometry/Constrained")
+  public Pose2d getConstrainedPose() {
+    return constrainedPoseEstimator.getEstimatedPosition();
   }
 }
