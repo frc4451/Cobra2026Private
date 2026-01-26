@@ -3,6 +3,7 @@ package frc.robot.subsystems.superstructure.shooterComponent;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import edu.wpi.first.units.measure.AngularVelocity;
 import frc.robot.subsystems.superstructure.shooterComponent.shooterComponentConstan.HoodConstants;
 import frc.robot.subsystems.superstructure.shooterComponent.shooterComponentConstan.ShooterConstants;
 import frc.robot.subsystems.superstructure.shooterComponent.shooterComponentConstan.TurretConstants;
@@ -10,8 +11,6 @@ import org.robotzgarage.frc2026.subsystems.flywheel.Flywheel;
 import org.robotzgarage.frc2026.subsystems.pivot.Pivot;
 import org.robotzgarage.frc2026.subsystems.pivot.PivotMechanism;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
-
-import edu.wpi.first.units.measure.AngularVelocity;
 
 public class ShooterComponent {
   private final String name = "/SuperStructure/ShooterComponent";

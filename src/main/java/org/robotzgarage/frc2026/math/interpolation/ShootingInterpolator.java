@@ -24,7 +24,7 @@ public class ShootingInterpolator {
    */
   @Builder
   public static record InterpolatedCalculation(
-      Angle angle, AngularVelocity leftVelocity, AngularVelocity rightVelocity) {}
+      Angle angle, AngularVelocity primaryVelocity, AngularVelocity secondaryVelocity) {}
 
   /**
    * Given a distance to target, provide a pitch for your shooter in addition to the velocities
@@ -36,8 +36,8 @@ public class ShootingInterpolator {
   public static record DistanceAngleSpeedEntry(
       Distance distanceToTarget,
       Angle pitch,
-      AngularVelocity leftVelocity,
-      AngularVelocity rightVelocity) {}
+      AngularVelocity primaryVelocity,
+      AngularVelocity secondaryVelocity) {}
 
   /**
    * Interpolation table manager for distance-to-targets tailored for shooter mechanisms.
@@ -100,10 +100,10 @@ public class ShootingInterpolator {
         Math.min(entry.pitch.plus(redFudgeFactor).in(Degrees), maximumAngle.in(Degrees)));
 
     distanceToVelocityLeftMap.put(
-        entry.distanceToTarget.in(Meters), entry.leftVelocity.in(RotationsPerSecond));
+        entry.distanceToTarget.in(Meters), entry.primaryVelocity.in(RotationsPerSecond));
 
     distanceToVelocityRightMap.put(
-        entry.distanceToTarget.in(Meters), entry.rightVelocity.in(RotationsPerSecond));
+        entry.distanceToTarget.in(Meters), entry.secondaryVelocity.in(RotationsPerSecond));
   }
 
   public InterpolatedCalculation calculateInterpolation(Distance distance) {
