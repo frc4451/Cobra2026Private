@@ -7,6 +7,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -28,6 +29,9 @@ public final class Constants {
     /** Replaying from a log file. */
     REPLAY
   }
+
+  public static final CANBus rioBus = new CANBus("rio");
+  // public static final CANBus canivore = new CANBus("SUSbus");
 
   public static final double triggerPressedThreshold = 0.25;
   public static final double controllerDeadband = 0.25;
