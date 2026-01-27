@@ -148,7 +148,8 @@ public class Robot extends LoggedRobot {
   @Override
   public void simulationInit() {
     VisionConstants.aprilTagSim.ifPresent(
-        aprilTagSim -> aprilTagSim.addAprilTags(VisionConstants.fieldLayout));
+        aprilTagSim ->
+            aprilTagSim.addAprilTags(VisionConstants.visionSubsystemConfig.aprilTagFieldLayout()));
   }
 
   /** This function is called periodically whilst in simulation. */

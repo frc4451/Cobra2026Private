@@ -3,7 +3,10 @@ package org.robotzgarage.frc2026.subsystems.vision;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -13,19 +16,28 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
+import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import lombok.Builder;
 import lombok.NonNull;
+import org.photonvision.PhotonPoseEstimator.ConstrainedSolvepnpParams;
 import org.photonvision.simulation.SimCameraProperties;
 
 public final class VisionTypes {
   @Builder
   public record RobotRelativeTransform(
+      /** From center of robot towards "front" */
       @NonNull Distance forwardPositive,
+      /** From center of robot towards "left" */
       @NonNull Distance leftPositive,
+      /** From center of robot (on the floor) towards "up" */
       @NonNull Distance upPositive,
+      /** Rotation over "X", like rolling a plane while turning */
       @NonNull Angle rollPositive,
+      /** Rotation over "Y", like angling a plane's nose up */
       @NonNull Angle pitchPositive,
+      /** Rotation over "Z", like rotating a robot on the floor */
       @NonNull Angle yawPositive) {
     public Transform3d getTransform() {
       return new Transform3d(
@@ -36,12 +48,13 @@ public final class VisionTypes {
     }
   }
 
-  public record PrototypingVisionSource(
-      String name, Supplier<RobotRelativeTransform> robotToCamera) {}
-
   public record VisionSource(String name, RobotRelativeTransform robotToCamera) {}
 
-  public record AprilTagStruct(int fiducialId, Pose3d pose) {}
+  public record AprilTagStruct(int fiducialId, Pose3d pose) {
+    public static AprilTagStruct fromFiducialId(int fiducialId, AprilTagFieldLayout fieldLayout) {
+      return new AprilTagStruct(fiducialId, fieldLayout.getTagPose(fiducialId).get());
+    }
+  }
 
   public static final record AprilTagCameraConfig(VisionSource source, SimCameraConfig simConfig) {}
 
@@ -50,6 +63,55 @@ public final class VisionTypes {
     SINGLE_TAG,
     TRIG,
     CONSTRAINED
+  }
+
+  /**
+   * Helper data struct to provide all variables known to be used for vision pipelines by the
+   * PhotonVision process.
+   */
+  @Builder
+  public record VisionSubsystemConfig(
+      @NonNull AprilTagFieldLayout aprilTagFieldLayout,
+      @NonNull List<AprilTagCameraConfig> aprilTagCameraConfigs,
+      @NonNull Supplier<Rotation2d> robotHeadingSupplier,
+      @NonNull Supplier<Pose2d> globalPoseSupplier,
+      @NonNull Consumer<PoseObservation> offerGlobalPoseObservation,
+      @NonNull Consumer<PoseObservation> offerConstrainedPoseObservation,
+      Boolean calculateConstrainedSolvePNP,
+      Double ambiguityCutoff,
+      Distance singleTagPoseCutoff,
+      ConstrainedSolvepnpParams constrainedSolvePnpParams,
+      Matrix<N3, N1> noStdDevs,
+      Matrix<N3, N1> singleTagStdDevs,
+      Matrix<N3, N1> multiTagStdDevs,
+      Matrix<N3, N1> tagStdDevs) {
+    public VisionSubsystemConfig {
+      if (calculateConstrainedSolvePNP == null) {
+        calculateConstrainedSolvePNP = false;
+      }
+
+      if (ambiguityCutoff == null) {
+        ambiguityCutoff = 0.05;
+      }
+      if (singleTagPoseCutoff == null) {
+        singleTagPoseCutoff = Meters.of(4);
+      }
+      if (constrainedSolvePnpParams == null) {
+        constrainedSolvePnpParams = new ConstrainedSolvepnpParams(true, 0);
+      }
+      if (noStdDevs == null) {
+        noStdDevs = VecBuilder.fill(0, 0, 0);
+      }
+      if (singleTagStdDevs == null) {
+        singleTagStdDevs = VecBuilder.fill(4, 4, Double.MAX_VALUE);
+      }
+      if (multiTagStdDevs == null) {
+        multiTagStdDevs = VecBuilder.fill(0.5, 0.5, Double.MAX_VALUE);
+      }
+      if (tagStdDevs == null) {
+        tagStdDevs = VecBuilder.fill(0, 0, Double.MAX_VALUE);
+      }
+    }
   }
 
   public record PoseObservation(

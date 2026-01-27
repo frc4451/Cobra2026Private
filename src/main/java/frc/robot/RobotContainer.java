@@ -10,10 +10,13 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.bobot_state.BobotState;
@@ -28,6 +31,7 @@ import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.vision.VisionConstants;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.robotzgarage.frc2026.subsystems.vision.Vision;
+import org.robotzgarage.frc2026.util.GarageCommandXboxController;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -44,6 +48,9 @@ public class RobotContainer {
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
+
+  private final GarageCommandXboxController visionDebugController =
+      new GarageCommandXboxController(4);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -129,14 +136,26 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
 
-    vision =
-        new Vision(
-            VisionConstants.fieldLayout,
-            VisionConstants.aprilTagCamerasConfigs,
-            () -> drive.getRawGyroRotation(),
-            () -> BobotState.getGlobalPose(),
-            BobotState::offerGlobalVisionObservation,
-            BobotState::offerConstrainedVisionObservation);
+    vision = new Vision(VisionConstants.visionSubsystemConfig);
+
+    SmartDashboard.putNumber("CameraTest/PoseXMeters", 0);
+    SmartDashboard.putNumber("CameraTest/PoseYMeters", 0);
+    SmartDashboard.putNumber("CameraTest/PoseRotationDeg", 0);
+
+    visionDebugController
+        .back()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  Pose2d desiredPose =
+                      new Pose2d(
+                          new Translation2d(
+                              SmartDashboard.getNumber("CameraTest/PoseXMeters", 0),
+                              SmartDashboard.getNumber("CameraTest/PoseYMeters", 0)),
+                          Rotation2d.fromDegrees(
+                              SmartDashboard.getNumber("CameraTest/PoseRotationDeg", 0)));
+                  drive.setPose(desiredPose);
+                }));
   }
 
   /**

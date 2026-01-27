@@ -1,5 +1,7 @@
 package org.robotzgarage.frc2026.subsystems.vision;
 
+import static edu.wpi.first.units.Units.Meters;
+
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.numbers.N1;
@@ -25,7 +27,10 @@ public class AprilTagAlgorithms {
     int numTags = 0;
     double totalDistance = 0;
     for (PhotonTrackedTarget target : targets) {
-      var tagPose = VisionConstants.fieldLayout.getTagPose(target.getFiducialId());
+      var tagPose =
+          VisionConstants.visionSubsystemConfig
+              .aprilTagFieldLayout()
+              .getTagPose(target.getFiducialId());
       if (tagPose.isEmpty()) continue;
 
       numTags++;
@@ -37,7 +42,9 @@ public class AprilTagAlgorithms {
 
     // Decrease std deviations further if more than one target is available
     Matrix<N3, N1> stdDevs =
-        numTags == 1 ? VisionConstants.singleTagStdDevs : VisionConstants.multiTagStdDevs;
+        numTags == 1
+            ? VisionConstants.visionSubsystemConfig.singleTagStdDevs()
+            : VisionConstants.visionSubsystemConfig.multiTagStdDevs();
 
     // Increase std devs based on average distance
     stdDevs = stdDevs.times(1 + (avgDistance * avgDistance / 30.0));
@@ -47,10 +54,13 @@ public class AprilTagAlgorithms {
 
   public static class SingleTagAlgorithms {
     public static boolean isUsable(PhotonTrackedTarget target) {
-      return VisionConstants.fieldLayout.getTagPose(target.getFiducialId()).isPresent()
-          && target.getPoseAmbiguity() < VisionConstants.ambiguityCutoff
+      return VisionConstants.visionSubsystemConfig
+              .aprilTagFieldLayout()
+              .getTagPose(target.getFiducialId())
+              .isPresent()
+          && target.getPoseAmbiguity() < VisionConstants.visionSubsystemConfig.ambiguityCutoff()
           && target.getBestCameraToTarget().getTranslation().toTranslation2d().getNorm()
-              < VisionConstants.singleTagPoseCutoffMeters;
+              < VisionConstants.visionSubsystemConfig.singleTagPoseCutoff().in(Meters);
     }
   }
 }

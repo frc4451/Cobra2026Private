@@ -235,8 +235,9 @@ public class Drive extends SubsystemBase {
           constrainedPoseObservation.timestampSeconds());
     }
 
-    BobotState.updateGlobalPose(getGlobalPose());
-    BobotState.updateConstrainedPose(getConstrainedPose());
+    BobotState.setGlobalPose(getGlobalPose());
+    BobotState.setGlobalPose(getConstrainedPose());
+    BobotState.setRawGyroHeading(rawGyroRotation);
   }
 
   /**
@@ -357,6 +358,8 @@ public class Drive extends SubsystemBase {
   /** Resets the current odometry pose. */
   public void setPose(Pose2d pose) {
     wheelOdometryPoseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
+    globalPoseEstimator.resetPosition(rawGyroRotation, lastModulePositions, pose);
+    constrainedPoseEstimator.resetPosition(rawGyroRotation, lastModulePositions, pose);
   }
 
   /** Returns the maximum linear speed in meters per sec. */

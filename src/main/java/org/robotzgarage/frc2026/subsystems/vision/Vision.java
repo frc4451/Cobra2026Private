@@ -1,9 +1,7 @@
 package org.robotzgarage.frc2026.subsystems.vision;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -19,6 +17,7 @@ import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.AprilTagCameraConf
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.PoseEstimationMethod;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.PoseObservation;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.VisionSource;
+import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.VisionSubsystemConfig;
 import org.robotzgarage.frc2026.util.VirtualSubsystem;
 
 public class Vision extends VirtualSubsystem {
@@ -37,30 +36,27 @@ public class Vision extends VirtualSubsystem {
   private final Consumer<PoseObservation> offerGlobalPoseObservation;
   private final Consumer<PoseObservation> offerConstrainedPoseObservation;
 
-  public Vision(
-      AprilTagFieldLayout aprilTagFieldLayout,
-      List<AprilTagCameraConfig> aprilTagCameraConfigs,
-      Supplier<Rotation2d> robotHeadingSupplier,
-      Supplier<Pose2d> globalPoseSupplier,
-      Consumer<PoseObservation> offerGlobalPoseObservation,
-      Consumer<PoseObservation> offerConstrainedPoseObservation) {
-    for (AprilTagCameraConfig config : aprilTagCameraConfigs) {
+  public Vision(VisionSubsystemConfig config) {
+    for (AprilTagCameraConfig aprilTagCameraConfig : config.aprilTagCameraConfigs()) {
       AprilTagIO io;
 
       switch (Constants.currentMode) {
         case REAL:
           io =
               new AprilTagIOPhoton(
-                  config.source(), aprilTagFieldLayout, robotHeadingSupplier, false);
+                  aprilTagCameraConfig.source(),
+                  config.aprilTagFieldLayout(),
+                  config.robotHeadingSupplier(),
+                  config.calculateConstrainedSolvePNP());
           break;
         case SIM:
           io =
               new AprilTagIOPhotonSim(
-                  config.source(),
-                  aprilTagFieldLayout,
-                  robotHeadingSupplier,
-                  false,
-                  config.simConfig());
+                  aprilTagCameraConfig.source(),
+                  config.aprilTagFieldLayout(),
+                  config.robotHeadingSupplier(),
+                  config.calculateConstrainedSolvePNP(),
+                  aprilTagCameraConfig.simConfig());
           break;
         case REPLAY:
         default:
@@ -70,17 +66,20 @@ public class Vision extends VirtualSubsystem {
 
       Alert disconnectedAlert =
           new Alert(
-              aprilTagLogRoot + " " + config.source().name() + " is disconnected!",
+              aprilTagLogRoot + " " + aprilTagCameraConfig.source().name() + " is disconnected!",
               AlertType.kWarning);
 
       aprilTagCameras.add(
           new AprilTagCamera(
-              io, new AprilTagIOInputsAutoLogged(), config.source(), disconnectedAlert));
+              io,
+              new AprilTagIOInputsAutoLogged(),
+              aprilTagCameraConfig.source(),
+              disconnectedAlert));
     }
 
-    this.globalPoseSupplier = globalPoseSupplier;
-    this.offerConstrainedPoseObservation = offerConstrainedPoseObservation;
-    this.offerGlobalPoseObservation = offerGlobalPoseObservation;
+    this.globalPoseSupplier = config.globalPoseSupplier();
+    this.offerConstrainedPoseObservation = config.offerConstrainedPoseObservation();
+    this.offerGlobalPoseObservation = config.offerGlobalPoseObservation();
   }
 
   @Override
