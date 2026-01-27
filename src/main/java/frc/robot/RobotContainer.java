@@ -24,17 +24,8 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
-import frc.robot.subsystems.superstructure.SuperStructure;
-import frc.robot.subsystems.superstructure.feederComponent.FeederComponent;
-import frc.robot.subsystems.superstructure.feederComponent.FeederConstants;
-import frc.robot.subsystems.superstructure.feederComponent.SpinerConstants;
-import frc.robot.subsystems.superstructure.intakeComponent.EndeffectorConstants;
-import frc.robot.subsystems.superstructure.intakeComponent.IntakeComponent;
-import frc.robot.subsystems.superstructure.intakeComponent.IntakeConstants;
-import frc.robot.subsystems.superstructure.shooterComponent.ShooterComponent;
-import frc.robot.subsystems.superstructure.shooterComponent.shooterComponentConstan.HoodConstants;
-import frc.robot.subsystems.superstructure.shooterComponent.shooterComponentConstan.ShooterConstants;
-import frc.robot.subsystems.superstructure.shooterComponent.shooterComponentConstan.TurretConstants;
+import frc.robot.subsystems.prototype.ShooterJan28;
+import frc.robot.subsystems.prototype.ShooterJan28Constants;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFX;
@@ -58,20 +49,26 @@ public class RobotContainer {
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
-  private final SuperStructure superstructure;
+  // private final SuperStructure superstructure;
+  private final ShooterJan28 shooterJan28;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Superstructure subsystems
-    SingleRollerIO hoodIO;
-    SingleRollerIO turretIO;
-    SingleRollerIO shooterIO;
+    // SingleRollerIO hoodIO;
+    // SingleRollerIO turretIO;
+    // SingleRollerIO shooterIO;
 
+    // SingleRollerIO feederIO;
+    // SingleRollerIO spinerIO;
+
+    // SingleRollerIO endeffectorIO;
+    // SingleRollerIO intakeIO;
+
+    // shooter jan 28
+    SingleRollerIO leaderIO;
+    SingleRollerIO followerIO;
     SingleRollerIO feederIO;
-    SingleRollerIO spinerIO;
-
-    SingleRollerIO endeffectorIO;
-    SingleRollerIO intakeIO;
 
     switch (Constants.currentMode) {
       case REAL:
@@ -79,15 +76,21 @@ public class RobotContainer {
         // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
         // a CANcoder
 
-        hoodIO = new SingleRollerIOTalonFX(HoodConstants.hoodConfig);
-        turretIO = new SingleRollerIOTalonFX(TurretConstants.turretConfig);
-        shooterIO = new SingleRollerIOTalonFX(ShooterConstants.shooterConfig);
+        // hoodIO = new SingleRollerIOTalonFX(HoodConstants.hoodConfig);
+        // turretIO = new SingleRollerIOTalonFX(TurretConstants.turretConfig);
+        // shooterIO = new SingleRollerIOTalonFX(ShooterConstants.shooterConfig);
 
-        feederIO = new SingleRollerIOTalonFX(FeederConstants.feederConfig);
-        spinerIO = new SingleRollerIOTalonFX(SpinerConstants.spinerConfig);
+        // feederIO = new SingleRollerIOTalonFX(FeederConstants.feederConfig);
+        // spinerIO = new SingleRollerIOTalonFX(SpinerConstants.spinerConfig);
 
-        endeffectorIO = new SingleRollerIOTalonFX(EndeffectorConstants.endeffectorConfig);
-        intakeIO = new SingleRollerIOTalonFX(IntakeConstants.intakeConfig);
+        // endeffectorIO = new
+        // SingleRollerIOTalonFX(EndeffectorConstants.endeffectorConfig);
+        // intakeIO = new SingleRollerIOTalonFX(IntakeConstants.intakeConfig);
+
+        // shooter jan 28
+        leaderIO = new SingleRollerIOTalonFX(ShooterJan28Constants.leaderShooterConfig);
+        followerIO = new SingleRollerIOTalonFX(ShooterJan28Constants.followerShooterConfig);
+        feederIO = new SingleRollerIOTalonFX(ShooterJan28Constants.feederShooterConfig);
 
         drive =
             new Drive(
@@ -119,15 +122,21 @@ public class RobotContainer {
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
 
-        hoodIO = new SingleRollerIOSimTalonFX(HoodConstants.hoodConfigSim);
-        turretIO = new SingleRollerIOSimTalonFX(TurretConstants.turretConfigSim);
-        shooterIO = new SingleRollerIOSimTalonFX(ShooterConstants.shooterConfigSim);
+        // hoodIO = new SingleRollerIOSimTalonFX(HoodConstants.hoodConfigSim);
+        // turretIO = new SingleRollerIOSimTalonFX(TurretConstants.turretConfigSim);
+        // shooterIO = new SingleRollerIOSimTalonFX(ShooterConstants.shooterConfigSim);
 
-        feederIO = new SingleRollerIOSimTalonFX(FeederConstants.feederConfigSim);
-        spinerIO = new SingleRollerIOSimTalonFX(SpinerConstants.spinerConfigSim);
+        // feederIO = new SingleRollerIOSimTalonFX(FeederConstants.feederConfigSim);
+        // spinerIO = new SingleRollerIOSimTalonFX(SpinerConstants.spinerConfigSim);
 
-        endeffectorIO = new SingleRollerIOSimTalonFX(EndeffectorConstants.hoodConfigSim);
-        intakeIO = new SingleRollerIOSimTalonFX(IntakeConstants.intakeConfigSim);
+        // endeffectorIO = new
+        // SingleRollerIOSimTalonFX(EndeffectorConstants.hoodConfigSim);
+        // intakeIO = new SingleRollerIOSimTalonFX(IntakeConstants.intakeConfigSim);
+
+        // shooter jan 28
+        leaderIO = new SingleRollerIOSimTalonFX(ShooterJan28Constants.leaderConfigSim);
+        followerIO = new SingleRollerIOSimTalonFX(ShooterJan28Constants.followerConfigSim);
+        feederIO = new SingleRollerIOSimTalonFX(ShooterJan28Constants.feederConfigSim);
         drive =
             new Drive(
                 new GyroIO() {},
@@ -140,15 +149,21 @@ public class RobotContainer {
       default:
         // Replayed robot, disable IO implementations
 
-        hoodIO = new SingleRollerIO() {};
-        turretIO = new SingleRollerIO() {};
-        shooterIO = new SingleRollerIO() {};
+        // hoodIO = new SingleRollerIO() {};
+        // turretIO = new SingleRollerIO() {};
+        // shooterIO = new SingleRollerIO() {};
 
+        // feederIO = new SingleRollerIO() {};
+        // spinerIO = new SingleRollerIO() {};
+
+        // endeffectorIO = new SingleRollerIO() {};
+        // intakeIO = new SingleRollerIO() {};
+
+        // shooter jan 28
+        leaderIO = new SingleRollerIO() {};
+        followerIO = new SingleRollerIO() {};
         feederIO = new SingleRollerIO() {};
-        spinerIO = new SingleRollerIO() {};
 
-        endeffectorIO = new SingleRollerIO() {};
-        intakeIO = new SingleRollerIO() {};
         drive =
             new Drive(
                 new GyroIO() {},
@@ -159,11 +174,13 @@ public class RobotContainer {
         break;
     }
 
-    superstructure =
-        new SuperStructure(
-            new ShooterComponent(hoodIO, turretIO, shooterIO),
-            new FeederComponent(feederIO, spinerIO),
-            new IntakeComponent(endeffectorIO, intakeIO));
+    // superstructure =
+    // new SuperStructure(
+    // new ShooterComponent(hoodIO, turretIO, shooterIO),
+    // new FeederComponent(feederIO, spinerIO),
+    // new IntakeComponent(endeffectorIO, intakeIO));
+
+    shooterJan28 = new ShooterJan28(leaderIO, followerIO, feederIO);
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -186,7 +203,8 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureDriverBindings(drivercontroller);
-    configureOperatorBindings(operatorcontroller);
+    // configureOperatorBindings(operatorcontroller);
+    configureshooterBindings(operatorcontroller);
 
     DriverStation.silenceJoystickConnectionWarning(true);
   }
@@ -231,37 +249,47 @@ public class RobotContainer {
                 .ignoringDisable(true));
   }
 
-  private void configureOperatorBindings(GarageCommandXboxController controller) {
+  // private void configureOperatorBindings(GarageCommandXboxController controller) {
 
-    // Intake Component controlls
-    controller
-        .leftBumper()
-        .onTrue(superstructure.endeffectorIn()); // when left bumper is pressed, move endeffector in
-    controller
-        .rightBumper()
-        .onTrue(superstructure.endeffectorOut()); // when right bumper is pressed, move endeffector
-    // out
-    controller
-        .rightBumper() // when right bumper is pressed
-        .and(superstructure.isEndeffectorOut()) // if endeffector is out
-        .whileTrue(superstructure.runIntakeCommand()); // run intake, while right bumper is held
+  //     // Intake Component controlls
+  //     controller
+  //             .leftBumper()
+  //             .onTrue(superstructure.endeffectorIn()); // when left bumper is pressed, move
+  // endeffector in
+  //     controller
+  //             .rightBumper()
+  //             .onTrue(superstructure.endeffectorOut()); // when right bumper is pressed, move
+  // endeffector
+  //     // out
+  //     controller
+  //             .rightBumper() // when right bumper is pressed
+  //             .and(superstructure.isEndeffectorOut()) // if endeffector is out
+  //             .whileTrue(superstructure.runIntakeCommand()); // run intake, while right bumper is
+  // held
 
-    // Feeder Component controlls
-    controller
-        .a()
-        .whileTrue(superstructure.runShooterCommand())
-        .whileFalse(superstructure.runShooterCommand(0.0));
+  //     // Feeder Component controlls
+  //     controller
+  //             .a()
+  //             .whileTrue(superstructure.runShooterCommand())
+  //             .whileFalse(superstructure.runShooterCommand(0.0));
 
-    controller
-        .a()
-        .and(superstructure.isShooterReady())
-        .whileTrue(superstructure.runFeederCommand())
-        .whileTrue(superstructure.runSpinerCommand())
-        .whileFalse(superstructure.runFeederCommand(0.0))
-        .whileFalse(superstructure.runSpinerCommand(0.0));
+  //     controller
+  //             .a()
+  //             .and(superstructure.isShooterReady())
+  //             .whileTrue(superstructure.runFeederCommand())
+  //             .whileTrue(superstructure.runSpinerCommand())
+  //             .whileFalse(superstructure.runFeederCommand(0.0))
+  //             .whileFalse(superstructure.runSpinerCommand(0.0));
 
-    // Shooter Component controlls
+  //     // Shooter Component controlls
 
+  // }
+
+  private void configureshooterBindings(GarageCommandXboxController controller) {
+
+    shooterJan28.setDefaultCommand(shooterJan28.stop());
+    controller.a().and(controller.rightBumper().negate()).whileTrue(shooterJan28.runShooterFlywheels(0.5));
+    controller.a().and(controller.rightBumper()).whileTrue(shooterJan28.runALLL(0.5, 0.25));
   }
 
   /**
