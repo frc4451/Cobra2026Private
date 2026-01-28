@@ -63,7 +63,7 @@ public class ShooterJan28Constants {
       TalonFXConfigFollower.builder()
           .leader(leaderShooterConfig)
           .followerCanId(22)
-          .invertFollower(true)
+          .invertFollower(false)
           .build();
 
   public static final TalonFXConfigFollowerSim flywheelFollowersConfigSim =

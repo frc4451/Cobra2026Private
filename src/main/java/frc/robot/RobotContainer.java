@@ -290,11 +290,14 @@ public class RobotContainer {
   private void configureshooterBindings(GarageCommandXboxController controller) {
 
     shooterJan28.setDefaultCommand(shooterJan28.stop());
-    controller
-        .a()
-        .and(controller.rightBumper().negate())
-        .whileTrue(shooterJan28.runShooterFlywheelPercentOut());
-    controller.a().and(controller.rightBumper()).whileTrue(shooterJan28.runAllPercent());
+    // controller
+    //     .a()
+    //     .and(controller.rightBumper().negate())
+    //     .whileTrue(shooterJan28.runShooterFlywheelPercentOut());
+    // controller.a().and(controller.rightBumper()).whileTrue(shooterJan28.runAllPercent());
+    controller.a().whileTrue(shooterJan28.runShooterFlywheelPercentOut());
+    controller.b().whileTrue(shooterJan28.runShooterFlywheelVoltage());
+    controller.x().whileTrue(shooterJan28.runShooterFlywheelTorqueCurrent());
   }
 
   /**
