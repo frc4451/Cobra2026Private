@@ -9,6 +9,7 @@ package frc.robot;
 
 import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.wpilibj.RobotBase;
+import lombok.NonNull;
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -30,11 +31,11 @@ public final class Constants {
     REPLAY
   }
 
-  public static final CANBus rioBus = new CANBus("rio");
-  // public static final CANBus canivore = new CANBus("SUSbus");
-
   public static final double triggerPressedThreshold = 0.25;
   public static final double controllerDeadband = 0.25;
 
   public static final boolean focEnabled = true;
+  public static final boolean tuningMode = false;
+  public static final boolean disableHAL = false;
+  public static final @NonNull CANBus rioBus = new CANBus("rio");
 }

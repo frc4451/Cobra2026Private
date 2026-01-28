@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.LoggedRobot;
 
@@ -33,6 +34,9 @@ public interface SingleRollerIO {
 
   /** Run roller at specified percentage. Input should be -1.0 to 1.0 */
   public default void runPercentOutput(double percent) {}
+
+  /** Run rollers with specified Amps */
+  public default void runTorqueCurrent(Current current) {}
 
   /** Run roller at set Velocity */
   public default void setVelocity(AngularVelocity velocity) {}

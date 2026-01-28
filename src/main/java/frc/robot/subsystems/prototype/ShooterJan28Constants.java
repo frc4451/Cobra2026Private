@@ -8,6 +8,8 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import frc.robot.Constants;
 import org.robotzgarage.frc2026.subsystems.flywheel.Flywheel.FlywheelConfig;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfig;
+import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfigFollower;
+import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfigFollowerSim;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfigSim;
 
 public class ShooterJan28Constants {
@@ -36,7 +38,7 @@ public class ShooterJan28Constants {
           .canBus(Constants.rioBus)
           // .phoenixUpdateFreqHz(50)
           .reduction(shooterReduction)
-          .currentLimitAmps(30)
+          .currentLimitAmps(40)
           .invert(true)
           .isBrakeMode(true)
           .foc(Constants.focEnabled)
@@ -57,32 +59,46 @@ public class ShooterJan28Constants {
                   .withMotionMagicJerk(20.0 * shooterReduction))
           .build();
 
-  public static final TalonFXConfig followerShooterConfig =
-      TalonFXConfig.builder()
-          .canId(22)
-          .canBus(Constants.rioBus)
-          // .phoenixUpdateFreqHz(50)
-          .reduction(shooterReduction)
-          .currentLimitAmps(30)
-          .invert(true)
-          .isBrakeMode(true)
-          .foc(Constants.focEnabled)
-          .slot0Config(
-              new Slot0Configs()
-                  // feedforward
-                  .withKS(0.05)
-                  .withKV(0.05)
-                  .withKA(0.0)
-                  // feedback
-                  .withKP(1.0)
-                  .withKI(0.0)
-                  .withKD(0.0))
-          .mmConfig(
-              new MotionMagicConfigs()
-                  .withMotionMagicCruiseVelocity(5.0 * shooterReduction)
-                  .withMotionMagicAcceleration(4.5 * shooterReduction)
-                  .withMotionMagicJerk(20.0 * shooterReduction))
+  public static final TalonFXConfigFollower flywheelFollowersConfig =
+      TalonFXConfigFollower.builder()
+          .leader(leaderShooterConfig)
+          .followerCanId(22)
+          .invertFollower(true)
           .build();
+
+  public static final TalonFXConfigFollowerSim flywheelFollowersConfigSim =
+      TalonFXConfigFollowerSim.builder()
+          .hardware(flywheelFollowersConfig)
+          .dcMotor(DCMotor.getKrakenX60Foc(2))
+          .moi(0.002)
+          .build();
+
+  //   public static final TalonFXConfig followerShooterConfig =
+  //       TalonFXConfig.builder()
+  //           .canId(22)
+  //           .canBus(Constants.rioBus)
+  //           // .phoenixUpdateFreqHz(50)
+  //           .reduction(shooterReduction)
+  //           .currentLimitAmps(30)
+  //           .invert(true)
+  //           .isBrakeMode(true)
+  //           .foc(Constants.focEnabled)
+  //           .slot0Config(
+  //               new Slot0Configs()
+  //                   // feedforward
+  //                   .withKS(0.05)
+  //                   .withKV(0.05)
+  //                   .withKA(0.0)
+  //                   // feedback
+  //                   .withKP(1.0)
+  //                   .withKI(0.0)
+  //                   .withKD(0.0))
+  //           .mmConfig(
+  //               new MotionMagicConfigs()
+  //                   .withMotionMagicCruiseVelocity(5.0 * shooterReduction)
+  //                   .withMotionMagicAcceleration(4.5 * shooterReduction)
+  //                   .withMotionMagicJerk(20.0 * shooterReduction))
+  //           .build();
 
   public static final TalonFXConfig feederShooterConfig =
       TalonFXConfig.builder()
@@ -111,19 +127,19 @@ public class ShooterJan28Constants {
                   .withMotionMagicJerk(20.0 * feederReduction))
           .build();
 
-  public static final TalonFXConfigSim leaderConfigSim =
-      TalonFXConfigSim.builder()
-          .config(leaderShooterConfig)
-          .dcMotor(shooterFlywheelConfig.gearbox())
-          .moi(shooterFlywheelConfig.moi())
-          .build();
+  //   public static final TalonFXConfigSim leaderConfigSim =
+  //       TalonFXConfigSim.builder()
+  //           .config(leaderShooterConfig)
+  //           .dcMotor(shooterFlywheelConfig.gearbox())
+  //           .moi(shooterFlywheelConfig.moi())
+  //           .build();
 
-  public static final TalonFXConfigSim followerConfigSim =
-      TalonFXConfigSim.builder()
-          .config(followerShooterConfig)
-          .dcMotor(shooterFlywheelConfig.gearbox())
-          .moi(shooterFlywheelConfig.moi())
-          .build();
+  //   public static final TalonFXConfigSim followerConfigSim =
+  //       TalonFXConfigSim.builder()
+  //           .config(followerShooterConfig)
+  //           .dcMotor(shooterFlywheelConfig.gearbox())
+  //           .moi(shooterFlywheelConfig.moi())
+  //           .build();
 
   public static final TalonFXConfigSim feederConfigSim =
       TalonFXConfigSim.builder()

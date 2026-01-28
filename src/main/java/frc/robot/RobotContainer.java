@@ -27,6 +27,9 @@ import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.prototype.ShooterJan28;
 import frc.robot.subsystems.prototype.ShooterJan28Constants;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIO;
+import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOSimTalonFX;
+import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOTalonFX;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFX;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFX;
@@ -66,8 +69,7 @@ public class RobotContainer {
     // SingleRollerIO intakeIO;
 
     // shooter jan 28
-    SingleRollerIO leaderIO;
-    SingleRollerIO followerIO;
+    FollowRollersIO flywheelRollersIO;
     SingleRollerIO feederIO;
 
     switch (Constants.currentMode) {
@@ -88,8 +90,8 @@ public class RobotContainer {
         // intakeIO = new SingleRollerIOTalonFX(IntakeConstants.intakeConfig);
 
         // shooter jan 28
-        leaderIO = new SingleRollerIOTalonFX(ShooterJan28Constants.leaderShooterConfig);
-        followerIO = new SingleRollerIOTalonFX(ShooterJan28Constants.followerShooterConfig);
+        flywheelRollersIO =
+            new FollowRollersIOTalonFX(ShooterJan28Constants.flywheelFollowersConfig);
         feederIO = new SingleRollerIOTalonFX(ShooterJan28Constants.feederShooterConfig);
 
         drive =
@@ -134,8 +136,8 @@ public class RobotContainer {
         // intakeIO = new SingleRollerIOSimTalonFX(IntakeConstants.intakeConfigSim);
 
         // shooter jan 28
-        leaderIO = new SingleRollerIOSimTalonFX(ShooterJan28Constants.leaderConfigSim);
-        followerIO = new SingleRollerIOSimTalonFX(ShooterJan28Constants.followerConfigSim);
+        flywheelRollersIO =
+            new FollowRollersIOSimTalonFX(ShooterJan28Constants.flywheelFollowersConfigSim);
         feederIO = new SingleRollerIOSimTalonFX(ShooterJan28Constants.feederConfigSim);
         drive =
             new Drive(
@@ -160,8 +162,8 @@ public class RobotContainer {
         // intakeIO = new SingleRollerIO() {};
 
         // shooter jan 28
-        leaderIO = new SingleRollerIO() {};
-        followerIO = new SingleRollerIO() {};
+        flywheelRollersIO = new FollowRollersIO() {};
+
         feederIO = new SingleRollerIO() {};
 
         drive =
@@ -180,7 +182,7 @@ public class RobotContainer {
     // new FeederComponent(feederIO, spinerIO),
     // new IntakeComponent(endeffectorIO, intakeIO));
 
-    shooterJan28 = new ShooterJan28(leaderIO, followerIO, feederIO);
+    shooterJan28 = new ShooterJan28(flywheelRollersIO, feederIO);
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -288,8 +290,11 @@ public class RobotContainer {
   private void configureshooterBindings(GarageCommandXboxController controller) {
 
     shooterJan28.setDefaultCommand(shooterJan28.stop());
-    controller.a().and(controller.rightBumper().negate()).whileTrue(shooterJan28.runShooterFlywheels(0.5));
-    controller.a().and(controller.rightBumper()).whileTrue(shooterJan28.runALLL(0.5, 0.25));
+    controller
+        .a()
+        .and(controller.rightBumper().negate())
+        .whileTrue(shooterJan28.runShooterFlywheelPercentOut());
+    controller.a().and(controller.rightBumper()).whileTrue(shooterJan28.runAllPercent());
   }
 
   /**

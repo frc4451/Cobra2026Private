@@ -71,10 +71,7 @@ public class MotorConfigs {
 
   @Builder
   public record TalonFXConfigFollowerSim(
-      @NonNull TalonFXConfigFollower hardware,
-      @NonNull DCMotor dcMotor,
-      double moi,
-      boolean invertFollower) {}
+      @NonNull TalonFXConfigFollower hardware, @NonNull DCMotor dcMotor, double moi) {}
 
   @Builder
   public record TalonFXSConfig(
