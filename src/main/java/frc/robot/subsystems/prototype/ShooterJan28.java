@@ -28,19 +28,30 @@ public class ShooterJan28 extends SubsystemBase {
   private static final LoggedTunableNumber feederPercent =
       new LoggedTunableNumber("ShooterJan28/FeederPercent", 0.0);
 
+  private static final LoggedTunableNumber kickerAmps =
+      new LoggedTunableNumber("ShooterJan28/KickerAmps", 0.0);
+  private static final LoggedTunableNumber kickerVoltage =
+      new LoggedTunableNumber("ShooterJan28/KickerVoltage", 0.0);
+  private static final LoggedTunableNumber kickerPercent =
+      new LoggedTunableNumber("ShooterJan28/KickerPercent", 0.0);
+
   // Subsystems
   private final FollowRollers shooterFlyWheels;
   private final Flywheel feeder;
+  private final Flywheel kicker;
 
   // Constructor to decide if it's real or sim
-  public ShooterJan28(FollowRollersIO shooterFlyWheelIO, SingleRollerIO feederIO) {
+  public ShooterJan28(
+      FollowRollersIO shooterFlyWheelIO, SingleRollerIO feederIO, SingleRollerIO kickerIO) {
     this.shooterFlyWheels = new FollowRollers(name + "ShooterFlywheel", shooterFlyWheelIO);
-    feeder = new Flywheel(name + "feeder/", feederIO, ShooterJan28Constants.feederFlywheelConfig);
+    feeder = new Flywheel(name + "Feeder/", feederIO, ShooterJan28Constants.feederFlywheelConfig);
+    kicker = new Flywheel(name + "Kicker/", kickerIO, ShooterJan28Constants.kickerFlywheelConfig);
   }
 
   public void periodic() {
     // Periodic modes
     feeder.periodic();
+    kicker.periodic();
     shooterFlyWheels.periodic();
   }
 
@@ -78,22 +89,35 @@ public class ShooterJan28 extends SubsystemBase {
   }
 
   public Command runFeederVolts() {
-    return run(() -> feeder.runVolts(feederVoltage.get()));
+    return run(
+        () -> {
+          feeder.runVolts(feederVoltage.get());
+          kicker.runVolts(kickerVoltage.get());
+        });
   }
 
   public Command runFeederPercentOutput() {
-    return run(() -> feeder.runPercentOutput(feederPercent.get()));
+    return run(
+        () -> {
+          feeder.runPercentOutput(feederPercent.get());
+          kicker.runPercentOutput(kickerPercent.get());
+        });
   }
 
   public Command runFeederTorque() {
-    return run(() -> feeder.setTorque(Amps.of(feederAmps.get())));
+    return run(
+        () -> {
+          feeder.setTorque(Amps.of(feederAmps.get()));
+          kicker.setTorque(Amps.of(kickerAmps.get()));
+        });
   }
 
-  public Command runAllVolts() {
+  public Command runAllVoltage() {
     return run(
         () -> {
           shooterFlyWheels.runVolts(shooterVoltage.get());
           feeder.runVolts(feederVoltage.get());
+          kicker.runVolts(kickerVoltage.get());
         });
   }
 
@@ -102,14 +126,16 @@ public class ShooterJan28 extends SubsystemBase {
         () -> {
           shooterFlyWheels.runPercentOutput(shooterPercent.get());
           feeder.runPercentOutput(feederPercent.get());
+          kicker.runPercentOutput(kickerPercent.get());
         });
   }
 
-  public Command runAllTorque() {
+  public Command runAllTorqueCurrent() {
     return run(
         () -> {
           shooterFlyWheels.runTorqueCurrent(Amps.of(shooterAmps.get()));
           feeder.setTorque(Amps.of(shooterAmps.get()));
+          kicker.setTorque(Amps.of(kickerAmps.get()));
         });
   }
 

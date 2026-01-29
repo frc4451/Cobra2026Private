@@ -71,6 +71,7 @@ public class RobotContainer {
     // shooter jan 28
     FollowRollersIO flywheelRollersIO;
     SingleRollerIO feederIO;
+    SingleRollerIO kickerIO;
 
     switch (Constants.currentMode) {
       case REAL:
@@ -93,6 +94,7 @@ public class RobotContainer {
         flywheelRollersIO =
             new FollowRollersIOTalonFX(ShooterJan28Constants.flywheelFollowersConfig);
         feederIO = new SingleRollerIOTalonFX(ShooterJan28Constants.feederShooterConfig);
+        kickerIO = new SingleRollerIOTalonFX(ShooterJan28Constants.kickerShooterConfig);
 
         drive =
             new Drive(
@@ -139,6 +141,8 @@ public class RobotContainer {
         flywheelRollersIO =
             new FollowRollersIOSimTalonFX(ShooterJan28Constants.flywheelFollowersConfigSim);
         feederIO = new SingleRollerIOSimTalonFX(ShooterJan28Constants.feederConfigSim);
+        kickerIO = new SingleRollerIOSimTalonFX(ShooterJan28Constants.kickerConfigSim);
+
         drive =
             new Drive(
                 new GyroIO() {},
@@ -165,6 +169,7 @@ public class RobotContainer {
         flywheelRollersIO = new FollowRollersIO() {};
 
         feederIO = new SingleRollerIO() {};
+        kickerIO = new SingleRollerIO() {};
 
         drive =
             new Drive(
@@ -182,7 +187,7 @@ public class RobotContainer {
     // new FeederComponent(feederIO, spinerIO),
     // new IntakeComponent(endeffectorIO, intakeIO));
 
-    shooterJan28 = new ShooterJan28(flywheelRollersIO, feederIO);
+    shooterJan28 = new ShooterJan28(flywheelRollersIO, feederIO, kickerIO);
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -296,8 +301,11 @@ public class RobotContainer {
     //     .whileTrue(shooterJan28.runShooterFlywheelPercentOut());
     // controller.a().and(controller.rightBumper()).whileTrue(shooterJan28.runAllPercent());
     controller.a().whileTrue(shooterJan28.runShooterFlywheelPercentOut());
+    controller.a().and(controller.rightBumper()).whileTrue(shooterJan28.runAllPercent());
     controller.b().whileTrue(shooterJan28.runShooterFlywheelVoltage());
+    controller.b().and(controller.rightBumper()).whileTrue(shooterJan28.runAllVoltage());
     controller.x().whileTrue(shooterJan28.runShooterFlywheelTorqueCurrent());
+    controller.x().and(controller.rightBumper()).whileTrue(shooterJan28.runAllTorqueCurrent());
   }
 
   /**
