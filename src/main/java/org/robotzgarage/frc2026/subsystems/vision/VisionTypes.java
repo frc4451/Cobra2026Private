@@ -235,5 +235,27 @@ public final class VisionTypes {
                 .build(),
             defaultCalibrationError,
             stockLatency);
+
+    public static SimCameraConfig ARDUCAM_OV9281_95 =
+        new SimCameraConfig(
+            Calibration.builder()
+                .widthPx(1280)
+                .heightPx(720)
+                .fov(Rotation2d.fromDegrees(95))
+                .fps(60)
+                .build(),
+            defaultCalibrationError,
+            stockLatency);
+
+    public static SimCameraConfig ARDUCAM_OV9281_95_ROTATED =
+        new SimCameraConfig(
+            Calibration.builder()
+                .widthPx(720)
+                .heightPx(1280)
+                .fov(Rotation2d.fromDegrees(95))
+                .fps(60)
+                .build(),
+            defaultCalibrationError,
+            stockLatency);
   }
 }

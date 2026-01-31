@@ -33,25 +33,25 @@ public class VisionConstants {
               new VisionSource(
                   "RearLeft",
                   RobotRelativeTransform.builder()
-                      .forwardPositive(Inches.of(-5.671))
-                      .leftPositive(Inches.of(11.237))
-                      .upPositive(Inches.of(7.991))
+                      .forwardPositive(Inches.of(11.0))
+                      .leftPositive(Inches.of(11.0))
+                      .upPositive(Inches.of(6.813))
                       .rollPositive(Degrees.zero())
                       .pitchPositive(Degrees.of(20.0))
-                      .yawPositive(Degrees.of(30))
+                      .yawPositive(Degrees.of(-110))
                       .build()),
-              SimCameraConfig.THRIFTY_CAM_80),
+              SimCameraConfig.ARDUCAM_OV9281_95),
           // FLI
           new AprilTagCameraConfig(
               new VisionSource(
                   "FrontLeft",
                   RobotRelativeTransform.builder()
-                      .forwardPositive(Inches.of(6.354))
-                      .leftPositive(Inches.of(11.143))
-                      .upPositive(Inches.of(8.058))
+                      .forwardPositive(Inches.of(11.0))
+                      .leftPositive(Inches.of(11.0))
+                      .upPositive(Inches.of(6.813))
                       .rollPositive(Degrees.zero())
-                      .pitchPositive(Degrees.of(17.5))
-                      .yawPositive(Degrees.of(10))
+                      .pitchPositive(Degrees.of(27.5))
+                      .yawPositive(Degrees.of(20))
                       .build()),
               SimCameraConfig.THRIFTY_CAM_90),
           // FRI
@@ -59,12 +59,12 @@ public class VisionConstants {
               new VisionSource(
                   "FrontRight",
                   RobotRelativeTransform.builder()
-                      .forwardPositive(Inches.of(6.354))
-                      .leftPositive(Inches.of(-11.143))
-                      .upPositive(Inches.of(8.058))
+                      .forwardPositive(Inches.of(11.0))
+                      .leftPositive(Inches.of(-11.0))
+                      .upPositive(Inches.of(6.813))
                       .rollPositive(Degrees.zero())
                       .pitchPositive(Degrees.of(17.5))
-                      .yawPositive(Degrees.of(10))
+                      .yawPositive(Degrees.of(-20))
                       .build()),
               SimCameraConfig.THRIFTY_CAM_90),
           // FRO
@@ -72,14 +72,14 @@ public class VisionConstants {
               new VisionSource(
                   "RearRight",
                   RobotRelativeTransform.builder()
-                      .forwardPositive(Inches.of(-5.671))
-                      .leftPositive(Inches.of(-11.237))
-                      .upPositive(Inches.of(7.991))
+                      .forwardPositive(Inches.of(11.0))
+                      .leftPositive(Inches.of(-11.0))
+                      .upPositive(Inches.of(6.813 + 3.0))
                       .rollPositive(Degrees.zero())
-                      .pitchPositive(Degrees.of(20.0))
-                      .yawPositive(Degrees.of(30))
+                      .pitchPositive(Degrees.of(40.0))
+                      .yawPositive(Degrees.of(130))
                       .build()),
-              SimCameraConfig.THRIFTY_CAM_80));
+              SimCameraConfig.ARDUCAM_OV9281_95));
 
   public static final int noAmbiguity = -100;
 
