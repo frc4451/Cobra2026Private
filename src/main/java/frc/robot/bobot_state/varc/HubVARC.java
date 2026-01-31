@@ -11,18 +11,18 @@ import org.robotzgarage.frc2026.math.varc.TargetAngleTracker;
 
 public class HubVARC extends TargetAngleTracker {
   public void update() {
-    Pose2d robotBose = BobotState.getGlobalPose();
+    Pose2d robotPose = BobotState.getGlobalPose();
     Translation2d hubLocation = AllianceFlipUtil.apply(Hub.innerCenterPoint).toTranslation2d();
     Pose2d centerOfHubWithNearFaceRotation =
         AllianceFlipUtil.apply(
             new Pose2d(Hub.innerCenterPoint.toTranslation2d(), Hub.nearFace.getRotation()));
 
-    this.distance = Meters.of(hubLocation.getDistance(robotBose.getTranslation()));
+    this.distance = Meters.of(hubLocation.getDistance(robotPose.getTranslation()));
     this.rotationTarget =
         centerOfHubWithNearFaceRotation
-            .relativeTo(robotBose)
+            .relativeTo(robotPose)
             .getTranslation()
             .getAngle()
-            .plus(robotBose.getRotation());
+            .plus(robotPose.getRotation());
   }
 }
