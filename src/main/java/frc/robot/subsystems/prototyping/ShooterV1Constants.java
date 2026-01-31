@@ -1,4 +1,4 @@
-package frc.robot.prototyping;
+package frc.robot.subsystems.prototyping;
 
 import static edu.wpi.first.units.Units.Inches;
 

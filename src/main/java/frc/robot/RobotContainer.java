@@ -12,8 +12,8 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.prototyping.ShooterV1;
-import frc.robot.prototyping.ShooterV1Constants;
+import frc.robot.subsystems.prototyping.ShooterV1;
+import frc.robot.subsystems.prototyping.ShooterV1Constants;
 import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIO;
 import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOSimTalonFX;
 import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOTalonFX;
@@ -68,10 +68,10 @@ public class RobotContainer {
         break;
     }
 
+    shooter = new ShooterV1(flywheelRollersIO, feederIO, kickerIO);
+
     // Configure the button bindings
     configureButtonBindings(controller1);
-
-    shooter = new ShooterV1(flywheelRollersIO, feederIO, kickerIO);
 
     DriverStation.silenceJoystickConnectionWarning(true);
   }
@@ -84,9 +84,10 @@ public class RobotContainer {
    */
   private void configureButtonBindings(GarageCommandXboxController controller) {
     // EX. controller.a().whileTrue(example.runshooterpercent(0.5));
+    controller.x().whileTrue(shooter.runAllTorqueCurrent());    
     controller.a().whileTrue(shooter.runAllPercent());
     controller.b().whileTrue(shooter.runAllVoltage());
-    controller.x().whileTrue(shooter.runAllTorqueCurrent());
+
   }
 
   /**
