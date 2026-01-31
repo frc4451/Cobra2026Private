@@ -12,7 +12,7 @@ import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfigFollower;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfigFollowerSim;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfigSim;
 
-public class ShooterConstants {
+public class ShooterV1Constants {
   public static final double shooterReduction = 1.0;
   public static final double feederReduction = 4.0;
   public static final double kickerReduction = 4.0;

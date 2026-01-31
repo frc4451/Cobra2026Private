@@ -44,8 +44,8 @@ public class ShooterV1 extends SubsystemBase {
   public ShooterV1(
       FollowRollersIO shooterFlyWheelIO, SingleRollerIO feederIO, SingleRollerIO kickerIO) {
     this.shooterFlyWheels = new FollowRollers(name + "ShooterFlywheel", shooterFlyWheelIO);
-    feeder = new Flywheel(name + "Feeder/", feederIO, ShooterConstants.feederFlywheelConfig);
-    kicker = new Flywheel(name + "Kicker/", kickerIO, ShooterConstants.kickerFlywheelConfig);
+    feeder = new Flywheel(name + "Feeder/", feederIO, ShooterV1Constants.feederFlywheelConfig);
+    kicker = new Flywheel(name + "Kicker/", kickerIO, ShooterV1Constants.kickerFlywheelConfig);
   }
 
   public void periodic() {

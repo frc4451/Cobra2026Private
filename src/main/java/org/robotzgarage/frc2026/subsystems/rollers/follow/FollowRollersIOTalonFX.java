@@ -65,7 +65,6 @@ public class FollowRollersIOTalonFX implements FollowRollersIO {
     dutyCycleOut = new DutyCycleOut(0.0).withEnableFOC(config.leader().foc());
     torqueCurrentFOC = new TorqueCurrentFOC(Amps.of(0.0));
 
-
     leader = new TalonFX(config.leader().canId(), config.leader().canBus());
     follower = new TalonFX(config.followerCanId(), config.leader().canBus());
 

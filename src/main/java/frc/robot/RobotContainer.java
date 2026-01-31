@@ -12,6 +12,14 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.prototyping.ShooterV1;
+import frc.robot.prototyping.ShooterV1Constants;
+import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIO;
+import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOSimTalonFX;
+import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOTalonFX;
+import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
+import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFX;
+import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFX;
 import org.robotzgarage.frc2026.util.GarageCommandXboxController;
 
 /**
@@ -23,35 +31,47 @@ import org.robotzgarage.frc2026.util.GarageCommandXboxController;
 public class RobotContainer {
   // Subsystems
   // EX. private final Example example;
-
+  private final ShooterV1 shooter;
   // Controller
-  private final GarageCommandXboxController controller = new GarageCommandXboxController(1);
+  private final GarageCommandXboxController controller1 = new GarageCommandXboxController(1);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // SingleRollerIO exampleIO;
-
+    FollowRollersIO flywheelRollersIO;
+    SingleRollerIO feederIO;
+    SingleRollerIO kickerIO;
     switch (Constants.currentMode) {
       case REAL:
+        // Real robot, it's ALIVE!!! ALIIIIIIVVVE!!!!!
         // EX. exampleIO = new SingleRollerIOTalonFX(exampleConstants.exampleConfig);
-
+        flywheelRollersIO = new FollowRollersIOTalonFX(ShooterV1Constants.flywheelFollowersConfig);
+        feederIO = new SingleRollerIOTalonFX(ShooterV1Constants.feederShooterConfig);
+        kickerIO = new SingleRollerIOTalonFX(ShooterV1Constants.kickerShooterConfig);
         break;
 
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
-
         // EX. exampleIO = new SingleRollerIOSimTalonFX(exampleConstants.exampleConfigSim);
+        flywheelRollersIO =
+            new FollowRollersIOSimTalonFX(ShooterV1Constants.flywheelFollowersConfigSim);
+        feederIO = new SingleRollerIOSimTalonFX(ShooterV1Constants.feederConfigSim);
+        kickerIO = new SingleRollerIOSimTalonFX(ShooterV1Constants.kickerConfigSim);
         break;
 
       default:
         // Replayed robot, disable IO implementations
-
         // EX. exampleIO = new SingleRollerIO() {};
+        flywheelRollersIO = new FollowRollersIO() {};
+        feederIO = new SingleRollerIO() {};
+        kickerIO = new SingleRollerIO() {};
         break;
     }
 
     // Configure the button bindings
-    configureButtonBindings(controller);
+    configureButtonBindings(controller1);
+
+    shooter = new ShooterV1(flywheelRollersIO, feederIO, kickerIO);
 
     DriverStation.silenceJoystickConnectionWarning(true);
   }
@@ -64,8 +84,10 @@ public class RobotContainer {
    */
   private void configureButtonBindings(GarageCommandXboxController controller) {
     // EX. controller.a().whileTrue(example.runshooterpercent(0.5));
+    controller.a().whileTrue(shooter.runAllPercent());
+    controller.b().whileTrue(shooter.runAllVoltage());
+    controller.x().whileTrue(shooter.runAllTorqueCurrent());
   }
-
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
