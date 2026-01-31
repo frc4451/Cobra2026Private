@@ -1,5 +1,6 @@
 package org.robotzgarage.frc2026.subsystems.rollers.single;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
@@ -12,6 +13,7 @@ import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -44,6 +46,7 @@ public class SingleRollerIOTalonFX implements SingleRollerIO {
 
   protected final VoltageOut voltageOut;
   protected final DutyCycleOut dutyCycleOut;
+  protected final TorqueCurrentFOC torqueCurrentFOC;
 
   protected final NeutralOut neutralOut = new NeutralOut();
 
@@ -59,6 +62,7 @@ public class SingleRollerIOTalonFX implements SingleRollerIO {
     mmVelocityVoltage = new MotionMagicVelocityVoltage(0).withSlot(0).withEnableFOC(config.foc());
     positionTorqueCurrentFOC = new PositionTorqueCurrentFOC(0).withSlot(0);
     dutyCycleOut = new DutyCycleOut(0.0).withEnableFOC(config.foc());
+    torqueCurrentFOC = new TorqueCurrentFOC(Amps.of(0.0));
 
     position = talon.getPosition();
     velocity = talon.getVelocity();
@@ -140,6 +144,11 @@ public class SingleRollerIOTalonFX implements SingleRollerIO {
   @Override
   public void runPercentOutput(double percent) {
     talon.setControl(dutyCycleOut.withOutput(percent));
+  }
+
+  @Override
+  public void runTorqueCurrent(Current current) {
+    talon.setControl(torqueCurrentFOC.withOutput(current));
   }
 
   @Override

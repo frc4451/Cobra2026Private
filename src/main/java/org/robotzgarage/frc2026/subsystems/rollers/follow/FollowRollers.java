@@ -1,6 +1,7 @@
 package org.robotzgarage.frc2026.subsystems.rollers.follow;
 
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import org.littletonrobotics.junction.Logger;
@@ -37,6 +38,14 @@ public class FollowRollers {
 
   public void runVolts(double inputsVolts) {
     io.runVolts(inputsVolts);
+  }
+
+  public void runPercentOutput(double percent) {
+    io.runPercentOutput(percent);
+  }
+
+  public void runTorqueCurrent(Current amps) {
+    io.runTorqueCurrent(amps);
   }
 
   public void setGoal(Angle position) {

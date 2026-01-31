@@ -1,14 +1,17 @@
 package org.robotzgarage.frc2026.subsystems.rollers.follow;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -48,6 +51,8 @@ public class FollowRollersIOTalonFX implements FollowRollersIO {
   private final MotionMagicVoltage mmVoltage;
   private final VoltageOut voltageOut;
   private final NeutralOut neutralOut = new NeutralOut();
+  private final TorqueCurrentFOC torqueCurrentFOC;
+  private final DutyCycleOut dutyCycleOut;
 
   private final Follower followOut;
 
@@ -57,6 +62,9 @@ public class FollowRollersIOTalonFX implements FollowRollersIO {
     voltageOut = new VoltageOut(0.0).withUpdateFreqHz(0).withEnableFOC(config.leader().foc());
     mmVoltage =
         new MotionMagicVoltage(0.0).withUpdateFreqHz(0).withEnableFOC(config.leader().foc());
+    dutyCycleOut = new DutyCycleOut(0.0).withEnableFOC(config.leader().foc());
+    torqueCurrentFOC = new TorqueCurrentFOC(Amps.of(0.0));
+
 
     leader = new TalonFX(config.leader().canId(), config.leader().canBus());
     follower = new TalonFX(config.followerCanId(), config.leader().canBus());
@@ -170,6 +178,16 @@ public class FollowRollersIOTalonFX implements FollowRollersIO {
   @Override
   public void runVolts(double volts) {
     leader.setControl(voltageOut.withOutput(volts));
+  }
+
+  @Override
+  public void runPercentOutput(double percent) {
+    leader.setControl(dutyCycleOut.withOutput(percent));
+  }
+
+  @Override
+  public void runTorqueCurrent(Current current) {
+    leader.setControl(torqueCurrentFOC.withOutput(current));
   }
 
   @Override
