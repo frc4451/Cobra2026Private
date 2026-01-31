@@ -10,7 +10,6 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import lombok.Getter;
 import lombok.Setter;
-
 import org.littletonrobotics.AllianceFlipUtil;
 import org.littletonrobotics.FieldConstants.Hub;
 import org.littletonrobotics.junction.Logger;
@@ -63,7 +62,8 @@ public class BobotState extends VirtualSubsystem {
 
     {
       String subLogTitle = logRoot + "VARC/";
-      Logger.recordOutput(subLogTitle + "Hub/TargetPose", AllianceFlipUtil.apply(Hub.innerCenterPoint));
+      Logger.recordOutput(
+          subLogTitle + "Hub/TargetPose", AllianceFlipUtil.apply(Hub.innerCenterPoint));
       Logger.recordOutput(
           subLogTitle + "Hub/TargetRotationDeg", hubVARC.getRotationTarget().getDegrees());
       Logger.recordOutput(subLogTitle + "Hub/TargetDistanceFeet", hubVARC.getDistance().in(Feet));
