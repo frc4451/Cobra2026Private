@@ -7,13 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Example Path"
+            "pathName": "Rotate 90"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3 Feet Y"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Validation",
   "choreoAuto": false
 }
