@@ -1,5 +1,6 @@
 package frc.robot.bobot_state.dashboard;
 
+import org.robotzgarage.frc2026.util.FieldUtils;
 import org.robotzgarage.frc2026.util.VirtualSubsystem;
 import org.spectrum3847.ShiftHelpers;
 
@@ -15,7 +16,7 @@ public class TeleopShiftManager extends VirtualSubsystem {
     
     @Override
     public void periodic() {
-        currentShift =
+        
     }
 
     public boolean isYourShift() {
