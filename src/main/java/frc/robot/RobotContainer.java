@@ -12,8 +12,8 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.subsystems.prototyping.ClimberV1;
-import frc.robot.subsystems.prototyping.ClimberV1Constants;
+import frc.robot.subsystems.prototyping.IntakeV1;
+import frc.robot.subsystems.prototyping.IntakeV1Constants;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFX;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFX;
@@ -28,35 +28,39 @@ import org.robotzgarage.frc2026.util.GarageCommandXboxController;
 public class RobotContainer {
   // Subsystems
   // EX. private final Example example;
-  private final ClimberV1 climber;
+  private final IntakeV1 intake;
   // Controller
   private final GarageCommandXboxController controller1 = new GarageCommandXboxController(1);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // SingleRollerIO exampleIO;
-    SingleRollerIO climberIO;
+    SingleRollerIO intakeIO;
+    SingleRollerIO endeffectorIO;
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, it's ALIVE!!! ALIIIIIIVVVE!!!!!
         // EX. exampleIO = new SingleRollerIOTalonFX(exampleConstants.exampleConfig);
-        climberIO = new SingleRollerIOTalonFX(ClimberV1Constants.climberConfig);
+        intakeIO = new SingleRollerIOTalonFX(IntakeV1Constants.intakeConfig);
+        endeffectorIO = new SingleRollerIOTalonFX(IntakeV1Constants.endeffectorConfig);
         break;
 
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
         // EX. exampleIO = new SingleRollerIOSimTalonFX(exampleConstants.exampleConfigSim);
-        climberIO = new SingleRollerIOSimTalonFX(ClimberV1Constants.climberConfigSim);
+        intakeIO = new SingleRollerIOSimTalonFX(IntakeV1Constants.intakeConfigSim);
+        endeffectorIO = new SingleRollerIOSimTalonFX(IntakeV1Constants.endeffectorConfigSim);
         break;
 
       default:
         // Replayed robot, disable IO implementations
         // EX. exampleIO = new SingleRollerIO() {};
-        climberIO = new SingleRollerIO() {};
+        intakeIO = new SingleRollerIO() {};
+        endeffectorIO = new SingleRollerIO() {};
         break;
     }
 
-    climber = new ClimberV1(climberIO);
+    intake = new IntakeV1(intakeIO, endeffectorIO);
 
     // Configure the button bindings
     configureButtonBindings(controller1);
@@ -73,10 +77,10 @@ public class RobotContainer {
   private void configureButtonBindings(GarageCommandXboxController controller) {
     // EX. controller.a().whileTrue(example.runshooterpercent(0.5));
 
-    controller.a().whileTrue(climber.runClimberPercentOut());
-    controller.b().whileTrue(climber.runClimberTorqueCurrent());
-    controller.x().whileTrue(climber.runClimberVoltageOut());
-    controller.y().whileTrue(climber.setClimberGoalAngle());
+    controller.a().whileTrue(intake.runIntakePercentOut());
+    controller.b().whileTrue(intake.runIntakeTorqueCurrent());
+    controller.x().whileTrue(intake.runIntakeVoltageOut());
+    controller.y().whileTrue(intake.setEndeffectorGoal());
   }
 
   /**
