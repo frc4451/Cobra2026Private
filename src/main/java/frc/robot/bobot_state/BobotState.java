@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.Meters;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.bobot_state.varc.HubVARC;
+import frc.robot.bobot_state.varc.TrenchVARC;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import lombok.Getter;
@@ -20,6 +21,7 @@ public class BobotState extends VirtualSubsystem {
   private static final String logRoot = "BobotState/";
 
   @Getter private static final HubVARC hubVARC = new HubVARC();
+  @Getter private static final TrenchVARC trenchVARC = new TrenchVARC();
 
   private static final Queue<PoseObservation> globalPoseObservations =
       new LinkedBlockingQueue<>(20);
@@ -48,6 +50,7 @@ public class BobotState extends VirtualSubsystem {
 
   public void periodic() {
     hubVARC.update();
+    trenchVARC.update();
 
     {
       String subLogTitle = logRoot + "Interpolation/";
@@ -67,6 +70,8 @@ public class BobotState extends VirtualSubsystem {
       Logger.recordOutput(
           subLogTitle + "Hub/TargetRotationDeg", hubVARC.getRotationTarget().getDegrees());
       Logger.recordOutput(subLogTitle + "Hub/TargetDistanceFeet", hubVARC.getDistance().in(Feet));
+      Logger.recordOutput(
+          subLogTitle + "Trench/TargetDistanceFeet", trenchVARC.getDistance().in(Feet));
     }
   }
 
