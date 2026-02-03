@@ -253,6 +253,15 @@ public class RobotContainer {
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX(),
                 () -> BobotState.getHubVARC().getRotationTarget()));
+
+    controller
+        .x()
+        .whileTrue(
+            DriveCommands.joystickDriveAtAngle(
+                drive,
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX(),
+                () -> BobotState.getTrenchVARC().getRotationTarget()));
     // // Lock to 0° when A button is held
     // controller
     //     .a()

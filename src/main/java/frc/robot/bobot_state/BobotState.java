@@ -72,6 +72,8 @@ public class BobotState extends VirtualSubsystem {
       Logger.recordOutput(subLogTitle + "Hub/TargetDistanceFeet", hubVARC.getDistance().in(Feet));
       Logger.recordOutput(
           subLogTitle + "Trench/TargetDistanceFeet", trenchVARC.getDistance().in(Feet));
+      Logger.recordOutput(
+          subLogTitle + "Trench/TargetRotation", trenchVARC.getRotationTarget().getDegrees());
     }
   }
 

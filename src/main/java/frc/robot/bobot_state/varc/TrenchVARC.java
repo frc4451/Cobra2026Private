@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Distance;
 import frc.robot.bobot_state.BobotState;
@@ -41,5 +42,7 @@ public class TrenchVARC extends TargetAngleTracker {
         distanceToLeftTrench.lt(distanceToRightTrench)
             ? distanceToLeftTrench
             : distanceToRightTrench;
+
+    this.rotationTarget = AllianceFlipUtil.apply(Rotation2d.k180deg);
   }
 }
