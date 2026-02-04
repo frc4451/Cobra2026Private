@@ -31,20 +31,22 @@ public final class VisionTypes {
       @NonNull Distance forwardPositive,
       /** From center of robot towards "left" */
       @NonNull Distance leftPositive,
-      /** From center of robot (on the floor) towards "up" */
+      /** From center of robot (on the floor) towards "up". */
       @NonNull Distance upPositive,
-      /** Rotation over "X", like rolling a plane while turning */
-      @NonNull Angle rollPositive,
-      /** Rotation over "Y", like angling a plane's nose up */
-      @NonNull Angle pitchPositive,
-      /** Rotation over "Z", like rotating a robot on the floor */
-      @NonNull Angle yawPositive) {
+      /** Rotation over "X", like rolling a plane while turning. CCW is Positive. */
+      @NonNull Angle rollCCWPositive,
+      /** Rotation over "Y", like angling a plane's nose up. CCW is Positive */
+      @NonNull Angle pitchCCWPositive,
+      /** Rotation over "Z", like rotating a robot on the floor. CCW is Positive. */
+      @NonNull Angle yawCCWPositive) {
     public Transform3d getTransform() {
       return new Transform3d(
           new Translation3d(
               forwardPositive.in(Meters), leftPositive.in(Meters), upPositive.in(Meters)),
           new Rotation3d(
-              -rollPositive.in(Radians), -pitchPositive.in(Radians), -yawPositive.in(Radians)));
+              rollCCWPositive.in(Radians),
+              pitchCCWPositive.in(Radians),
+              yawCCWPositive.in(Radians)));
     }
   }
 
