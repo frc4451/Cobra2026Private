@@ -30,80 +30,54 @@ public class VisionConstants {
       List.of(
           new AprilTagCameraConfig(
               new VisionSource(
-                  "FrontRightModule",
+                  "FrontLeftModule",
                   RobotRelativeTransform.builder()
-                      .forwardPositive(Inches.of(11.0))
-                      .leftPositive(Inches.of(-11.0))
-                      .upPositive(Inches.of(6.813))
+                      .forwardPositive(Inches.of(11.198))
+                      .leftPositive(Inches.of(10.802))
+                      .upPositive(Inches.of(9.581))
                       .rollCCWPositive(Degrees.zero())
-                      .pitchCCWPositive(Degrees.of(-17.5))
-                      .yawCCWPositive(Degrees.of(20))
+                      .pitchCCWPositive(Degrees.of(-30.0))
+                      .yawCCWPositive(Degrees.of(115))
                       .build()),
               SimCameraConfig.THRIFTY_CAM_90),
           new AprilTagCameraConfig(
               new VisionSource(
-                  "FrontLeftModule",
+                  "FrontRightModule",
                   RobotRelativeTransform.builder()
-                      .forwardPositive(Inches.of(11.0))
-                      .leftPositive(Inches.of(11.0))
-                      .upPositive(Inches.of(6.813))
+                      .forwardPositive(Inches.of(10.974))
+                      .leftPositive(Inches.of(-11.056))
+                      .upPositive(Inches.of(9.536))
                       .rollCCWPositive(Degrees.zero())
                       .pitchCCWPositive(Degrees.of(-17.5))
-                      .yawCCWPositive(Degrees.of(120))
+                      .yawCCWPositive(Degrees.of(45))
                       .build()),
               SimCameraConfig.THRIFTY_CAM_90),
           // FRO
           new AprilTagCameraConfig(
               new VisionSource(
-                  "DriveRailBackwards",
+                  "RightRearView",
                   RobotRelativeTransform.builder()
-                      .forwardPositive(Inches.of(5.521))
-                      .leftPositive(Inches.of(-12.215))
-                      .upPositive(Inches.of(8.022))
+                      .forwardPositive(Inches.of(5.632))
+                      .leftPositive(Inches.of(-12.190))
+                      .upPositive(Inches.of(8.013))
                       .rollCCWPositive(Degrees.zero())
-                      .pitchCCWPositive(Degrees.of(-15.0))
-                      .yawCCWPositive(Degrees.of(135))
+                      .pitchCCWPositive(Degrees.of(-20.0))
+                      .yawCCWPositive(Degrees.of(-120))
                       .build()),
               SimCameraConfig.THRIFTY_CAM_90),
           // Cobra Testing
           new AprilTagCameraConfig(
               new VisionSource(
-                  "PowerPanelForward",
+                  "ShooterForward",
                   RobotRelativeTransform.builder()
-                      .forwardPositive(Inches.of(6.824))
-                      .leftPositive(Inches.of(8.75))
-                      .upPositive(Inches.of(20.272))
+                      .forwardPositive(Inches.of(6.691))
+                      .leftPositive(Inches.of(3.250))
+                      .upPositive(Inches.of(19.256))
                       .rollCCWPositive(Degrees.zero())
-                      .pitchCCWPositive(Degrees.of(-15.0))
-                      .yawCCWPositive(Degrees.of(-30.0))
+                      .pitchCCWPositive(Degrees.of(-22.5))
+                      .yawCCWPositive(Degrees.zero())
                       .build()),
-              SimCameraConfig.THRIFTY_CAM_90)
-          //   new AprilTagCameraConfig(
-          //       new VisionSource(
-          //           "PowerPanelBackwards",
-          //           RobotRelativeTransform.builder()
-          //               .forwardPositive(Inches.of(6.824))
-          //               .leftPositive(Inches.of(8.75))
-          //               .upPositive(Inches.of(20.272))
-          //               .rollCCWPositive(Degrees.zero())
-          //               .pitchCCWPositive(Degrees.of(-15.0))
-          //               .yawCCWPositive(Degrees.of(120.0))
-          //               .build()),
-          //       SimCameraConfig.THRIFTY_CAM_90)
-          //   new AprilTagCameraConfig(
-          //       new VisionSource(
-          //           "PowerPanelBack",
-          //           RobotRelativeTransform.builder()
-          //               .forwardPositive(Inches.of(6.0))
-          //               .leftPositive(Inches.of(11.5))
-          //               .upPositive(Inches.of(20.250))
-          //               .rollCCWPositive(Degrees.zero())
-          //               .pitchPositive(Degrees.of(10.0))
-          //               .yawCCWPositive(Degrees.of(135.0))
-          //               .build()),
-          //       SimCameraConfig.THRIFTY_CAM_90)
-          //
-          );
+              SimCameraConfig.THRIFTY_CAM_80));
 
   public static final int noAmbiguity = -100;
 
