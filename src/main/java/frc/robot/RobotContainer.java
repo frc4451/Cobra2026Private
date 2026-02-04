@@ -10,12 +10,16 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.bobot_state.BobotState;
+import frc.robot.commands.AutoCommands;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -24,7 +28,11 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.vision.VisionConstants;
+import org.littletonrobotics.FieldConstants.Hub;
+import org.littletonrobotics.LoggedTunableNumber;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.robotzgarage.frc2026.subsystems.vision.Vision;
 import org.robotzgarage.frc2026.util.GarageCommandXboxController;
 
 /**
@@ -37,9 +45,15 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
 
+  // Vision testing
+  private final Vision vision;
+
   // Controller
   private final GarageCommandXboxController drivercontroller = new GarageCommandXboxController(0);
   private final GarageCommandXboxController operatorcontroller = new GarageCommandXboxController(1);
+
+  private final GarageCommandXboxController visionDebugController =
+      new GarageCommandXboxController(4);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -48,6 +62,7 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    new BobotState();
     // Superstructure subsystems
     // SingleRollerIO hoodIO;
     // SingleRollerIO turretIO;
@@ -172,9 +187,33 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureDriverBindings(drivercontroller);
+
+    vision = new Vision(VisionConstants.visionSubsystemConfig);
+
+    SmartDashboard.putNumber("CameraTest/PoseXMeters", 0);
+    SmartDashboard.putNumber("CameraTest/PoseYMeters", 0);
+    SmartDashboard.putNumber("CameraTest/PoseRotationDeg", 0);
+
+    visionDebugController
+        .back()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  Pose2d desiredPose =
+                      new Pose2d(
+                          new Translation2d(
+                              SmartDashboard.getNumber("CameraTest/PoseXMeters", 0),
+                              SmartDashboard.getNumber("CameraTest/PoseYMeters", 0)),
+                          Rotation2d.fromDegrees(
+                              SmartDashboard.getNumber("CameraTest/PoseRotationDeg", 0)));
+                  drive.setPose(desiredPose);
+                }));
+    configureDriverBindings(drivercontroller);
     // configureOperatorBindings(operatorcontroller);
 
     DriverStation.silenceJoystickConnectionWarning(true);
+
+    configureVisionDebugControls(visionDebugController);
   }
 
   /**
@@ -184,6 +223,9 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureDriverBindings(GarageCommandXboxController controller) {
+    LoggedTunableNumber feetFromCenterOfHubX = new LoggedTunableNumber("FeetFromHubCenterX", 0);
+    LoggedTunableNumber feetFromCenterOfHubY = new LoggedTunableNumber("FeetFromHubCenterY", 0);
+
     // Default command, normal field-relative drive
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
@@ -192,9 +234,19 @@ public class RobotContainer {
             () -> -controller.getLeftX(),
             () -> controller.getRightX()));
 
-    // Lock to 0° when A button is held
     controller
         .a()
+        .onTrue(
+            AutoCommands.interpolationDistanceHelper(
+                drive,
+                new Pose2d(
+                    Hub.innerCenterPoint.toTranslation2d(),
+                    Hub.nearFace.getRotation().plus(Rotation2d.k180deg)),
+                feetFromCenterOfHubX,
+                feetFromCenterOfHubY));
+
+    controller
+        .b()
         .whileTrue(
             DriveCommands.joystickDriveAtAngle(
                 drive,
@@ -207,17 +259,41 @@ public class RobotContainer {
     // Switch to X pattern when X button is pressed
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
-    // Reset gyro to 0° when B button is pressed
     controller
-        .b()
-        .onTrue(
-            Commands.runOnce(
-                    () ->
-                        drive.setPose(
-                            new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
-                    drive)
-                .ignoringDisable(true));
+        .x()
+        .whileTrue(
+            DriveCommands.joystickDriveAtAngle(
+                drive,
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX(),
+                () -> BobotState.getTrenchVARC().getRotationTarget()));
+    // // Lock to 0° when A button is held
+    // controller
+    //     .a()
+    //     .whileTrue(
+    //         DriveCommands.joystickDriveAtAngle(
+    //             drive,
+    //             () -> -controller.getLeftY(),
+    //             () -> -controller.getLeftX(),
+    //             () -> Rotation2d.kZero));
+
+    // // Switch to X pattern when X button is pressed
+    // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+
+    // // Reset gyro to 0° when B button is pressed
+    // controller
+    //     .b()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //                 () ->
+    //                     drive.setPose(
+    //                         new Pose2d(
+    //                             drive.getWheelOdometry().getTranslation(), Rotation2d.kZero)),
+    //                 drive)
+    //             .ignoringDisable(true));
   }
+
+  private void configureVisionDebugControls(GarageCommandXboxController controller) {}
 
   //   private void configureOperatorBindings(GarageCommandXboxController controller) {
 
