@@ -107,6 +107,10 @@ public class Drive extends SubsystemBase {
   private SwerveDrivePoseEstimator constrainedPoseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
 
+  // Constrained Pose with Trig Pose
+  private SwerveDrivePoseEstimator trigPoseEstimator =
+      new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
+
   public Drive(
       GyroIO gyroIO,
       ModuleIO flModuleIO,
@@ -216,6 +220,7 @@ public class Drive extends SubsystemBase {
       globalPoseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
       constrainedPoseEstimator.updateWithTime(
           sampleTimestamps[i], rawGyroRotation, modulePositions);
+      trigPoseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
     }
 
     // Update gyro alert
@@ -223,21 +228,28 @@ public class Drive extends SubsystemBase {
 
     // Handle Vision Measurements
     PoseObservation globalPoseObservation;
-    while ((globalPoseObservation = BobotState.getGlobalVisionObservations().poll()) != null) {
+    while ((globalPoseObservation = BobotState.getGlobalPoseObservations().poll()) != null) {
       globalPoseEstimator.addVisionMeasurement(
           globalPoseObservation.robotPose().toPose2d(), globalPoseObservation.timestampSeconds());
     }
     PoseObservation constrainedPoseObservation;
-    while ((constrainedPoseObservation = BobotState.getConstrainedVisionObservations().poll())
+    while ((constrainedPoseObservation = BobotState.getConstrainedPoseObservations().poll())
         != null) {
       constrainedPoseEstimator.addVisionMeasurement(
           constrainedPoseObservation.robotPose().toPose2d(),
           constrainedPoseObservation.timestampSeconds());
     }
 
+    PoseObservation trigPoseObservation;
+    while ((trigPoseObservation = BobotState.getTrigPoseObservations().poll()) != null) {
+      trigPoseEstimator.addVisionMeasurement(
+          trigPoseObservation.robotPose().toPose2d(), trigPoseObservation.timestampSeconds());
+    }
+
     BobotState.setGlobalPose(getGlobalPose());
-    BobotState.setGlobalPose(getConstrainedPose());
     BobotState.setRawGyroHeading(rawGyroRotation);
+    BobotState.setConstrainedPose(getConstrainedPose());
+    BobotState.setTrigPose(getTrigPose());
   }
 
   /**
@@ -391,5 +403,10 @@ public class Drive extends SubsystemBase {
   @AutoLogOutput(key = "Odometry/Constrained")
   public Pose2d getConstrainedPose() {
     return constrainedPoseEstimator.getEstimatedPosition();
+  }
+
+  @AutoLogOutput(key = "Odometry/Trig")
+  public Pose2d getTrigPose() {
+    return trigPoseEstimator.getEstimatedPosition();
   }
 }

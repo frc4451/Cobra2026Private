@@ -58,7 +58,10 @@ public final class VisionTypes {
     }
   }
 
-  public static final record AprilTagCameraConfig(VisionSource source, SimCameraConfig simConfig) {}
+  public static final record AprilTagCameraConfig(
+      VisionSource source,
+      SimCameraConfig simConfig,
+      List<PoseEstimationMethod> estimationMethods) {}
 
   public static enum PoseEstimationMethod {
     MULTI_TAG,
@@ -79,7 +82,7 @@ public final class VisionTypes {
       @NonNull Supplier<Pose2d> globalPoseSupplier,
       @NonNull Consumer<PoseObservation> offerGlobalPoseObservation,
       @NonNull Consumer<PoseObservation> offerConstrainedPoseObservation,
-      Boolean calculateConstrainedSolvePNP,
+      @NonNull Consumer<PoseObservation> offerTrigPoseObservation,
       Double ambiguityCutoff,
       Distance singleTagPoseCutoff,
       ConstrainedSolvepnpParams constrainedSolvePnpParams,
@@ -88,10 +91,6 @@ public final class VisionTypes {
       Matrix<N3, N1> multiTagStdDevs,
       Matrix<N3, N1> tagStdDevs) {
     public VisionSubsystemConfig {
-      if (calculateConstrainedSolvePNP == null) {
-        calculateConstrainedSolvePNP = false;
-      }
-
       if (ambiguityCutoff == null) {
         ambiguityCutoff = 0.05;
       }

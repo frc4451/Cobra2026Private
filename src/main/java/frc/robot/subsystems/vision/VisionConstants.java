@@ -15,6 +15,7 @@ import java.util.Optional;
 import org.photonvision.PhotonPoseEstimator.ConstrainedSolvepnpParams;
 import org.photonvision.simulation.VisionSystemSim;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.AprilTagCameraConfig;
+import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.PoseEstimationMethod;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.RobotRelativeTransform;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.SimCameraConfig;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.VisionSource;
@@ -39,7 +40,8 @@ public class VisionConstants {
                       .pitchCCWPositive(Degrees.of(-30.0))
                       .yawCCWPositive(Degrees.of(115))
                       .build()),
-              SimCameraConfig.THRIFTY_CAM_90),
+              SimCameraConfig.THRIFTY_CAM_90,
+              List.of(PoseEstimationMethod.MULTI_TAG)),
           new AprilTagCameraConfig(
               new VisionSource(
                   "FrontRightModule",
@@ -51,7 +53,8 @@ public class VisionConstants {
                       .pitchCCWPositive(Degrees.of(-17.5))
                       .yawCCWPositive(Degrees.of(45))
                       .build()),
-              SimCameraConfig.THRIFTY_CAM_90),
+              SimCameraConfig.THRIFTY_CAM_90,
+              List.of(PoseEstimationMethod.MULTI_TAG)),
           new AprilTagCameraConfig(
               new VisionSource(
                   "RightRearView",
@@ -63,7 +66,8 @@ public class VisionConstants {
                       .pitchCCWPositive(Degrees.of(-20.0))
                       .yawCCWPositive(Degrees.of(-120))
                       .build()),
-              SimCameraConfig.THRIFTY_CAM_90),
+              SimCameraConfig.THRIFTY_CAM_90,
+              List.of(PoseEstimationMethod.MULTI_TAG)),
           new AprilTagCameraConfig(
               new VisionSource(
                   "ShooterForward",
@@ -75,7 +79,11 @@ public class VisionConstants {
                       .pitchCCWPositive(Degrees.of(-22.5))
                       .yawCCWPositive(Degrees.zero())
                       .build()),
-              SimCameraConfig.THRIFTY_CAM_80));
+              SimCameraConfig.THRIFTY_CAM_90,
+              List.of(
+                  PoseEstimationMethod.MULTI_TAG,
+                  PoseEstimationMethod.TRIG,
+                  PoseEstimationMethod.CONSTRAINED)));
 
   public static final int noAmbiguity = -100;
 
@@ -86,6 +94,7 @@ public class VisionConstants {
           .robotHeadingSupplier(BobotState::getRawGyroHeading)
           .globalPoseSupplier(BobotState::getGlobalPose)
           .offerGlobalPoseObservation(BobotState::offerGlobalVisionObservation)
+          .offerTrigPoseObservation(BobotState::offerTrigVisionObservation)
           .offerConstrainedPoseObservation(BobotState::offerConstrainedVisionObservation)
           .ambiguityCutoff(0.05)
           .singleTagPoseCutoff(Meters.of(4))

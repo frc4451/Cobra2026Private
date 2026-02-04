@@ -21,12 +21,19 @@ public class BobotState extends VirtualSubsystem {
 
   @Getter private static final HubVARC hubVARC = new HubVARC();
 
+  @Getter
   private static final Queue<PoseObservation> globalPoseObservations =
       new LinkedBlockingQueue<>(20);
+
+  @Getter
+  private static final Queue<PoseObservation> trigPoseObservations = new LinkedBlockingQueue<>(20);
+
+  @Getter
   private static final Queue<PoseObservation> constrainedPoseObservations =
       new LinkedBlockingQueue<>(20);
 
   @Getter @Setter private static Pose2d globalPose = new Pose2d();
+  @Getter @Setter private static Pose2d trigPose = new Pose2d();
   @Getter @Setter private static Pose2d constrainedPose = new Pose2d();
   @Getter @Setter private static Rotation2d rawGyroHeading = new Rotation2d();
 
@@ -34,16 +41,12 @@ public class BobotState extends VirtualSubsystem {
     BobotState.globalPoseObservations.offer(observation);
   }
 
-  public static Queue<PoseObservation> getGlobalVisionObservations() {
-    return BobotState.globalPoseObservations;
+  public static void offerTrigVisionObservation(PoseObservation observation) {
+    BobotState.trigPoseObservations.offer(observation);
   }
 
   public static void offerConstrainedVisionObservation(PoseObservation observation) {
     BobotState.constrainedPoseObservations.offer(observation);
-  }
-
-  public static Queue<PoseObservation> getConstrainedVisionObservations() {
-    return BobotState.constrainedPoseObservations;
   }
 
   public void periodic() {
