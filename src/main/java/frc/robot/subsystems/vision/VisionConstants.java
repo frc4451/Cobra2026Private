@@ -52,7 +52,6 @@ public class VisionConstants {
                       .yawCCWPositive(Degrees.of(45))
                       .build()),
               SimCameraConfig.THRIFTY_CAM_90),
-          // FRO
           new AprilTagCameraConfig(
               new VisionSource(
                   "RightRearView",
@@ -65,7 +64,6 @@ public class VisionConstants {
                       .yawCCWPositive(Degrees.of(-120))
                       .build()),
               SimCameraConfig.THRIFTY_CAM_90),
-          // Cobra Testing
           new AprilTagCameraConfig(
               new VisionSource(
                   "ShooterForward",
