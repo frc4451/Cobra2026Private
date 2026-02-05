@@ -64,7 +64,7 @@ public class VisionConstants {
                       .upPositive(Inches.of(8.013))
                       .rollCCWPositive(Degrees.zero())
                       .pitchCCWPositive(Degrees.of(-20.0))
-                      .yawCCWPositive(Degrees.of(-120))
+                      .yawCCWPositive(Degrees.of(-150))
                       .build()),
               SimCameraConfig.THRIFTY_CAM_90,
               List.of(PoseEstimationMethod.MULTI_TAG)),
@@ -73,7 +73,7 @@ public class VisionConstants {
                   "ShooterForward",
                   RobotRelativeTransform.builder()
                       .forwardPositive(Inches.of(6.691))
-                      .leftPositive(Inches.of(3.250))
+                      .leftPositive(Inches.of(2.625))
                       .upPositive(Inches.of(19.256))
                       .rollCCWPositive(Degrees.zero())
                       .pitchCCWPositive(Degrees.of(-22.5))
