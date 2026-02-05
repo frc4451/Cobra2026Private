@@ -59,12 +59,20 @@ public class BumpVARC extends TargetAngleTracker {
     Distance distanceToLeftBump = Meters.of(robotTranslation.getDistance(leftBumpCenter));
     Distance distanceToRightBump = Meters.of(robotTranslation.getDistance(rightBumpCenter));
 
-    this.distance =
-        distanceToLeftBump.lt(distanceToRightBump) ? distanceToLeftBump : distanceToRightBump;
-    this.rotationTarget = Rotation2d.fromDegrees(45);
+    boolean leftBumpCloser = distanceToLeftBump.lt(distanceToRightBump);
+    boolean rightBumpCloser = distanceToRightBump.lt(distanceToLeftBump);
+
+    this.distance = leftBumpCloser ? distanceToLeftBump : distanceToRightBump;
+    this.distance = rightBumpCloser ? distanceToRightBump : distanceToLeftBump;
+
+    this.rotationTarget = AllianceFlipUtil.apply(Rotation2d.fromDegrees(135));
+
+    // this.distance =
+    //     distanceToLeftBump.lt(distanceToRightBump) ? distanceToLeftBump : distanceToRightBump;
+    // this.rotationTarget = Rotation2d.fromDegrees(45);
 
     /*
-     * NOTE Ben, you will want to remove these in your next commit 
+     * NOTE Ben, you will want to remove these in your next commit
      */
     Logger.recordOutput("BumpVARC/Left/NearLeftCorner", LeftBump.nearLeftCorner);
     Logger.recordOutput("BumpVARC/Left/NearRightCorner", LeftBump.nearRightCorner);

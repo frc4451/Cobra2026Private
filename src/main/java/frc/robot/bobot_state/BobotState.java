@@ -82,4 +82,9 @@ public class BobotState extends VirtualSubsystem {
   }
 
   public void simulationPeriodic() {}
+
+  public enum ClosestAlignment {
+    LeftBump,
+    RightBump
+  }
 }
