@@ -1,0 +1,75 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.5,
+        "y": 2.3594436519258206
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.5807132667617683,
+        "y": 0.39276747503566267
+      },
+      "isLocked": false,
+      "linkedName": "03 - Back over the Bump End"
+    },
+    {
+      "anchor": {
+        "x": 3.948487874465049,
+        "y": 0.6386019971469341
+      },
+      "prevControl": {
+        "x": 2.948487874465049,
+        "y": 0.6386019971469342
+      },
+      "nextControl": {
+        "x": 4.948487874465049,
+        "y": 0.6386019971469341
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.0,
+        "y": 0.6386019971469341
+      },
+      "prevControl": {
+        "x": 7.582814425449733,
+        "y": 0.638601997146934
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "04 - Under the Trench End"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.7780887644941925,
+      "rotationDegrees": 180.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": "Vision Testing",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -116.93206154411656
+  },
+  "useDefaultConstraints": true
+}
