@@ -116,6 +116,7 @@ public final class VisionTypes {
   }
 
   public record PoseObservation(
+      String source,
       Pose3d robotPose,
       double timestampSeconds,
       double ambiguity,
@@ -193,13 +194,24 @@ public final class VisionTypes {
             defaultCalibrationError,
             stockLatency);
 
-    public static SimCameraConfig THRIFTY_CAM_90 =
+    public static SimCameraConfig THRIFTY_CAM_95_MAX =
         new SimCameraConfig(
             Calibration.builder()
                 .widthPx(1600)
                 .heightPx(1304)
-                .fov(Rotation2d.fromDegrees(90))
+                .fov(Rotation2d.fromDegrees(95))
                 .fps(60)
+                .build(),
+            defaultCalibrationError,
+            stockLatency);
+
+    public static SimCameraConfig THRIFTY_CAM_95_720p =
+        new SimCameraConfig(
+            Calibration.builder()
+                .widthPx(1280)
+                .heightPx(720)
+                .fov(Rotation2d.fromDegrees(95))
+                .fps(90)
                 .build(),
             defaultCalibrationError,
             stockLatency);
