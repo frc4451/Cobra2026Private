@@ -131,7 +131,7 @@ public class AprilTagIOPhoton implements AprilTagIO {
 
           PoseObservation observation =
               new PoseObservation(
-                camera.getName(),
+                  camera.getName(),
                   estimatedGlobalPose.estimatedPose,
                   estimatedGlobalPose.timestampSeconds,
                   multiTagResult.estimatedPose.ambiguity,
@@ -160,7 +160,7 @@ public class AprilTagIOPhoton implements AprilTagIO {
               AprilTagAlgorithms.getEstimationStdDevs(pose.toPose2d(), result.getTargets());
           PoseObservation observation =
               new PoseObservation(
-                camera.getName(),
+                  camera.getName(),
                   pose,
                   estimatedGlobalPose.timestampSeconds,
                   target.poseAmbiguity,
@@ -213,7 +213,7 @@ public class AprilTagIOPhoton implements AprilTagIO {
 
           PoseObservation constrainedObservation =
               new PoseObservation(
-                camera.getName(),
+                  camera.getName(),
                   estimatedConstrainedPose.estimatedPose,
                   estimatedConstrainedPose.timestampSeconds,
                   -100, // constrained observations use gyro heading as validation
@@ -247,7 +247,7 @@ public class AprilTagIOPhoton implements AprilTagIO {
 
         PoseObservation constrainedObservation =
             new PoseObservation(
-              camera.getName(),
+                camera.getName(),
                 estimatedTrigPose.estimatedPose,
                 estimatedTrigPose.timestampSeconds,
                 -100, // trig observations use gyro heading as validation
