@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import org.littletonrobotics.junction.AutoLog;
+import org.robotzgarage.frc2026.util.MotorConfigs.GenericPIDConfig;
 
 public interface FollowRollersIO {
   @AutoLog
@@ -49,4 +50,10 @@ public interface FollowRollersIO {
 
   /** Stop rollers */
   public default void stop() {}
+
+  public default GenericPIDConfig readPID() {
+    return new GenericPIDConfig(0, 0, 0, 0);
+  }
+
+  public default void updatePID(double kP, double kI, double kD) {}
 }

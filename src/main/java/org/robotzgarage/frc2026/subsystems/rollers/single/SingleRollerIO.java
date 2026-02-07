@@ -7,6 +7,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.LoggedRobot;
+import org.robotzgarage.frc2026.util.MotorConfigs.GenericPIDConfig;
 
 public interface SingleRollerIO {
   @AutoLog
@@ -50,4 +51,10 @@ public interface SingleRollerIO {
   public default double getLastTimestampDelta() {
     return LoggedRobot.defaultPeriodSecs;
   }
+
+  public default GenericPIDConfig readPID() {
+    return new GenericPIDConfig(0.0, 0.0, 0.0, 0.0);
+  }
+
+  public default void updatePID(double kP, double kI, double kD) {}
 }
