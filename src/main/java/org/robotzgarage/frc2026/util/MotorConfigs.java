@@ -1,9 +1,11 @@
 package org.robotzgarage.frc2026.util;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
+import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.thethriftybot.devices.ThriftyNova.EncoderType;
 import com.thethriftybot.util.Conversion.PositionUnit;
@@ -42,7 +44,9 @@ public class MotorConfigs {
       double phoenixUpdateFreqHz,
       Slot0Configs slot0Config,
       MotionMagicConfigs mmConfig,
-      SoftwareLimitSwitchConfigs softwareLimitSwitch) {
+      SoftwareLimitSwitchConfigs softwareLimitSwitch,
+      CurrentLimitsConfigs currentLimitConfig,
+      TorqueCurrentConfigs torqueCurrentConfigs) {
     public TalonFXConfig {
 
       // Default should be 50hz
@@ -57,6 +61,20 @@ public class MotorConfigs {
             new SoftwareLimitSwitchConfigs()
                 .withForwardSoftLimitEnable(false)
                 .withReverseSoftLimitEnable(false);
+      }
+
+      // By default we want to limit the motor to only 40 amps, but there
+      // are some cases, such as with the Kraken X60, where you may want to 
+      // push past 40 amps and have more torque
+      if (currentLimitConfig == null) {
+        currentLimitConfig =
+            new CurrentLimitsConfigs()
+                .withSupplyCurrentLimitEnable(true)
+                .withSupplyCurrentLimit(currentLimitAmps);
+      }
+
+      if (torqueCurrentConfigs == null) {
+        torqueCurrentConfigs = new TorqueCurrentConfigs();
       }
     }
   }
