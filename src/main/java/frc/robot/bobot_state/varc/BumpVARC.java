@@ -60,12 +60,14 @@ public class BumpVARC extends TargetAngleTracker {
     Distance distanceToRightBump = Meters.of(robotTranslation.getDistance(rightBumpCenter));
 
     boolean leftBumpCloser = distanceToLeftBump.lt(distanceToRightBump);
-    boolean rightBumpCloser = distanceToRightBump.lt(distanceToLeftBump);
+    // boolean rightBumpCloser = distanceToRightBump.lt(distanceToLeftBump);
 
     this.distance = leftBumpCloser ? distanceToLeftBump : distanceToRightBump;
-    this.distance = rightBumpCloser ? distanceToRightBump : distanceToLeftBump;
+    // this.distance = rightBumpCloser ? distanceToRightBump : distanceToLeftBump;
 
-    this.rotationTarget = AllianceFlipUtil.apply(Rotation2d.fromDegrees(135));
+    this.rotationTarget =
+        AllianceFlipUtil.apply(
+            leftBumpCloser ? Rotation2d.fromDegrees(135) : Rotation2d.fromDegrees(-135));
 
     // this.distance =
     //     distanceToLeftBump.lt(distanceToRightBump) ? distanceToLeftBump : distanceToRightBump;

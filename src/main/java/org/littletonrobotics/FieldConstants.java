@@ -136,6 +136,9 @@ public class FieldConstants {
         Hub.farLeftCorner.plus(new Translation2d(0.0, width));
     public static final Translation2d farRightCorner = Hub.farLeftCorner;
 
+    public static final Translation2d bumpCenter =
+        nearLeftCorner.plus(farLeftCorner).plus(nearRightCorner).plus(farRightCorner).div(4.0);
+
     // Relevant reference points on opposing side
     public static final Translation2d oppNearLeftCorner =
         Hub.oppNearLeftCorner.plus(new Translation2d(0.0, width));
