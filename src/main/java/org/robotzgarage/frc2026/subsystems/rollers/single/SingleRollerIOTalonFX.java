@@ -14,6 +14,7 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -47,6 +48,7 @@ public class SingleRollerIOTalonFX implements SingleRollerIO {
   protected final VoltageOut voltageOut;
   protected final DutyCycleOut dutyCycleOut;
   protected final TorqueCurrentFOC torqueCurrentFOC;
+  protected final VelocityTorqueCurrentFOC velocityTorqueCurrentFOC;
 
   protected final NeutralOut neutralOut = new NeutralOut();
 
@@ -63,6 +65,7 @@ public class SingleRollerIOTalonFX implements SingleRollerIO {
     positionTorqueCurrentFOC = new PositionTorqueCurrentFOC(0).withSlot(0);
     dutyCycleOut = new DutyCycleOut(0.0).withEnableFOC(config.foc());
     torqueCurrentFOC = new TorqueCurrentFOC(Amps.of(0.0));
+    velocityTorqueCurrentFOC = new VelocityTorqueCurrentFOC(0.0);
 
     position = talon.getPosition();
     velocity = talon.getVelocity();
@@ -149,6 +152,11 @@ public class SingleRollerIOTalonFX implements SingleRollerIO {
   @Override
   public void runTorqueCurrent(Current current) {
     talon.setControl(torqueCurrentFOC.withOutput(current));
+  }
+
+  @Override
+  public void runVelocityTorqueCurrent(AngularVelocity velocity) {
+    talon.setControl(velocityTorqueCurrentFOC.withVelocity(velocity));
   }
 
   @Override
