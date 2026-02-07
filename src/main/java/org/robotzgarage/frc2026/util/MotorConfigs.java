@@ -63,6 +63,9 @@ public class MotorConfigs {
                 .withReverseSoftLimitEnable(false);
       }
 
+      // By default we want to limit the motor to only 40 amps, but there
+      // are some cases, such as with the Kraken X60, where you may want to 
+      // push past 40 amps and have more torque
       if (currentLimitConfig == null) {
         currentLimitConfig =
             new CurrentLimitsConfigs()
