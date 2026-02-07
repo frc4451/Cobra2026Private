@@ -15,18 +15,17 @@ import org.littletonrobotics.junction.Logger;
 import org.robotzgarage.frc2026.math.varc.TargetAngleTracker;
 
 public class TrenchVARC extends TargetAngleTracker {
+  private static final Translation2d leftTrench =
+      AllianceFlipUtil.apply(
+          LeftTrench.openingTopLeft.interpolate(LeftTrench.openingTopRight, 0.5).toTranslation2d());
+  private static final Translation2d rightTrench =
+      AllianceFlipUtil.apply(
+          RightTrench.openingTopLeft
+              .interpolate(RightTrench.openingTopRight, 0.5)
+              .toTranslation2d());
+
   public void update() {
     Pose2d robotPose = BobotState.getGlobalPose();
-    Translation2d leftTrench =
-        AllianceFlipUtil.apply(
-            LeftTrench.openingTopLeft
-                .interpolate(LeftTrench.openingTopRight, 0.5)
-                .toTranslation2d());
-    Translation2d rightTrench =
-        AllianceFlipUtil.apply(
-            RightTrench.openingTopLeft
-                .interpolate(RightTrench.openingTopRight, 0.5)
-                .toTranslation2d());
 
     Logger.recordOutput("TrenchVARC/LeftTrench", leftTrench);
     Logger.recordOutput("TrenchVARC/RightTrench", rightTrench);

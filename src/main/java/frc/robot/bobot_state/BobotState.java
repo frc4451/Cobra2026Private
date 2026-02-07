@@ -15,6 +15,7 @@ import lombok.Setter;
 import org.littletonrobotics.AllianceFlipUtil;
 import org.littletonrobotics.FieldConstants.Hub;
 import org.littletonrobotics.junction.Logger;
+import org.robotzgarage.frc2026.math.varc.TargetAngleTracker;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.PoseObservation;
 import org.robotzgarage.frc2026.util.VirtualSubsystem;
 
@@ -48,6 +49,11 @@ public class BobotState extends VirtualSubsystem {
 
   public static Queue<PoseObservation> getConstrainedVisionObservations() {
     return BobotState.constrainedPoseObservations;
+  }
+
+  public static TargetAngleTracker getClosestVARC() {
+    boolean isBumpCloser = bumpVARC.getDistance().lt(trenchVARC.getDistance());
+    return isBumpCloser ? bumpVARC : trenchVARC;
   }
 
   public void periodic() {
