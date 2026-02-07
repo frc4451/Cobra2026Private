@@ -29,8 +29,8 @@ public class BumpVARC extends TargetAngleTracker {
     this.distance = leftBumpCloser ? distanceToLeftBump : distanceToRightBump;
 
     this.rotationTarget =
-        AllianceFlipUtil.apply(
-            leftBumpCloser ? ConstantsVARC.leftBumpRotation : ConstantsVARC.rightBumpRotation);
+        (leftBumpCloser ? ConstantsVARC.leftBumpRotation : ConstantsVARC.rightBumpRotation)
+            .getValue();
 
     Logger.recordOutput("BumpVARC/LeftDistanceFeet", distanceToLeftBump.in(Feet));
     Logger.recordOutput("BumpVARC/RightDistanceFeet", distanceToRightBump.in(Feet));
