@@ -29,7 +29,7 @@ public class BumpVARC extends TargetAngleTracker {
     this.distance = leftBumpCloser ? distanceToLeftBump : distanceToRightBump;
 
     this.rotationTarget =
-        (leftBumpCloser ? ConstantsVARC.leftBumpRotation : ConstantsVARC.rightBumpRotation)
+        (leftBumpCloser ? VARCConstants.leftBumpRotation : VARCConstants.rightBumpRotation)
             .getValue();
 
     Logger.recordOutput("BumpVARC/LeftDistanceFeet", distanceToLeftBump.in(Feet));

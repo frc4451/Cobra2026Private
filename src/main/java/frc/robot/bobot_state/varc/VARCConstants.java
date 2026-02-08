@@ -3,7 +3,7 @@ package frc.robot.bobot_state.varc;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.util.AllianceFlip;
 
-public class ConstantsVARC {
+public class VARCConstants {
 
   // The offset needed for going over the bump, so we don't tip with the intake
   public static final AllianceFlip<Rotation2d> leftBumpRotation =
