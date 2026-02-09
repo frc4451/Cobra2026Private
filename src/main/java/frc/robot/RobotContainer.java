@@ -83,11 +83,17 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings(GarageCommandXboxController controller) {
-    // EX. controller.a().whileTrue(example.runshooterpercent(0.5));
-    controller.x().whileTrue(shooter.runAllTorqueCurrent());    
-    controller.a().whileTrue(shooter.runAllPercent());
-    controller.b().whileTrue(shooter.runAllVoltage());
 
+    // controller.x().whileTrue(shooter.runShooterFlywheelPercentOut());
+    // controller.x().whileTrue(shooter.runFeederPercentOutput());
+    // controller.x().whileTrue(shooter.runAllPercent());
+    controller.y().whileTrue(shooter.runAllVoltage());
+
+    // controller.a().whileTrue(shooter.runShooterFlywheelVelocityTorqueCurrent());
+    // controller.x().whileTrue(shooter.runShooterFlywheelTorqueCurrent());
+    // controller.a().whileTrue(shooter.runFeederVolts());
+    controller.a().whileTrue(shooter.runShooterTuning());
+    controller.b().whileTrue(shooter.stop());
   }
 
   /**

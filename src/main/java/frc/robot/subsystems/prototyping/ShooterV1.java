@@ -1,6 +1,7 @@
 package frc.robot.subsystems.prototyping;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -15,18 +16,22 @@ public class ShooterV1 extends SubsystemBase {
   private final String name = "ShooterJan28/";
 
   private static final LoggedTunableNumber shooterAmps =
-      new LoggedTunableNumber("ShooterJan28/ShooterAmps", 0.0);
+      new LoggedTunableNumber("ShooterJan28/ShooterAmps", 20.0);
   private static final LoggedTunableNumber shooterVoltage =
-      new LoggedTunableNumber("ShooterJan28/ShooterVoltage", 0.0);
+      new LoggedTunableNumber("ShooterJan28/ShooterVoltage", 9.75);
   private static final LoggedTunableNumber shooterPercent =
-      new LoggedTunableNumber("ShooterJan28/ShooterPercent", 0.0);
+      new LoggedTunableNumber("ShooterJan28/ShooterPercent", 0.78);
+  private static final LoggedTunableNumber shooterVelocity =
+      new LoggedTunableNumber("ShooterJan28/ShooterVelocity", 67.0);
+  private static final LoggedTunableNumber shooterkp =
+      new LoggedTunableNumber("ShooterJan28/ShooterkP", 3.0);
 
   private static final LoggedTunableNumber feederAmps =
       new LoggedTunableNumber("ShooterJan28/FeederAmps", 0.0);
   private static final LoggedTunableNumber feederVoltage =
-      new LoggedTunableNumber("ShooterJan28/FeederVoltage", 0.0);
+      new LoggedTunableNumber("ShooterJan28/FeederVoltage", 10);
   private static final LoggedTunableNumber feederPercent =
-      new LoggedTunableNumber("ShooterJan28/FeederPercent", 0.0);
+      new LoggedTunableNumber("ShooterJan28/FeederPercent", 0.5);
 
   private static final LoggedTunableNumber kickerAmps =
       new LoggedTunableNumber("ShooterJan28/KickerAmps", 0.0);
@@ -53,6 +58,10 @@ public class ShooterV1 extends SubsystemBase {
     feeder.periodic();
     kicker.periodic();
     shooterFlyWheels.periodic();
+
+    if (shooterkp.hasChanged(hashCode())) {
+      this.shooterFlyWheels.updatePID(shooterkp.get(), 0, 0);
+    }
   }
 
   //   // Component voids and booleans
@@ -64,19 +73,35 @@ public class ShooterV1 extends SubsystemBase {
   //     spiner.runPercentOutput(percent);
   //   }
 
+  public Command runShooterTuning() {
+    return run(
+        () -> {
+          feeder.runVolts(feederVoltage.get());
+          shooterFlyWheels.runVelocityTorqueCurrent(RotationsPerSecond.of(shooterVelocity.get()));
+        });
+  }
+
   public Command runShooterFlywheelPercentOut() {
     return run(
         () -> {
-          double clampedPercent = MathUtil.clamp(shooterPercent.get(), -100.0, 100.0);
-          shooterFlyWheels.runPercentOutput(clampedPercent / 100);
+          double clampedPercent = MathUtil.clamp(shooterPercent.get(), -1.0, 1.0);
+          shooterFlyWheels.runPercentOutput(clampedPercent);
         });
   }
 
   public Command runShooterFlywheelTorqueCurrent() {
     return run(
         () -> {
-          double clampedAmps = MathUtil.clamp(shooterAmps.get(), 0.0, 40.0);
-          shooterFlyWheels.runTorqueCurrent(Amps.of(clampedAmps));
+          // double clampedAmps = MathUtil.clamp(shooterAmps.get(), 0.0, 40.0);
+          shooterFlyWheels.runTorqueCurrent(Amps.of(shooterAmps.get()));
+        });
+  }
+
+  public Command runShooterFlywheelVelocityTorqueCurrent() {
+    return run(
+        () -> {
+          double clampedVelocity = MathUtil.clamp(shooterVelocity.get(), 0.0, 200.0);
+          shooterFlyWheels.runVelocityTorqueCurrent(RotationsPerSecond.of(clampedVelocity));
         });
   }
 
@@ -144,6 +169,7 @@ public class ShooterV1 extends SubsystemBase {
         () -> {
           shooterFlyWheels.stop();
           feeder.stop();
+          kicker.stop();
         });
   }
 }

@@ -60,4 +60,8 @@ public class FollowRollers {
   public void stop() {
     io.stop();
   }
+
+  public void updatePID(double kP, double kI, double kD) {
+    io.updatePID(kP, kI, kD);
+  }
 }
