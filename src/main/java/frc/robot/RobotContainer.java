@@ -77,10 +77,13 @@ public class RobotContainer {
   private void configureButtonBindings(GarageCommandXboxController controller) {
     // EX. controller.a().whileTrue(example.runshooterpercent(0.5));
 
-    controller.a().whileTrue(intake.runIntakePercentOut());
-    controller.b().whileTrue(intake.runIntakeTorqueCurrent());
-    controller.x().whileTrue(intake.runIntakeVoltageOut());
-    controller.y().whileTrue(intake.setEndeffectorGoal());
+    controller.a().onTrue(intake.runIntakePercentOut());
+    controller.b().onTrue(intake.runIntakeTorqueCurrent());
+    controller.x().onTrue(intake.runIntakeVoltageOut());
+    controller.y().onTrue(intake.stop());
+
+    controller.povUp().onTrue(intake.setEndeffectorGoal());
+    controller.povDown().onTrue(intake.endeffectorHome());
   }
 
   /**

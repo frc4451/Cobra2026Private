@@ -36,7 +36,7 @@ public class IntakeV1Constants {
 
   public static final TalonFXConfig intakeConfig =
       TalonFXConfig.builder()
-          .canId(21)
+          .canId(31)
           .canBus(Constants.rioBus)
           // .phoenixUpdateFreqHz(50)
           .reduction(intakeReduction)
@@ -83,7 +83,7 @@ public class IntakeV1Constants {
 
   public static final TalonFXConfig endeffectorConfig =
       TalonFXConfig.builder()
-          .canId(22)
+          .canId(32)
           .canBus(Constants.rioBus)
           .reduction(endeffectorReduction)
           .currentLimitAmps(30)

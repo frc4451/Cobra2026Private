@@ -14,15 +14,17 @@ import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
 public class IntakeV1 extends SubsystemBase {
   private static final String name = "/IntakeV1";
 
-  private static final LoggedTunableNumber IntakePercent =
-      new LoggedTunableNumber(name + "/IntakePercent", 0.0);
-  private static final LoggedTunableNumber IntakeAmps =
-      new LoggedTunableNumber(name + "/IntakeAmps", 0.0);
-  private static final LoggedTunableNumber IntakeVoltage =
-      new LoggedTunableNumber(name + "/IntakeVoltage", 0.0);
+  private static final LoggedTunableNumber intakePercent =
+      new LoggedTunableNumber(name + "/IntakePercent", 0.5);
+  private static final LoggedTunableNumber intakeAmps =
+      new LoggedTunableNumber(name + "/IntakeAmps", 20.0);
+  private static final LoggedTunableNumber intakeVoltage =
+      new LoggedTunableNumber(name + "/IntakeVoltage", 6.0);
 
-  private static final LoggedTunableNumber EndeffectorGoal =
-      new LoggedTunableNumber(name + "/EndeffectorGoal", 0.0);
+  private static final LoggedTunableNumber endeffectorGoal =
+      new LoggedTunableNumber(name + "/EndeffectorGoal", 45.0);
+  private static final LoggedTunableNumber endeffectorkp =
+      new LoggedTunableNumber(name + "/EndeffectorkP", 3.0);
 
   // Subsystems
   private final Flywheel intake;
@@ -38,12 +40,16 @@ public class IntakeV1 extends SubsystemBase {
     // Periodic modes
     intake.periodic();
     endeffector.periodic();
+
+    if (endeffectorkp.hasChanged(hashCode())) {
+      this.endeffector.updatePID(endeffectorkp.get(), 0, 0);
+    }
   }
 
   public Command runIntakePercentOut() {
     return run(
         () -> {
-          double clampedPercent = MathUtil.clamp(IntakePercent.get(), -1.0, 1.0);
+          double clampedPercent = MathUtil.clamp(intakePercent.get(), -1.0, 1.0);
           intake.runPercentOutput(clampedPercent);
         });
   }
@@ -51,7 +57,7 @@ public class IntakeV1 extends SubsystemBase {
   public Command runIntakeTorqueCurrent() {
     return run(
         () -> {
-          double clampedAmps = MathUtil.clamp(IntakeAmps.get(), 0.0, 40.0);
+          double clampedAmps = MathUtil.clamp(intakeAmps.get(), 0.0, 40.0);
           intake.setTorque(Amps.of(clampedAmps));
         });
   }
@@ -59,13 +65,17 @@ public class IntakeV1 extends SubsystemBase {
   public Command runIntakeVoltageOut() {
     return run(
         () -> {
-          double clampedVoltage = MathUtil.clamp(IntakeVoltage.get(), -12.0, 12.0);
+          double clampedVoltage = MathUtil.clamp(intakeVoltage.get(), -12.0, 12.0);
           intake.runVolts(clampedVoltage);
         });
   }
 
   public Command setEndeffectorGoal() {
-    return run(() -> endeffector.setGoalPosition(Degrees.of(EndeffectorGoal.get())));
+    return run(() -> endeffector.setGoalPosition(Degrees.of(endeffectorGoal.get())));
+  }
+
+  public Command endeffectorHome() {
+    return run(() -> endeffector.setGoalPosition(Degrees.of(0.0)));
   }
 
   public Command stop() {
