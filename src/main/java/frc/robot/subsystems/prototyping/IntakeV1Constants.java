@@ -51,7 +51,7 @@ public class IntakeV1Constants {
                   .withKV(0.05)
                   .withKA(0.0)
                   // feedback
-                  .withKP(10.0)
+                  .withKP(3.0)
                   .withKI(0.0)
                   .withKD(0.0))
           .mmConfig(
