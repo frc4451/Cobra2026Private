@@ -1,5 +1,6 @@
 package org.robotzgarage.frc2026.subsystems.rollers.single;
 
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import org.littletonrobotics.junction.Logger;
@@ -35,6 +36,10 @@ public class SingleRoller {
 
   public void runPercentOutput(double percent) {
     io.runPercentOutput(percent);
+  }
+
+  public void setVelocityTorqueCurrent(AngularVelocity velocity) {
+    io.setVelocityTorqueCurrent(velocity);
   }
 
   public void stop() {

@@ -40,7 +40,7 @@ public interface SingleRollerIO {
   public default void runTorqueCurrent(Current current) {}
 
   /** Run rollers with specified Amps */
-  public default void runVelocityTorqueCurrent(AngularVelocity velocity) {}
+  public default void setVelocityTorqueCurrent(AngularVelocity velocity) {}
 
   /** Run roller at set Velocity */
   public default void setVelocity(AngularVelocity velocity) {}

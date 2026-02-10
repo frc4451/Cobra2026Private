@@ -77,7 +77,7 @@ public class ShooterV1 extends SubsystemBase {
     return run(
         () -> {
           feeder.runVolts(feederVoltage.get());
-          shooterFlyWheels.runVelocityTorqueCurrent(RotationsPerSecond.of(shooterVelocity.get()));
+          shooterFlyWheels.setVelocityTorqueCurrent(RotationsPerSecond.of(shooterVelocity.get()));
         });
   }
 
@@ -101,7 +101,7 @@ public class ShooterV1 extends SubsystemBase {
     return run(
         () -> {
           double clampedVelocity = MathUtil.clamp(shooterVelocity.get(), 0.0, 200.0);
-          shooterFlyWheels.runVelocityTorqueCurrent(RotationsPerSecond.of(clampedVelocity));
+          shooterFlyWheels.setVelocityTorqueCurrent(RotationsPerSecond.of(clampedVelocity));
         });
   }
 

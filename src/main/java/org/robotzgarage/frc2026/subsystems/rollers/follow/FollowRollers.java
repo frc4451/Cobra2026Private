@@ -49,8 +49,8 @@ public class FollowRollers {
     io.runTorqueCurrent(amps);
   }
 
-  public void runVelocityTorqueCurrent(AngularVelocity velocity) {
-    io.runVelocityTorqueCurrent(velocity);
+  public void setVelocityTorqueCurrent(AngularVelocity velocity) {
+    io.setVelocityTorqueCurrent(velocity);
   }
 
   public void setGoal(Angle position) {

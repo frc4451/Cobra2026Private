@@ -158,7 +158,7 @@ public class SingleRollerIOTalonFX implements SingleRollerIO {
   }
 
   @Override
-  public void runVelocityTorqueCurrent(AngularVelocity velocity) {
+  public void setVelocityTorqueCurrent(AngularVelocity velocity) {
     talon.setControl(velocityTorqueCurrentFOC.withVelocity(velocity));
   }
 

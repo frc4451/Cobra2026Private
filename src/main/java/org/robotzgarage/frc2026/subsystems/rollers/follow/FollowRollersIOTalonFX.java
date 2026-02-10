@@ -196,7 +196,7 @@ public class FollowRollersIOTalonFX implements FollowRollersIO {
   }
 
   @Override
-  public void runVelocityTorqueCurrent(AngularVelocity velocity) {
+  public void setVelocityTorqueCurrent(AngularVelocity velocity) {
     leader.setControl(velocityTorqueCurrentFOC.withVelocity(velocity));
   }
 
