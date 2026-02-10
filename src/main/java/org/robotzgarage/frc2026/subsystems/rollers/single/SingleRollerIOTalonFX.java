@@ -1,5 +1,6 @@
 package org.robotzgarage.frc2026.subsystems.rollers.single;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
@@ -12,6 +13,8 @@ import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -23,6 +26,8 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.util.PhoenixUtil;
+import org.robotzgarage.frc2026.util.MotorConfigs.GenericPIDConfig;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfig;
 
 public class SingleRollerIOTalonFX implements SingleRollerIO {
@@ -44,10 +49,14 @@ public class SingleRollerIOTalonFX implements SingleRollerIO {
 
   protected final VoltageOut voltageOut;
   protected final DutyCycleOut dutyCycleOut;
+  protected final TorqueCurrentFOC torqueCurrentFOC;
+  protected final VelocityTorqueCurrentFOC velocityTorqueCurrentFOC;
 
   protected final NeutralOut neutralOut = new NeutralOut();
 
   protected Angle positionGoal = Rotations.zero();
+
+  private TalonFXConfiguration cfg;
 
   public SingleRollerIOTalonFX(TalonFXConfig config) {
     this.reduction = config.reduction();
@@ -59,6 +68,8 @@ public class SingleRollerIOTalonFX implements SingleRollerIO {
     mmVelocityVoltage = new MotionMagicVelocityVoltage(0).withSlot(0).withEnableFOC(config.foc());
     positionTorqueCurrentFOC = new PositionTorqueCurrentFOC(0).withSlot(0);
     dutyCycleOut = new DutyCycleOut(0.0).withEnableFOC(config.foc());
+    torqueCurrentFOC = new TorqueCurrentFOC(Amps.of(0.0));
+    velocityTorqueCurrentFOC = new VelocityTorqueCurrentFOC(0.0);
 
     position = talon.getPosition();
     velocity = talon.getVelocity();
@@ -70,14 +81,13 @@ public class SingleRollerIOTalonFX implements SingleRollerIO {
     positionSetpointRotations = talon.getClosedLoopReference();
     velocitySetpointRotationsPerSec = talon.getClosedLoopReferenceSlope();
 
-    TalonFXConfiguration cfg = new TalonFXConfiguration();
+    cfg = new TalonFXConfiguration();
     // spotless:off
     cfg.MotorOutput
         .withInverted(config.invert() ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive)
         .withNeutralMode(config.isBrakeMode() ? NeutralModeValue.Brake : NeutralModeValue.Coast);
-    cfg.CurrentLimits
-        .withSupplyCurrentLimitEnable(true)
-        .withSupplyCurrentLimit(config.currentLimitAmps());
+    cfg.CurrentLimits = config.currentLimitConfig();
+    cfg.TorqueCurrent = config.torqueCurrentConfigs();
     cfg.Slot0 = config.slot0Config();
     cfg.MotionMagic = config.mmConfig();
     cfg.SoftwareLimitSwitch = config.softwareLimitSwitch();
@@ -143,6 +153,16 @@ public class SingleRollerIOTalonFX implements SingleRollerIO {
   }
 
   @Override
+  public void runTorqueCurrent(Current current) {
+    talon.setControl(torqueCurrentFOC.withOutput(current));
+  }
+
+  @Override
+  public void runVelocityTorqueCurrent(AngularVelocity velocity) {
+    talon.setControl(velocityTorqueCurrentFOC.withVelocity(velocity));
+  }
+
+  @Override
   public void setVelocity(AngularVelocity velocity) {
     talon.setControl(mmVelocityVoltage.withVelocity(velocity));
   }
@@ -161,5 +181,19 @@ public class SingleRollerIOTalonFX implements SingleRollerIO {
   @Override
   public void stop() {
     talon.setControl(neutralOut);
+  }
+
+  @Override
+  public GenericPIDConfig readPID() {
+    return new GenericPIDConfig(cfg.Slot0.kP, cfg.Slot0.kI, cfg.Slot0.kD, 0.0);
+  }
+
+  @Override
+  public void updatePID(double kP, double kI, double kD) {
+    cfg.Slot0.kP = kP;
+    cfg.Slot0.kI = 0.0;
+    cfg.Slot0.kD = kD;
+
+    PhoenixUtil.tryUntilOk(5, () -> talon.getConfigurator().apply(cfg));
   }
 }
