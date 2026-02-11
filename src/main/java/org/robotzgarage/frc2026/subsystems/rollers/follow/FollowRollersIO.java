@@ -49,7 +49,7 @@ public interface FollowRollersIO {
   /** Run rollers with specified Amps */
   public default void runTorqueCurrent(Current current) {}
 
-  /** Run rollers with specified Amps */
+  /** Run rollers with specified AngularVelocity */
   public default void setVelocityTorqueCurrent(AngularVelocity velocity) {}
 
   /** Set goal position of rollers to position */
