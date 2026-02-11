@@ -1,6 +1,7 @@
 package org.robotzgarage.frc2026.subsystems.rollers.follow;
 
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -48,11 +49,19 @@ public class FollowRollers {
     io.runTorqueCurrent(amps);
   }
 
+  public void setVelocityTorqueCurrent(AngularVelocity velocity) {
+    io.setVelocityTorqueCurrent(velocity);
+  }
+
   public void setGoal(Angle position) {
     io.setGoal(position);
   }
 
   public void stop() {
     io.stop();
+  }
+
+  public void updatePID(double kP, double kI, double kD) {
+    io.updatePID(kP, kI, kD);
   }
 }

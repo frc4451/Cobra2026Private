@@ -12,6 +12,7 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -22,6 +23,8 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.util.PhoenixUtil;
+import org.robotzgarage.frc2026.util.MotorConfigs.GenericPIDConfig;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfigFollower;
 
 public class FollowRollersIOTalonFX implements FollowRollersIO {
@@ -52,9 +55,12 @@ public class FollowRollersIOTalonFX implements FollowRollersIO {
   private final VoltageOut voltageOut;
   private final NeutralOut neutralOut = new NeutralOut();
   private final TorqueCurrentFOC torqueCurrentFOC;
+  protected final VelocityTorqueCurrentFOC velocityTorqueCurrentFOC;
   private final DutyCycleOut dutyCycleOut;
 
   private final Follower followOut;
+
+  private TalonFXConfiguration cfg;
 
   public FollowRollersIOTalonFX(TalonFXConfigFollower config) {
     this.reduction = config.leader().reduction();
@@ -64,6 +70,7 @@ public class FollowRollersIOTalonFX implements FollowRollersIO {
         new MotionMagicVoltage(0.0).withUpdateFreqHz(0).withEnableFOC(config.leader().foc());
     dutyCycleOut = new DutyCycleOut(0.0).withEnableFOC(config.leader().foc());
     torqueCurrentFOC = new TorqueCurrentFOC(Amps.of(0.0));
+    velocityTorqueCurrentFOC = new VelocityTorqueCurrentFOC(0.0);
 
     leader = new TalonFX(config.leader().canId(), config.leader().canBus());
     follower = new TalonFX(config.followerCanId(), config.leader().canBus());
@@ -91,14 +98,13 @@ public class FollowRollersIOTalonFX implements FollowRollersIO {
     followerTorqueCurrentAmps = follower.getTorqueCurrent();
     followerTempCelsius = follower.getDeviceTemp();
 
-    TalonFXConfiguration cfg = new TalonFXConfiguration();
+    cfg = new TalonFXConfiguration();
     // spotless:off
     cfg.MotorOutput
         .withInverted(config.leader().invert() ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive)
         .withNeutralMode(config.leader().isBrakeMode() ? NeutralModeValue.Brake : NeutralModeValue.Coast);
-    cfg.CurrentLimits
-        .withSupplyCurrentLimitEnable(true)
-        .withSupplyCurrentLimit(config.leader().currentLimitAmps());
+    cfg.CurrentLimits = config.leader().currentLimitConfig();
+    cfg.TorqueCurrent = config.leader().torqueCurrentConfigs();
     cfg.Slot0 = config.leader().slot0Config();
     cfg.MotionMagic = config.leader().mmConfig();
     cfg.SoftwareLimitSwitch = config.leader().softwareLimitSwitch();
@@ -190,6 +196,11 @@ public class FollowRollersIOTalonFX implements FollowRollersIO {
   }
 
   @Override
+  public void setVelocityTorqueCurrent(AngularVelocity velocity) {
+    leader.setControl(velocityTorqueCurrentFOC.withVelocity(velocity));
+  }
+
+  @Override
   public void setGoal(Angle position) {
     positionGoalRotations = position.times(reduction);
     leader.setControl(mmVoltage.withPosition(positionGoalRotations));
@@ -204,5 +215,20 @@ public class FollowRollersIOTalonFX implements FollowRollersIO {
   @Override
   public void stop() {
     leader.setControl(neutralOut);
+  }
+
+  @Override
+  public GenericPIDConfig readPID() {
+    return new GenericPIDConfig(cfg.Slot0.kP, cfg.Slot0.kI, cfg.Slot0.kD, 0.0);
+  }
+
+  @Override
+  public void updatePID(double kP, double kI, double kD) {
+    cfg.Slot0.kP = kP;
+    cfg.Slot0.kI = 0.0;
+    cfg.Slot0.kD = kD;
+
+    PhoenixUtil.tryUntilOk(5, () -> leader.getConfigurator().apply(cfg));
+    PhoenixUtil.tryUntilOk(5, () -> follower.getConfigurator().apply(cfg));
   }
 }

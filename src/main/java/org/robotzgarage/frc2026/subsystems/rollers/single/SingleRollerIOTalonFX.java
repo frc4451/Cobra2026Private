@@ -14,6 +14,7 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -26,6 +27,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.util.PhoenixUtil;
+import org.robotzgarage.frc2026.util.MotorConfigs.GenericPIDConfig;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfig;
 
 public class SingleRollerIOTalonFX implements SingleRollerIO {
@@ -48,6 +50,7 @@ public class SingleRollerIOTalonFX implements SingleRollerIO {
   protected final VoltageOut voltageOut;
   protected final DutyCycleOut dutyCycleOut;
   protected final TorqueCurrentFOC torqueCurrentFOC;
+  protected final VelocityTorqueCurrentFOC velocityTorqueCurrentFOC;
 
   protected final NeutralOut neutralOut = new NeutralOut();
 
@@ -66,6 +69,7 @@ public class SingleRollerIOTalonFX implements SingleRollerIO {
     positionTorqueCurrentFOC = new PositionTorqueCurrentFOC(0).withSlot(0);
     dutyCycleOut = new DutyCycleOut(0.0).withEnableFOC(config.foc());
     torqueCurrentFOC = new TorqueCurrentFOC(Amps.of(0.0));
+    velocityTorqueCurrentFOC = new VelocityTorqueCurrentFOC(0.0);
 
     position = talon.getPosition();
     velocity = talon.getVelocity();
@@ -82,9 +86,8 @@ public class SingleRollerIOTalonFX implements SingleRollerIO {
     cfg.MotorOutput
         .withInverted(config.invert() ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive)
         .withNeutralMode(config.isBrakeMode() ? NeutralModeValue.Brake : NeutralModeValue.Coast);
-    cfg.CurrentLimits
-        .withSupplyCurrentLimitEnable(true)
-        .withSupplyCurrentLimit(config.currentLimitAmps());
+    cfg.CurrentLimits = config.currentLimitConfig();
+    cfg.TorqueCurrent = config.torqueCurrentConfigs();
     cfg.Slot0 = config.slot0Config();
     cfg.MotionMagic = config.mmConfig();
     cfg.SoftwareLimitSwitch = config.softwareLimitSwitch();
@@ -152,6 +155,11 @@ public class SingleRollerIOTalonFX implements SingleRollerIO {
   @Override
   public void runTorqueCurrent(Current current) {
     talon.setControl(torqueCurrentFOC.withOutput(current));
+  }
+
+  @Override
+  public void setVelocityTorqueCurrent(AngularVelocity velocity) {
+    talon.setControl(velocityTorqueCurrentFOC.withVelocity(velocity));
   }
 
   @Override

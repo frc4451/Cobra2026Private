@@ -39,6 +39,9 @@ public interface SingleRollerIO {
   /** Run rollers with specified Amps */
   public default void runTorqueCurrent(Current current) {}
 
+  /** Run rollers with specified Amps */
+  public default void setVelocityTorqueCurrent(AngularVelocity velocity) {}
+
   /** Run roller at set Velocity */
   public default void setVelocity(AngularVelocity velocity) {}
 
@@ -57,7 +60,7 @@ public interface SingleRollerIO {
   }
 
   public default GenericPIDConfig readPID() {
-    return new GenericPIDConfig(0, 0, 0, 0);
+    return new GenericPIDConfig(0.0, 0.0, 0.0, 0.0);
   }
 
   public default void updatePID(double kP, double kI, double kD) {}
