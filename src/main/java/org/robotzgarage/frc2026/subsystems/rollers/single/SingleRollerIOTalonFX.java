@@ -27,7 +27,6 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.util.PhoenixUtil;
-import org.robotzgarage.frc2026.util.MotorConfigs.GenericPIDConfig;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfig;
 
 public class SingleRollerIOTalonFX implements SingleRollerIO {
