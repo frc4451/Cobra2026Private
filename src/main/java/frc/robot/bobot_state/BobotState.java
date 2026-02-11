@@ -6,8 +6,9 @@ import static edu.wpi.first.units.Units.Meters;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.bobot_state.varc.BumpVARC;
+import frc.robot.bobot_state.varc.DepotDropoffVARC;
 import frc.robot.bobot_state.varc.HubVARC;
-import frc.robot.bobot_state.varc.OutpostVARC;
+import frc.robot.bobot_state.varc.OutpostDropoffVARC;
 import frc.robot.bobot_state.varc.TrenchVARC;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -26,7 +27,8 @@ public class BobotState extends VirtualSubsystem {
   @Getter private static final HubVARC hubVARC = new HubVARC();
   @Getter private static final TrenchVARC trenchVARC = new TrenchVARC();
   @Getter private static final BumpVARC bumpVARC = new BumpVARC();
-  @Getter private static final OutpostVARC outpostVARC = new OutpostVARC();
+  @Getter private static final OutpostDropoffVARC outpostVARC = new OutpostDropoffVARC();
+  @Getter private static final DepotDropoffVARC depotVARC = new DepotDropoffVARC();
 
   private static final Queue<PoseObservation> globalPoseObservations =
       new LinkedBlockingQueue<>(20);
@@ -62,6 +64,8 @@ public class BobotState extends VirtualSubsystem {
     hubVARC.update();
     trenchVARC.update();
     bumpVARC.update();
+    outpostVARC.update();
+    depotVARC.update();
 
     {
       String subLogTitle = logRoot + "Interpolation/";

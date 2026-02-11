@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.bobot_state.BobotState;
-import frc.robot.commands.AutoCommands;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -29,7 +28,6 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.vision.VisionConstants;
-import org.littletonrobotics.FieldConstants.Hub;
 import org.littletonrobotics.LoggedTunableNumber;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.robotzgarage.frc2026.subsystems.vision.Vision;
@@ -234,16 +232,25 @@ public class RobotContainer {
             () -> -controller.getLeftX(),
             () -> controller.getRightX()));
 
+    // controller
+    //     .a()
+    //     .onTrue(
+    //         AutoCommands.interpolationDistanceHelper(
+    //             drive,
+    //             new Pose2d(
+    //                 Hub.innerCenterPoint.toTranslation2d(),
+    //                 Hub.nearFace.getRotation().plus(Rotation2d.k180deg)),
+    //             feetFromCenterOfHubX,
+    //             feetFromCenterOfHubY));
+
     controller
         .a()
-        .onTrue(
-            AutoCommands.interpolationDistanceHelper(
+        .whileTrue(
+            DriveCommands.joystickDriveAtAngle(
                 drive,
-                new Pose2d(
-                    Hub.innerCenterPoint.toTranslation2d(),
-                    Hub.nearFace.getRotation().plus(Rotation2d.k180deg)),
-                feetFromCenterOfHubX,
-                feetFromCenterOfHubY));
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX(),
+                () -> BobotState.getDepotVARC().getRotationTarget()));
 
     controller
         .b()
