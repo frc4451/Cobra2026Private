@@ -33,7 +33,7 @@ import frc.robot.subsystems.vision.VisionConstants;
 import org.littletonrobotics.FieldConstants.Hub;
 import org.littletonrobotics.LoggedTunableNumber;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-import org.robotzgarage.frc2026.subsystems.vision.Vision;
+import org.robotzgarage.frc2026.subsystems.vision.AprilTagVision;
 import org.robotzgarage.frc2026.util.GarageCommandXboxController;
 
 /**
@@ -47,7 +47,7 @@ public class RobotContainer {
   private final Drive drive;
 
   // Vision testing
-  private final Vision vision;
+  private final AprilTagVision aprilTagVision;
 
   // Controller
   private final GarageCommandXboxController drivercontroller = new GarageCommandXboxController(0);
@@ -189,7 +189,7 @@ public class RobotContainer {
     // Configure the button bindings
     configureDriverBindings(drivercontroller);
 
-    vision = new Vision(VisionConstants.visionSubsystemConfig);
+    aprilTagVision = new AprilTagVision(VisionConstants.visionSubsystemConfig);
 
     SmartDashboard.putNumber("CameraTest/PoseXMeters", 0);
     SmartDashboard.putNumber("CameraTest/PoseYMeters", 0);

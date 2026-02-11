@@ -19,7 +19,7 @@ import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.VisionSource;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.VisionSubsystemConfig;
 import org.robotzgarage.frc2026.util.VirtualSubsystem;
 
-public class Vision extends VirtualSubsystem {
+public class AprilTagVision extends VirtualSubsystem {
   public static record AprilTagCamera(
       AprilTagIO io,
       AprilTagIOInputsAutoLogged inputs,
@@ -36,7 +36,7 @@ public class Vision extends VirtualSubsystem {
   private final Consumer<PoseObservation> offerTrigPoseObservation;
   private final Consumer<PoseObservation> offerConstrainedPoseObservation;
 
-  public Vision(VisionSubsystemConfig config) {
+  public AprilTagVision(VisionSubsystemConfig config) {
     for (AprilTagCameraConfig aprilTagCameraConfig : config.aprilTagCameraConfigs()) {
       AprilTagIO io;
 
