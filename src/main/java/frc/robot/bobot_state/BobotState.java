@@ -29,6 +29,7 @@ public class BobotState extends VirtualSubsystem {
   @Getter private static final BumpVARC bumpVARC = new BumpVARC();
   @Getter private static final OutpostDropoffVARC outpostVARC = new OutpostDropoffVARC();
   @Getter private static final DepotDropoffVARC depotVARC = new DepotDropoffVARC();
+  @Getter private static TargetAngleTracker closestDropoff;
 
   private static final Queue<PoseObservation> globalPoseObservations =
       new LinkedBlockingQueue<>(20);
@@ -55,9 +56,15 @@ public class BobotState extends VirtualSubsystem {
     return BobotState.constrainedPoseObservations;
   }
 
-  public static TargetAngleTracker getClosestVARC() {
+  public static TargetAngleTracker getClosestTraversalVARC() {
     boolean isBumpCloser = bumpVARC.getDistance().lt(trenchVARC.getDistance());
     return isBumpCloser ? bumpVARC : trenchVARC;
+  }
+
+  public static TargetAngleTracker getClosestDropoffVARC() {
+    boolean isOutpostCloser = outpostVARC.getDistance().lt(depotVARC.getDistance());
+    BobotState.closestDropoff = isOutpostCloser ? outpostVARC : depotVARC;
+    return closestDropoff;
   }
 
   public void periodic() {
@@ -66,6 +73,7 @@ public class BobotState extends VirtualSubsystem {
     bumpVARC.update();
     outpostVARC.update();
     depotVARC.update();
+    getClosestDropoffVARC();
 
     {
       String subLogTitle = logRoot + "Interpolation/";
@@ -92,6 +100,10 @@ public class BobotState extends VirtualSubsystem {
       Logger.recordOutput(subLogTitle + "Bump/TargetDistanceFeet", bumpVARC.getDistance().in(Feet));
       Logger.recordOutput(
           subLogTitle + "Outpost/TargetAngleDeg", outpostVARC.getRotationTarget().getDegrees());
+      Logger.recordOutput(subLogTitle + "Outpost/TargetPose", outpostVARC.getTargetPose());
+      Logger.recordOutput(subLogTitle + "Depot/TargetPose", depotVARC.getTargetPose());
+      Logger.recordOutput(
+          subLogTitle + "ClosestDropoff/TargetPose", closestDropoff.getTargetPose());
     }
   }
 

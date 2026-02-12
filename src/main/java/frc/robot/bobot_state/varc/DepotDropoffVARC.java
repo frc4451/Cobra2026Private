@@ -8,7 +8,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.bobot_state.BobotState;
 import org.littletonrobotics.AllianceFlipUtil;
 import org.littletonrobotics.FieldConstants.Depot;
-import org.littletonrobotics.junction.Logger;
 import org.robotzgarage.frc2026.math.distance_calc.PoseUtils;
 import org.robotzgarage.frc2026.math.varc.TargetAngleTracker;
 
@@ -28,8 +27,6 @@ public class DepotDropoffVARC extends TargetAngleTracker {
     this.rotationTarget =
         depotPose.relativeTo(robotPose).getTranslation().getAngle().plus(robotPose.getRotation());
 
-    Logger.recordOutput("DepotVARC/DepotPose", depotPose);
-
-    Logger.recordOutput("DepotVARC/Distance", distance);
+    this.targetPose = depotPose;
   }
 }

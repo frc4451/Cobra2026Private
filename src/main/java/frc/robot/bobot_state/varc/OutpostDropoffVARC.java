@@ -8,7 +8,6 @@ import edu.wpi.first.units.measure.Distance;
 import frc.robot.bobot_state.BobotState;
 import org.littletonrobotics.AllianceFlipUtil;
 import org.littletonrobotics.FieldConstants.Outpost;
-import org.littletonrobotics.junction.Logger;
 import org.robotzgarage.frc2026.math.distance_calc.PoseUtils;
 import org.robotzgarage.frc2026.math.varc.TargetAngleTracker;
 
@@ -30,8 +29,6 @@ public class OutpostDropoffVARC extends TargetAngleTracker {
     this.distance = outpostDistance;
     this.rotationTarget =
         dropoffPose.relativeTo(robotPose).getTranslation().getAngle().plus(robotPose.getRotation());
-    Logger.recordOutput("OutpostVARC/DropoffPose", dropoffPose);
-
-    Logger.recordOutput("OutpostVARC/Distance", outpostDistance);
+    this.targetPose = dropoffPose;
   }
 }
