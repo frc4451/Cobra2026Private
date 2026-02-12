@@ -70,7 +70,7 @@ public class IntakeV1 extends SubsystemBase {
         });
   }
 
-  public Command setEndeffectorGoal() {
+  public Command endeffectorGoal() {
     return run(() -> endeffector.setGoalPosition(Degrees.of(endeffectorGoal.get())));
   }
 

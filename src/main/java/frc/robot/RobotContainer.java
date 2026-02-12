@@ -8,6 +8,8 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -25,8 +27,13 @@ import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.prototyping.IntakeV1;
 import frc.robot.subsystems.prototyping.IntakeV1Constants;
+import frc.robot.subsystems.prototyping.ShooterV1;
+import frc.robot.subsystems.prototyping.ShooterV1Constants;
 import org.littletonrobotics.LoggedTunableNumber;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIO;
+import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOSimTalonFX;
+import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOTalonFX;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFX;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFX;
@@ -42,12 +49,14 @@ public class RobotContainer {
   // Subsystems
   // EX. private final Example example;
   private final IntakeV1 intake;
+  private final ShooterV1 shooter;
 
   private final Drive drive;
 
   // Controller
   private final GarageCommandXboxController drivercontroller = new GarageCommandXboxController(0);
   private final GarageCommandXboxController operatorcontroller = new GarageCommandXboxController(1);
+  private final GarageCommandXboxController tunercontroller = new GarageCommandXboxController(2);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -59,12 +68,20 @@ public class RobotContainer {
     // SingleRollerIO exampleIO;
     SingleRollerIO intakeIO;
     SingleRollerIO endeffectorIO;
+
+    FollowRollersIO shooterIO;
+    SingleRollerIO towerIO;
+    SingleRollerIO kickerIO;
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, it's ALIVE!!! ALIIIIIIVVVE!!!!!
         // EX. exampleIO = new SingleRollerIOTalonFX(exampleConstants.exampleConfig);
         intakeIO = new SingleRollerIOTalonFX(IntakeV1Constants.intakeConfig);
         endeffectorIO = new SingleRollerIOTalonFX(IntakeV1Constants.endeffectorConfig);
+
+        shooterIO = new FollowRollersIOTalonFX(ShooterV1Constants.flywheelFollowersConfig);
+        towerIO = new SingleRollerIOTalonFX(ShooterV1Constants.towerConfig);
+        kickerIO = new SingleRollerIOTalonFX(ShooterV1Constants.kickerConfig);
 
         drive =
             new Drive(
@@ -81,6 +98,10 @@ public class RobotContainer {
         intakeIO = new SingleRollerIOSimTalonFX(IntakeV1Constants.intakeConfigSim);
         endeffectorIO = new SingleRollerIOSimTalonFX(IntakeV1Constants.endeffectorConfigSim);
 
+        shooterIO = new FollowRollersIOSimTalonFX(ShooterV1Constants.flywheelFollowersConfigSim);
+        towerIO = new SingleRollerIOSimTalonFX(ShooterV1Constants.towerConfigSim);
+        kickerIO = new SingleRollerIOSimTalonFX(ShooterV1Constants.kickerConfigSim);
+
         drive =
             new Drive(
                 new GyroIO() {},
@@ -96,6 +117,10 @@ public class RobotContainer {
         intakeIO = new SingleRollerIO() {};
         endeffectorIO = new SingleRollerIO() {};
 
+        shooterIO = new FollowRollersIO() {};
+        towerIO = new SingleRollerIO() {};
+        kickerIO = new SingleRollerIO() {};
+
         drive =
             new Drive(
                 new GyroIO() {},
@@ -107,6 +132,7 @@ public class RobotContainer {
     }
 
     intake = new IntakeV1(intakeIO, endeffectorIO);
+    shooter = new ShooterV1(shooterIO, towerIO, kickerIO);
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
     // Set up SysId routines
@@ -127,9 +153,8 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureDriverBindings(drivercontroller);
-
-    // Configure the button bindings
-    configureButtonBindings(drivercontroller);
+    configureOperatorBindings(operatorcontroller);
+    // configureTunerBindings(tunercontroller);
 
     DriverStation.silenceJoystickConnectionWarning(true);
   }
@@ -218,48 +243,54 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
-  private void configureButtonBindings(GarageCommandXboxController controller) {
-    // EX. controller.a().whileTrue(example.runshooterpercent(0.5));
-    //     // Intake Component controlls
-    //     controller
-    //         .leftBumper()
-    //         .onTrue(superstructure.endeffectorIn()); // when left bumper is pressed, move
-    // endeffector in
-    //     controller
-    //         .rightBumper()
-    //         .onTrue(superstructure.endeffectorOut()); // when right bumper is pressed, move
-    // endeffector
-    //     // out
-    //     controller
-    //         .rightBumper() // when right bumper is pressed
-    //         .and(superstructure.isEndeffectorOut()) // if endeffector is out
-    //         .whileTrue(superstructure.runIntakeCommand()); // run intake, while right bumper is
-    // held
+  private void configureOperatorBindings(GarageCommandXboxController controller) {
+    // intake controll
+    controller.povLeft().onTrue(intake.runIntakeVoltageOut());
+    controller.povRight().onTrue(intake.stop());
+    controller.povUp().onTrue(intake.endeffectorGoal());
+    controller.povUp().onTrue(intake.endeffectorHome());
 
-    //     // Feeder Component controlls
-    //     controller
-    //         .a()
-    //         .whileTrue(superstructure.runShooterCommand())
-    //         .whileFalse(superstructure.runShooterCommand(0.0));
+    // shooter controll
+    controller.y().onTrue(shooter.stop());
+    controller.b().onTrue(shooter.runShooterVelocityTorqueCurrent());
+    controller.a().onTrue(shooter.runShooterTuning());
+  }
 
-    //     controller
-    //         .a()
-    //         .and(superstructure.isShooterReady())
-    //         .whileTrue(superstructure.runFeederCommand())
-    //         .whileTrue(superstructure.runSpinerCommand())
-    //         .whileFalse(superstructure.runFeederCommand(0.0))
-    //         .whileFalse(superstructure.runSpinerCommand(0.0));
+  /**
+   * Use this method to define your button->command mappings. Buttons can be created by
+   * instantiating a {@link GenericHID} or one of its subclasses ({@link
+   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
+   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
+   */
+  private void configureTunerBindings(GarageCommandXboxController controller) {
+    // intake controll
+    controller.povLeft().onTrue(intake.runIntakeVoltageOut());
+    controller.povRight().onTrue(intake.stop());
+    controller.povUp().onTrue(intake.endeffectorGoal());
+    controller.povUp().onTrue(intake.endeffectorHome());
 
-    // Shooter Component controlls
+    // shooter controll
+    controller.y().onTrue(shooter.stop());
+    controller.b().onTrue(shooter.runShooterVelocityTorqueCurrent());
+    controller.a().onTrue(shooter.runShooterTuning());
 
-    //   }
-    controller.a().onTrue(intake.runIntakePercentOut());
-    // controller.b().onTrue(intake.runIntakeTorqueCurrent());
-    // controller.x().onTrue(intake.runIntakeVoltageOut());
-    controller.y().onTrue(intake.stop());
-
-    // controller.povUp().onTrue(intake.setEndeffectorGoal());
-    // controller.povDown().onTrue(intake.endeffectorHome());
+    // drive controll
+    drive.setDefaultCommand(
+        DriveCommands.joystickDrive(
+            drive,
+            () -> -controller.getLeftY(),
+            () -> -controller.getLeftX(),
+            () -> controller.getRightX()));
+    controller
+        .start()
+        .onTrue(
+            Commands.runOnce(
+                    () ->
+                        drive.setPose(
+                            new Pose2d(
+                                drive.getWheelOdometry().getTranslation(), Rotation2d.kZero)),
+                    drive)
+                .ignoringDisable(true));
   }
 
   /**

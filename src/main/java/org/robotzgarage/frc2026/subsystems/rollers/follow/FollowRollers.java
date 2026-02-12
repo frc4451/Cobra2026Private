@@ -45,8 +45,8 @@ public class FollowRollers {
     io.runPercentOutput(percent);
   }
 
-  public void runTorqueCurrent(Current amps) {
-    io.runTorqueCurrent(amps);
+  public void runTorqueCurrent(Current current) {
+    io.runTorqueCurrent(current);
   }
 
   public void setVelocityTorqueCurrent(AngularVelocity velocity) {
