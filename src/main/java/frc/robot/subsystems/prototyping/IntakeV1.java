@@ -15,7 +15,7 @@ public class IntakeV1 extends SubsystemBase {
   private static final String name = "/IntakeV1";
 
   private static final LoggedTunableNumber intakePercent =
-      new LoggedTunableNumber(name + "/IntakePercent", 0.5);
+      new LoggedTunableNumber(name + "/IntakePercent", 0.75);
   private static final LoggedTunableNumber intakeAmps =
       new LoggedTunableNumber(name + "/IntakeAmps", 20.0);
   private static final LoggedTunableNumber intakeVoltage =

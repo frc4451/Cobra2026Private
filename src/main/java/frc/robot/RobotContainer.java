@@ -8,8 +8,6 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -17,7 +15,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.bobot_state.BobotState;
-import frc.robot.commands.AutoCommands;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -28,7 +25,6 @@ import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.prototyping.IntakeV1;
 import frc.robot.subsystems.prototyping.IntakeV1Constants;
-import org.littletonrobotics.FieldConstants.Hub;
 import org.littletonrobotics.LoggedTunableNumber;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
@@ -133,7 +129,7 @@ public class RobotContainer {
     configureDriverBindings(drivercontroller);
 
     // Configure the button bindings
-    configureButtonBindings(operatorcontroller);
+    configureButtonBindings(drivercontroller);
 
     DriverStation.silenceJoystickConnectionWarning(true);
   }
@@ -156,39 +152,40 @@ public class RobotContainer {
             () -> -controller.getLeftX(),
             () -> controller.getRightX()));
 
-    controller
-        .a()
-        .onTrue(
-            AutoCommands.interpolationDistanceHelper(
-                drive,
-                new Pose2d(
-                    Hub.innerCenterPoint.toTranslation2d(),
-                    Hub.nearFace.getRotation().plus(Rotation2d.k180deg)),
-                feetFromCenterOfHubX,
-                feetFromCenterOfHubY));
+    // controller
+    //     .a()
+    //     .onTrue(
+    //         AutoCommands.interpolationDistanceHelper(
+    //             drive,
+    //             new Pose2d(
+    //                 Hub.innerCenterPoint.toTranslation2d(),
+    //                 Hub.nearFace.getRotation().plus(Rotation2d.k180deg)),
+    //             feetFromCenterOfHubX,
+    //             feetFromCenterOfHubY));
 
-    controller
-        .b()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> Rotation2d.kZero));
+    // controller
+    //     .b()
+    //     .whileTrue(
+    //         DriveCommands.joystickDriveAtAngle(
+    //             drive,
+    //             () -> -controller.getLeftY(),
+    //             () -> -controller.getLeftX(),
+    //             () -> Rotation2d.kZero));
 
     // controller.y().onTrue(drive.setPose(0.0));
 
     // Switch to X pattern when X button is pressed
-    controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
-    controller
-        .x()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> BobotState.getTrenchVARC().getRotationTarget()));
+    // controller
+    //     .x()
+    //     .whileTrue(
+    //         DriveCommands.joystickDriveAtAngle(
+    //             drive,
+    //             () -> -controller.getLeftY(),
+    //             () -> -controller.getLeftX(),
+    //             () -> BobotState.getTrenchVARC().getRotationTarget()));
+
     // // Lock to 0° when A button is held
     // controller
     //     .a()
@@ -257,12 +254,12 @@ public class RobotContainer {
 
     //   }
     controller.a().onTrue(intake.runIntakePercentOut());
-    controller.b().onTrue(intake.runIntakeTorqueCurrent());
-    controller.x().onTrue(intake.runIntakeVoltageOut());
+    // controller.b().onTrue(intake.runIntakeTorqueCurrent());
+    // controller.x().onTrue(intake.runIntakeVoltageOut());
     controller.y().onTrue(intake.stop());
 
-    controller.povUp().onTrue(intake.setEndeffectorGoal());
-    controller.povDown().onTrue(intake.endeffectorHome());
+    // controller.povUp().onTrue(intake.setEndeffectorGoal());
+    // controller.povDown().onTrue(intake.endeffectorHome());
   }
 
   /**

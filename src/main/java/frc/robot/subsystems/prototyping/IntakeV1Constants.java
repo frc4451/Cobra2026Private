@@ -23,13 +23,13 @@ import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfig;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfigSim;
 
 public class IntakeV1Constants {
-  public static final double intakeReduction = 5.0;
-  public static final double endeffectorReduction = 5.0;
+  public static final double intakeReduction = 1.0;
+  public static final double endeffectorReduction = 75.0;
 
   public static final FlywheelConfig flywheelConfig =
       FlywheelConfig.builder()
           .radius(Inches.of(3.0))
-          .gearbox(DCMotor.getKrakenX60Foc(1))
+          .gearbox(DCMotor.getFalcon500Foc(1))
           .moi(0.00002)
           .reduction(intakeReduction)
           .build();
@@ -37,13 +37,13 @@ public class IntakeV1Constants {
   public static final TalonFXConfig intakeConfig =
       TalonFXConfig.builder()
           .canId(31)
-          .canBus(Constants.rioBus)
-          // .phoenixUpdateFreqHz(50)
+          .canBus(Constants.susBus)
+          .phoenixUpdateFreqHz(50)
           .reduction(intakeReduction)
           .currentLimitAmps(40)
-          .invert(true)
+          .invert(false)
           .isBrakeMode(true)
-          .foc(Constants.focEnabled)
+          .foc(false)
           .slot0Config(
               new Slot0Configs()
                   // feedforward
@@ -70,7 +70,7 @@ public class IntakeV1Constants {
 
   public static final PivotConfig pivotConfig =
       PivotConfig.builder()
-          .gearbox(DCMotor.getKrakenX60Foc(1))
+          .gearbox(DCMotor.getFalcon500Foc(1))
           .reduction(endeffectorReduction)
           .armLength(Feet.of(1))
           .initialAngle(Degrees.of(0))
@@ -84,12 +84,13 @@ public class IntakeV1Constants {
   public static final TalonFXConfig endeffectorConfig =
       TalonFXConfig.builder()
           .canId(32)
-          .canBus(Constants.rioBus)
+          .canBus(Constants.susBus)
+          .phoenixUpdateFreqHz(50)
           .reduction(endeffectorReduction)
-          .currentLimitAmps(30)
+          .currentLimitAmps(40)
           .invert(true)
           .isBrakeMode(true)
-          .foc(true)
+          .foc(false)
           .slot0Config(
               // When in doubt, refer to CTRE
               // https://v6.docs.ctr-electronics.com/en/latest/docs/api-reference/device-specific/talonfx/motion-magic.html
