@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import frc.robot.bobot_state.FieldState.FieldZone;
 import frc.robot.bobot_state.varc.BumpVARC;
 import frc.robot.bobot_state.varc.DepotDropoffVARC;
 import frc.robot.bobot_state.varc.HubVARC;
@@ -30,6 +31,8 @@ public class BobotState extends VirtualSubsystem {
   @Getter private static final OutpostDropoffVARC outpostVARC = new OutpostDropoffVARC();
   @Getter private static final DepotDropoffVARC depotVARC = new DepotDropoffVARC();
   @Getter private static TargetAngleTracker closestDropoff;
+
+  @Getter private static TargetAngleTracker currentTargetVARC;
 
   private static final Queue<PoseObservation> globalPoseObservations =
       new LinkedBlockingQueue<>(20);
@@ -74,6 +77,15 @@ public class BobotState extends VirtualSubsystem {
     outpostVARC.update();
     depotVARC.update();
     getClosestDropoffVARC();
+
+    {
+      FieldZone currentZone = FieldState.getFieldZone();
+      BobotState.currentTargetVARC =
+          currentZone == FieldZone.NEAR ? hubVARC : BobotState.closestDropoff;
+
+      Logger.recordOutput(
+          "CurrentTargetVARC/TargetPosition", BobotState.currentTargetVARC.getTargetPose());
+    }
 
     {
       String subLogTitle = logRoot + "Interpolation/";
