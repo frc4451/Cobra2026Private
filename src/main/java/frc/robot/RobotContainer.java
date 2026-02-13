@@ -29,7 +29,6 @@ import frc.robot.subsystems.prototyping.IntakeV1;
 import frc.robot.subsystems.prototyping.IntakeV1Constants;
 import frc.robot.subsystems.prototyping.ShooterV1;
 import frc.robot.subsystems.prototyping.ShooterV1Constants;
-import org.littletonrobotics.LoggedTunableNumber;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIO;
 import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOSimTalonFX;
@@ -50,7 +49,6 @@ public class RobotContainer {
   // EX. private final Example example;
   private final IntakeV1 intake;
   private final ShooterV1 shooter;
-
   private final Drive drive;
 
   // Controller
@@ -152,10 +150,12 @@ public class RobotContainer {
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // Configure the button bindings
-    configureDriverBindings(drivercontroller);
-    configureOperatorBindings(operatorcontroller);
-    // configureTunerBindings(tunercontroller);
-
+    if (Constants.tuningMode) {
+      configureTunerBindings(tunercontroller);
+    } else {
+      configureDriverBindings(drivercontroller);
+      configureOperatorBindings(operatorcontroller);
+    }
     DriverStation.silenceJoystickConnectionWarning(true);
   }
 
@@ -166,8 +166,8 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureDriverBindings(GarageCommandXboxController controller) {
-    LoggedTunableNumber feetFromCenterOfHubX = new LoggedTunableNumber("FeetFromHubCenterX", 0);
-    LoggedTunableNumber feetFromCenterOfHubY = new LoggedTunableNumber("FeetFromHubCenterY", 0);
+    // LoggedTunableNumber feetFromCenterOfHubX = new LoggedTunableNumber("FeetFromHubCenterX", 0);
+    // LoggedTunableNumber feetFromCenterOfHubY = new LoggedTunableNumber("FeetFromHubCenterY", 0);
 
     // Default command, normal field-relative drive
     drive.setDefaultCommand(
@@ -248,7 +248,7 @@ public class RobotContainer {
     controller.povLeft().onTrue(intake.runIntakeVoltageOut());
     controller.povRight().onTrue(intake.stop());
     controller.povUp().onTrue(intake.endeffectorGoal());
-    controller.povUp().onTrue(intake.endeffectorHome());
+    controller.povDown().onTrue(intake.endeffectorHome());
 
     // shooter controll
     controller.y().onTrue(shooter.stop());
@@ -267,7 +267,7 @@ public class RobotContainer {
     controller.povLeft().onTrue(intake.runIntakeVoltageOut());
     controller.povRight().onTrue(intake.stop());
     controller.povUp().onTrue(intake.endeffectorGoal());
-    controller.povUp().onTrue(intake.endeffectorHome());
+    controller.povDown().onTrue(intake.endeffectorHome());
 
     // shooter controll
     controller.y().onTrue(shooter.stop());
