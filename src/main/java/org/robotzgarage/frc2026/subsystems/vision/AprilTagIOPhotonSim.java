@@ -4,9 +4,11 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import frc.robot.subsystems.vision.VisionConstants;
+import java.util.List;
 import java.util.function.Supplier;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
+import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.PoseEstimationMethod;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.SimCameraConfig;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.VisionSource;
 
@@ -17,9 +19,9 @@ public class AprilTagIOPhotonSim extends AprilTagIOPhoton {
       VisionSource source,
       AprilTagFieldLayout aprilTagFieldLayout,
       Supplier<Rotation2d> headingSupplier,
-      boolean calculateConstrainedSolvePNP,
+      List<PoseEstimationMethod> supportedPoseEstimationMethods,
       SimCameraConfig config) {
-    super(source, aprilTagFieldLayout, headingSupplier, calculateConstrainedSolvePNP);
+    super(source, aprilTagFieldLayout, headingSupplier, supportedPoseEstimationMethods);
 
     SimCameraProperties props = config.apply(new SimCameraProperties());
 

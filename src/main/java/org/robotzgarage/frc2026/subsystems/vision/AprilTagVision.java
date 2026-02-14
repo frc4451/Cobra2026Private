@@ -14,13 +14,12 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.AprilTagCameraConfig;
-import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.PoseEstimationMethod;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.PoseObservation;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.VisionSource;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.VisionSubsystemConfig;
 import org.robotzgarage.frc2026.util.VirtualSubsystem;
 
-public class Vision extends VirtualSubsystem {
+public class AprilTagVision extends VirtualSubsystem {
   public static record AprilTagCamera(
       AprilTagIO io,
       AprilTagIOInputsAutoLogged inputs,
@@ -34,9 +33,10 @@ public class Vision extends VirtualSubsystem {
 
   private final Supplier<Pose2d> globalPoseSupplier;
   private final Consumer<PoseObservation> offerGlobalPoseObservation;
+  private final Consumer<PoseObservation> offerTrigPoseObservation;
   private final Consumer<PoseObservation> offerConstrainedPoseObservation;
 
-  public Vision(VisionSubsystemConfig config) {
+  public AprilTagVision(VisionSubsystemConfig config) {
     for (AprilTagCameraConfig aprilTagCameraConfig : config.aprilTagCameraConfigs()) {
       AprilTagIO io;
 
@@ -47,7 +47,7 @@ public class Vision extends VirtualSubsystem {
                   aprilTagCameraConfig.source(),
                   config.aprilTagFieldLayout(),
                   config.robotHeadingSupplier(),
-                  config.calculateConstrainedSolvePNP());
+                  aprilTagCameraConfig.estimationMethods());
           break;
         case SIM:
           io =
@@ -55,7 +55,7 @@ public class Vision extends VirtualSubsystem {
                   aprilTagCameraConfig.source(),
                   config.aprilTagFieldLayout(),
                   config.robotHeadingSupplier(),
-                  config.calculateConstrainedSolvePNP(),
+                  aprilTagCameraConfig.estimationMethods(),
                   aprilTagCameraConfig.simConfig());
           break;
         case REPLAY:
@@ -78,6 +78,7 @@ public class Vision extends VirtualSubsystem {
     }
 
     this.globalPoseSupplier = config.globalPoseSupplier();
+    this.offerTrigPoseObservation = config.offerTrigPoseObservation();
     this.offerConstrainedPoseObservation = config.offerConstrainedPoseObservation();
     this.offerGlobalPoseObservation = config.offerGlobalPoseObservation();
   }
@@ -121,11 +122,18 @@ public class Vision extends VirtualSubsystem {
       rejectedAprilTagPoses.addAll(Arrays.asList(cam.inputs.rejectedAprilTagPoses));
 
       for (PoseObservation observation : cam.inputs.validPoseObservations) {
-        if ((observation.method() == PoseEstimationMethod.TRIG)
-            || (observation.method() == PoseEstimationMethod.CONSTRAINED)) {
-          this.offerConstrainedPoseObservation.accept(observation);
-        } else {
-          this.offerGlobalPoseObservation.accept(observation);
+        switch (observation.method()) {
+          case TRIG:
+            this.offerTrigPoseObservation.accept(observation);
+            break;
+          case CONSTRAINED:
+            this.offerConstrainedPoseObservation.accept(observation);
+            break;
+          case MULTI_TAG:
+          case SINGLE_TAG:
+          default:
+            this.offerGlobalPoseObservation.accept(observation);
+            break;
         }
       }
     }

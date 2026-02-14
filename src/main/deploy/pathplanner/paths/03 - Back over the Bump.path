@@ -1,0 +1,75 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.25,
+        "y": 2.152425106990014
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 7.956883636233558,
+        "y": 2.0713302419423845
+      },
+      "isLocked": false,
+      "linkedName": "02 - Down the Line End"
+    },
+    {
+      "anchor": {
+        "x": 5.5,
+        "y": 2.3594436519258206
+      },
+      "prevControl": {
+        "x": 6.165068829196237,
+        "y": 2.340326133128435
+      },
+      "nextControl": {
+        "x": 3.9689331140025272,
+        "y": 2.403454435002943
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.5,
+        "y": 2.3594436519258206
+      },
+      "prevControl": {
+        "x": 3.25091744264637,
+        "y": 2.3380455299947807
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "03 - Back over the Bump End"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.8196721311475293,
+      "rotationDegrees": -135.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -116.93206154411656
+  },
+  "reversed": false,
+  "folder": "Vision Testing",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 135.0
+  },
+  "useDefaultConstraints": true
+}

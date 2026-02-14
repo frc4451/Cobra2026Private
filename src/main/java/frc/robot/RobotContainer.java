@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.autonomous.AutonomousHelpers;
 import frc.robot.bobot_state.BobotState;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
@@ -37,7 +38,7 @@ import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOTalonFX
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFX;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFX;
-import org.robotzgarage.frc2026.subsystems.vision.Vision;
+import org.robotzgarage.frc2026.subsystems.vision.AprilTagVision;
 import org.robotzgarage.frc2026.util.GarageCommandXboxController;
 
 /**
@@ -54,7 +55,7 @@ public class RobotContainer {
   private final Drive drive;
 
   // Vision testing
-  private final Vision vision;
+  private final AprilTagVision aprilTagVision;
 
   // Controller
   private final GarageCommandXboxController drivercontroller = new GarageCommandXboxController(0);
@@ -138,8 +139,10 @@ public class RobotContainer {
 
     intake = new IntakeV1(intakeIO, endeffectorIO);
     shooter = new ShooterV1(shooterIO, towerIO, kickerIO);
+    aprilTagVision = new AprilTagVision(VisionConstants.visionSubsystemConfig);
+
+    // Autonomous choices
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-    vision = new Vision(VisionConstants.visionSubsystemConfig);
 
     // Set up SysId routines
     autoChooser.addOption(
@@ -160,11 +163,12 @@ public class RobotContainer {
     // Configure the button bindings
     if (Constants.tuningMode) {
       configureTunerBindings(tunercontroller);
-    } else {
-      configureDriverBindings(drivercontroller);
-      configureOperatorBindings(operatorcontroller);
-    }
-    DriverStation.silenceJoystickConnectionWarning(true);
+    } 
+    
+    configureDriverBindings(drivercontroller);
+    configureOperatorBindings(operatorcontroller);
+    
+      DriverStation.silenceJoystickConnectionWarning(true);
     // configureVisionDebugControls(visionDebugController);
   }
 
@@ -197,7 +201,7 @@ public class RobotContainer {
     //             feetFromCenterOfHubX,
     //             feetFromCenterOfHubY));
 
-controller
+    controller
         .a()
         .whileTrue(
             DriveCommands.joystickDriveAtAngle(
@@ -214,6 +218,14 @@ controller
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX(),
                 () -> BobotState.getHubVARC().getRotationTarget()));
+
+    controller.start().onTrue(AutonomousHelpers.driveToInitialPose("01 - Cross the Bump"));
+
+    controller
+        .rightBumper()
+        .whileTrue(
+            DriveCommands.joystickDrive(
+                drive, () -> -controller.getLeftY(), () -> 0.0, () -> controller.getRightX()));
 
     controller
         .x()
@@ -232,7 +244,6 @@ controller
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX(),
                 () -> BobotState.getOutpostVARC().getRotationTarget()));
-
   }
 
   /**

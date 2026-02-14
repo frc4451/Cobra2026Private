@@ -31,20 +31,22 @@ public final class VisionTypes {
       @NonNull Distance forwardPositive,
       /** From center of robot towards "left" */
       @NonNull Distance leftPositive,
-      /** From center of robot (on the floor) towards "up" */
+      /** From center of robot (on the floor) towards "up". */
       @NonNull Distance upPositive,
-      /** Rotation over "X", like rolling a plane while turning */
-      @NonNull Angle rollPositive,
-      /** Rotation over "Y", like angling a plane's nose up */
-      @NonNull Angle pitchPositive,
-      /** Rotation over "Z", like rotating a robot on the floor */
-      @NonNull Angle yawPositive) {
+      /** Rotation over "X", like rolling a plane while turning. CCW is Positive. */
+      @NonNull Angle rollCCWPositive,
+      /** Rotation over "Y", like angling a plane's nose up. CCW is Positive */
+      @NonNull Angle pitchCCWPositive,
+      /** Rotation over "Z", like rotating a robot on the floor. CCW is Positive. */
+      @NonNull Angle yawCCWPositive) {
     public Transform3d getTransform() {
       return new Transform3d(
           new Translation3d(
               forwardPositive.in(Meters), leftPositive.in(Meters), upPositive.in(Meters)),
           new Rotation3d(
-              -rollPositive.in(Radians), -pitchPositive.in(Radians), -yawPositive.in(Radians)));
+              rollCCWPositive.in(Radians),
+              pitchCCWPositive.in(Radians),
+              yawCCWPositive.in(Radians)));
     }
   }
 
@@ -56,7 +58,10 @@ public final class VisionTypes {
     }
   }
 
-  public static final record AprilTagCameraConfig(VisionSource source, SimCameraConfig simConfig) {}
+  public static final record AprilTagCameraConfig(
+      VisionSource source,
+      SimCameraConfig simConfig,
+      List<PoseEstimationMethod> estimationMethods) {}
 
   public static enum PoseEstimationMethod {
     MULTI_TAG,
@@ -77,7 +82,7 @@ public final class VisionTypes {
       @NonNull Supplier<Pose2d> globalPoseSupplier,
       @NonNull Consumer<PoseObservation> offerGlobalPoseObservation,
       @NonNull Consumer<PoseObservation> offerConstrainedPoseObservation,
-      Boolean calculateConstrainedSolvePNP,
+      @NonNull Consumer<PoseObservation> offerTrigPoseObservation,
       Double ambiguityCutoff,
       Distance singleTagPoseCutoff,
       ConstrainedSolvepnpParams constrainedSolvePnpParams,
@@ -86,10 +91,6 @@ public final class VisionTypes {
       Matrix<N3, N1> multiTagStdDevs,
       Matrix<N3, N1> tagStdDevs) {
     public VisionSubsystemConfig {
-      if (calculateConstrainedSolvePNP == null) {
-        calculateConstrainedSolvePNP = false;
-      }
-
       if (ambiguityCutoff == null) {
         ambiguityCutoff = 0.05;
       }
@@ -115,6 +116,7 @@ public final class VisionTypes {
   }
 
   public record PoseObservation(
+      String source,
       Pose3d robotPose,
       double timestampSeconds,
       double ambiguity,
@@ -192,13 +194,24 @@ public final class VisionTypes {
             defaultCalibrationError,
             stockLatency);
 
-    public static SimCameraConfig THRIFTY_CAM_90 =
+    public static SimCameraConfig THRIFTY_CAM_95_MAX =
         new SimCameraConfig(
             Calibration.builder()
                 .widthPx(1600)
                 .heightPx(1304)
-                .fov(Rotation2d.fromDegrees(90))
+                .fov(Rotation2d.fromDegrees(95))
                 .fps(60)
+                .build(),
+            defaultCalibrationError,
+            stockLatency);
+
+    public static SimCameraConfig THRIFTY_CAM_95_720p =
+        new SimCameraConfig(
+            Calibration.builder()
+                .widthPx(1280)
+                .heightPx(720)
+                .fov(Rotation2d.fromDegrees(95))
+                .fps(90)
                 .build(),
             defaultCalibrationError,
             stockLatency);

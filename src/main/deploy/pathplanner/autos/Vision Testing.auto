@@ -1,0 +1,55 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "01 - Cross the Bump"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "02 - Down the Line"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "03 - Back over the Bump"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "04 - Under the Trench"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "05 - Back up the Line"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "06 - Back through the Trench"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "07 - Go Climb"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
