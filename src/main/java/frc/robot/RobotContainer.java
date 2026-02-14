@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.bobot_state.BobotState;
@@ -27,9 +28,17 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.prototyping.ShooterV1;
+import frc.robot.subsystems.prototyping.ShooterV1Constants;
 import frc.robot.subsystems.vision.VisionConstants;
 import org.littletonrobotics.LoggedTunableNumber;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIO;
+import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOSimTalonFX;
+import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOTalonFX;
+import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
+import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFX;
+import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFX;
 import org.robotzgarage.frc2026.subsystems.vision.Vision;
 import org.robotzgarage.frc2026.util.GarageCommandXboxController;
 
@@ -41,6 +50,9 @@ import org.robotzgarage.frc2026.util.GarageCommandXboxController;
  */
 public class RobotContainer {
   // Subsystems
+  // EX. private final Example example;
+  private final ShooterV1 shooter;
+
   private final Drive drive;
 
   // Vision testing
@@ -56,37 +68,21 @@ public class RobotContainer {
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
-  // private final SuperStructure superstructure;
-
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     new BobotState();
-    // Superstructure subsystems
-    // SingleRollerIO hoodIO;
-    // SingleRollerIO turretIO;
-    // SingleRollerIO shooterIO;
 
-    // SingleRollerIO feederIO;
-    // SingleRollerIO spinerIO;
-
-    // SingleRollerIO endeffectorIO;
-    // SingleRollerIO intakeIO;
-
+    // SingleRollerIO exampleIO;
+    FollowRollersIO flywheelRollersIO;
+    SingleRollerIO feederIO;
+    SingleRollerIO kickerIO;
     switch (Constants.currentMode) {
       case REAL:
-        // Real robot, instantiate hardware IO implementations
-        // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
-        // a CANcoder
-
-        // hoodIO = new SingleRollerIOTalonFX(HoodConstants.hoodConfig);
-        // turretIO = new SingleRollerIOTalonFX(TurretConstants.turretConfig);
-        // shooterIO = new SingleRollerIOTalonFX(ShooterConstants.shooterConfig);
-
-        // feederIO = new SingleRollerIOTalonFX(FeederConstants.feederConfig);
-        // spinerIO = new SingleRollerIOTalonFX(SpinerConstants.spinerConfig);
-
-        // endeffectorIO = new SingleRollerIOTalonFX(EndeffectorConstants.endeffectorConfig);
-        // intakeIO = new SingleRollerIOTalonFX(IntakeConstants.intakeConfig);
+        // Real robot, it's ALIVE!!! ALIIIIIIVVVE!!!!!
+        // EX. exampleIO = new SingleRollerIOTalonFX(exampleConstants.exampleConfig);
+        flywheelRollersIO = new FollowRollersIOTalonFX(ShooterV1Constants.flywheelFollowersConfig);
+        feederIO = new SingleRollerIOTalonFX(ShooterV1Constants.feederShooterConfig);
+        kickerIO = new SingleRollerIOTalonFX(ShooterV1Constants.kickerShooterConfig);
 
         drive =
             new Drive(
@@ -96,37 +92,16 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
 
-        // The ModuleIOTalonFXS implementation provides an example implementation for
-        // TalonFXS controller connected to a CANdi with a PWM encoder. The
-        // implementations
-        // of ModuleIOTalonFX, ModuleIOTalonFXS, and ModuleIOSpark (from the Spark
-        // swerve
-        // template) can be freely intermixed to support alternative hardware
-        // arrangements.
-        // Please see the AdvantageKit template documentation for more information:
-        // https://docs.advantagekit.org/getting-started/template-projects/talonfx-swerve-template#custom-module-implementations
-        //
-        // drive =
-        // new Drive(
-        // new GyroIOPigeon2(),
-        // new ModuleIOTalonFXS(TunerConstants.FrontLeft),
-        // new ModuleIOTalonFXS(TunerConstants.FrontRight),
-        // new ModuleIOTalonFXS(TunerConstants.BackLeft),
-        // new ModuleIOTalonFXS(TunerConstants.BackRight));
         break;
 
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
+        // EX. exampleIO = new SingleRollerIOSimTalonFX(exampleConstants.exampleConfigSim);
+        flywheelRollersIO =
+            new FollowRollersIOSimTalonFX(ShooterV1Constants.flywheelFollowersConfigSim);
+        feederIO = new SingleRollerIOSimTalonFX(ShooterV1Constants.feederConfigSim);
+        kickerIO = new SingleRollerIOSimTalonFX(ShooterV1Constants.kickerConfigSim);
 
-        // hoodIO = new SingleRollerIOSimTalonFX(HoodConstants.hoodConfigSim);
-        // turretIO = new SingleRollerIOSimTalonFX(TurretConstants.turretConfigSim);
-        // shooterIO = new SingleRollerIOSimTalonFX(ShooterConstants.shooterConfigSim);
-
-        // feederIO = new SingleRollerIOSimTalonFX(FeederConstants.feederConfigSim);
-        // spinerIO = new SingleRollerIOSimTalonFX(SpinerConstants.spinerConfigSim);
-
-        // endeffectorIO = new SingleRollerIOSimTalonFX(EndeffectorConstants.hoodConfigSim);
-        // intakeIO = new SingleRollerIOSimTalonFX(IntakeConstants.intakeConfigSim);
         drive =
             new Drive(
                 new GyroIO() {},
@@ -138,16 +113,11 @@ public class RobotContainer {
 
       default:
         // Replayed robot, disable IO implementations
+        // EX. exampleIO = new SingleRollerIO() {};
+        flywheelRollersIO = new FollowRollersIO() {};
+        feederIO = new SingleRollerIO() {};
+        kickerIO = new SingleRollerIO() {};
 
-        // hoodIO = new SingleRollerIO() {};
-        // turretIO = new SingleRollerIO() {};
-        // shooterIO = new SingleRollerIO() {};
-
-        // feederIO = new SingleRollerIO() {};
-        // spinerIO = new SingleRollerIO() {};
-
-        // endeffectorIO = new SingleRollerIO() {};
-        // intakeIO = new SingleRollerIO() {};
         drive =
             new Drive(
                 new GyroIO() {},
@@ -158,13 +128,8 @@ public class RobotContainer {
         break;
     }
 
-    // superstructure =
-    //     new SuperStructure(
-    //         new ShooterComponent(hoodIO, turretIO, shooterIO),
-    //         new FeederComponent(feederIO, spinerIO),
-    //         new IntakeComponent(endeffectorIO, intakeIO));
+    shooter = new ShooterV1(flywheelRollersIO, feederIO, kickerIO);
 
-    // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
     // Set up SysId routines
@@ -184,6 +149,7 @@ public class RobotContainer {
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // Configure the button bindings
+
     configureDriverBindings(drivercontroller);
 
     vision = new Vision(VisionConstants.visionSubsystemConfig);
@@ -207,11 +173,8 @@ public class RobotContainer {
                   drive.setPose(desiredPose);
                 }));
     configureDriverBindings(drivercontroller);
-    // configureOperatorBindings(operatorcontroller);
-
     DriverStation.silenceJoystickConnectionWarning(true);
-
-    configureVisionDebugControls(visionDebugController);
+    // configureVisionDebugControls(visionDebugController);
   }
 
   /**
@@ -220,6 +183,14 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
+  private void configureButtonBindings(GarageCommandXboxController controller) {
+
+    // controller.x().whileTrue(shooter.runShooterFlywheelPercentOut());
+    // controller.x().whileTrue(shooter.runFeederPercentOutput());
+    // controller.x().whileTrue(shooter.runAllPercent());
+    controller.y().whileTrue(shooter.runAllVoltage());
+  }
+
   private void configureDriverBindings(GarageCommandXboxController controller) {
     LoggedTunableNumber feetFromCenterOfHubX = new LoggedTunableNumber("FeetFromHubCenterX", 0);
     LoggedTunableNumber feetFromCenterOfHubY = new LoggedTunableNumber("FeetFromHubCenterY", 0);
@@ -279,69 +250,12 @@ public class RobotContainer {
                 () -> -controller.getLeftX(),
                 () -> BobotState.getOutpostVARC().getRotationTarget()));
 
-    // // Lock to 0° when A button is held
-    // controller
-    //     .a()
-    //     .whileTrue(
-    //         DriveCommands.joystickDriveAtAngle(
-    //             drive,
-    //             () -> -controller.getLeftY(),
-    //             () -> -controller.getLeftX(),
-    //             () -> Rotation2d.kZero));
-
-    // // Switch to X pattern when X button is pressed
-    // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-
-    // // Reset gyro to 0° when B button is pressed
-    // controller
-    //     .b()
-    //     .onTrue(
-    //         Commands.runOnce(
-    //                 () ->
-    //                     drive.setPose(
-    //                         new Pose2d(
-    //                             drive.getWheelOdometry().getTranslation(), Rotation2d.kZero)),
-    //                 drive)
-    //             .ignoringDisable(true));
+    // controller.a().whileTrue(shooter.runShooterFlywheelVelocityTorqueCurrent());
+    // controller.x().whileTrue(shooter.runShooterFlywheelTorqueCurrent());
+    // controller.a().whileTrue(shooter.runFeederVolts());
+    controller.a().whileTrue(shooter.runShooterTuning());
+    controller.b().whileTrue(shooter.stop());
   }
-
-  private void configureVisionDebugControls(GarageCommandXboxController controller) {}
-
-  //   private void configureOperatorBindings(GarageCommandXboxController controller) {
-
-  //     // Intake Component controlls
-  //     controller
-  //         .leftBumper()
-  //         .onTrue(superstructure.endeffectorIn()); // when left bumper is pressed, move
-  // endeffector in
-  //     controller
-  //         .rightBumper()
-  //         .onTrue(superstructure.endeffectorOut()); // when right bumper is pressed, move
-  // endeffector
-  //     // out
-  //     controller
-  //         .rightBumper() // when right bumper is pressed
-  //         .and(superstructure.isEndeffectorOut()) // if endeffector is out
-  //         .whileTrue(superstructure.runIntakeCommand()); // run intake, while right bumper is
-  // held
-
-  //     // Feeder Component controlls
-  //     controller
-  //         .a()
-  //         .whileTrue(superstructure.runShooterCommand())
-  //         .whileFalse(superstructure.runShooterCommand(0.0));
-
-  //     controller
-  //         .a()
-  //         .and(superstructure.isShooterReady())
-  //         .whileTrue(superstructure.runFeederCommand())
-  //         .whileTrue(superstructure.runSpinerCommand())
-  //         .whileFalse(superstructure.runFeederCommand(0.0))
-  //         .whileFalse(superstructure.runSpinerCommand(0.0));
-
-  // Shooter Component controlls
-
-  //   }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -349,6 +263,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoChooser.get();
+    return Commands.none();
   }
 }
