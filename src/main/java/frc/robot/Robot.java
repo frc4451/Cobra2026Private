@@ -7,16 +7,22 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.vision.VisionConstants;
+import org.littletonrobotics.FieldConstants;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import org.photonvision.estimation.TargetModel;
+import org.photonvision.simulation.VisionTargetSim;
 import org.robotzgarage.frc2026.util.VirtualSubsystem;
 
 /**
@@ -150,6 +156,37 @@ public class Robot extends LoggedRobot {
     VisionConstants.aprilTagSim.ifPresent(
         aprilTagSim ->
             aprilTagSim.addAprilTags(VisionConstants.visionSubsystemConfig.aprilTagFieldLayout()));
+
+    VisionConstants.objectDetectionSim.ifPresent(
+        objectDetectionSim -> {
+          double fuelDiameterMeters = VisionConstants.fuelHeightMeters;
+          double spacingMeters = fuelDiameterMeters + 0.05;
+
+          TargetModel fuelPlaceholder =
+              new TargetModel(fuelDiameterMeters, fuelDiameterMeters, fuelDiameterMeters);
+          Translation3d fieldCenter =
+              new Translation3d(FieldConstants.fieldLength / 2, FieldConstants.fieldWidth / 2, 0.0);
+
+          // Put 9 in the center
+          for (int row = -1; row <= 1; ++row) {
+            for (int col = -1; col <= 1; ++col) {
+              double x = fieldCenter.getX() + (col * spacingMeters);
+              double y = fieldCenter.getY() + (row * spacingMeters);
+
+              Pose3d pose = new Pose3d(new Translation3d(x, y, 0.0), Rotation3d.kZero);
+
+              objectDetectionSim.addVisionTargets(
+                  "fuel", new VisionTargetSim(pose, fuelPlaceholder));
+            }
+          }
+
+          // Put another rogue fuel somewhere near it but not in the first cluster
+          objectDetectionSim.addVisionTargets(
+              "fuel",
+              new VisionTargetSim(
+                  new Pose3d(fieldCenter.plus(new Translation3d(2.0, 0.0, 0.0)), Rotation3d.kZero),
+                  fuelPlaceholder));
+        });
   }
 
   /** This function is called periodically whilst in simulation. */

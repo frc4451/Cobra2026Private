@@ -29,6 +29,7 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.vision.ObjectDetectionVision;
 import frc.robot.subsystems.vision.VisionConstants;
 import org.littletonrobotics.FieldConstants.Hub;
 import org.littletonrobotics.LoggedTunableNumber;
@@ -48,6 +49,7 @@ public class RobotContainer {
 
   // Vision testing
   private final AprilTagVision aprilTagVision;
+  private final ObjectDetectionVision objectDetectionVision;
 
   // Controller
   private final GarageCommandXboxController drivercontroller = new GarageCommandXboxController(0);
@@ -190,6 +192,7 @@ public class RobotContainer {
     configureDriverBindings(drivercontroller);
 
     aprilTagVision = new AprilTagVision(VisionConstants.visionSubsystemConfig);
+    objectDetectionVision = new ObjectDetectionVision();
 
     SmartDashboard.putNumber("CameraTest/PoseXMeters", 0);
     SmartDashboard.putNumber("CameraTest/PoseYMeters", 0);

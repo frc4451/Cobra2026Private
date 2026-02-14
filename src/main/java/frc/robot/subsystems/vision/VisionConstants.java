@@ -15,6 +15,7 @@ import java.util.Optional;
 import org.photonvision.PhotonPoseEstimator.ConstrainedSolvepnpParams;
 import org.photonvision.simulation.VisionSystemSim;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.AprilTagCameraConfig;
+import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.ObjectDetectionCameraConfig;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.PoseEstimationMethod;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.RobotRelativeTransform;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.SimCameraConfig;
@@ -26,6 +27,39 @@ public class VisionConstants {
       Constants.currentMode == Mode.SIM
           ? Optional.of(new VisionSystemSim("AprilTagSim"))
           : Optional.empty();
+
+  public static final Optional<VisionSystemSim> objectDetectionSim =
+      Constants.currentMode == Mode.SIM
+          ? Optional.of(new VisionSystemSim("ObjectDetectionSim"))
+          : Optional.empty();
+
+  public static final ObjectDetectionCameraConfig intakeFuelDetection =
+      new ObjectDetectionCameraConfig(
+          new VisionSource(
+              "IntakeFuelDetection",
+              RobotRelativeTransform.builder()
+                  .forwardPositive(Inches.of(-25.160))
+                  .leftPositive(Inches.of(0))
+                  .upPositive(Inches.of((20.750 - 7.509) / 2))
+                  .rollCCWPositive(Degrees.zero())
+                  .pitchCCWPositive(Degrees.of(15.0))
+                  .yawCCWPositive(Degrees.of(180))
+                  .build()),
+          SimCameraConfig.ARDUCAM_OV9782_100);
+
+  public static final ObjectDetectionCameraConfig hopperFuelDetection =
+      new ObjectDetectionCameraConfig(
+          new VisionSource(
+              "HopperFuelDetection",
+              RobotRelativeTransform.builder()
+                  .forwardPositive(Inches.of(6.691))
+                  .leftPositive(Inches.of(2.625))
+                  .upPositive(Inches.of(19.256))
+                  .rollCCWPositive(Degrees.zero())
+                  .pitchCCWPositive(Degrees.of(15.0))
+                  .yawCCWPositive(Degrees.of(180))
+                  .build()),
+          SimCameraConfig.ARDUCAM_OV9782_100);
 
   public static final List<AprilTagCameraConfig> aprilTagCamerasConfigs =
       List.of(
@@ -132,4 +166,6 @@ public class VisionConstants {
           .multiTagStdDevs(VecBuilder.fill(0.5, 0.5, Double.MAX_VALUE))
           .tagStdDevs(VecBuilder.fill(0, 0, Double.MAX_VALUE))
           .build();
+
+  public static final double fuelHeightMeters = 0.150;
 }
