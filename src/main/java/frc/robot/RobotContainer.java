@@ -29,6 +29,7 @@ import frc.robot.subsystems.prototyping.IntakeV1;
 import frc.robot.subsystems.prototyping.IntakeV1Constants;
 import frc.robot.subsystems.prototyping.ShooterV1;
 import frc.robot.subsystems.prototyping.ShooterV1Constants;
+import frc.robot.subsystems.vision.VisionConstants;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIO;
 import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOSimTalonFX;
@@ -36,6 +37,7 @@ import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOTalonFX
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFX;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFX;
+import org.robotzgarage.frc2026.subsystems.vision.Vision;
 import org.robotzgarage.frc2026.util.GarageCommandXboxController;
 
 /**
@@ -51,10 +53,15 @@ public class RobotContainer {
   private final ShooterV1 shooter;
   private final Drive drive;
 
+  // Vision testing
+  private final Vision vision;
+
   // Controller
   private final GarageCommandXboxController drivercontroller = new GarageCommandXboxController(0);
   private final GarageCommandXboxController operatorcontroller = new GarageCommandXboxController(1);
   private final GarageCommandXboxController tunercontroller = new GarageCommandXboxController(2);
+  private final GarageCommandXboxController visionDebugController =
+      new GarageCommandXboxController(4);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -132,6 +139,7 @@ public class RobotContainer {
     intake = new IntakeV1(intakeIO, endeffectorIO);
     shooter = new ShooterV1(shooterIO, towerIO, kickerIO);
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+    vision = new Vision(VisionConstants.visionSubsystemConfig);
 
     // Set up SysId routines
     autoChooser.addOption(
@@ -157,6 +165,7 @@ public class RobotContainer {
       configureOperatorBindings(operatorcontroller);
     }
     DriverStation.silenceJoystickConnectionWarning(true);
+    // configureVisionDebugControls(visionDebugController);
   }
 
   /**
@@ -188,53 +197,42 @@ public class RobotContainer {
     //             feetFromCenterOfHubX,
     //             feetFromCenterOfHubY));
 
-    // controller
-    //     .b()
-    //     .whileTrue(
-    //         DriveCommands.joystickDriveAtAngle(
-    //             drive,
-    //             () -> -controller.getLeftY(),
-    //             () -> -controller.getLeftX(),
-    //             () -> Rotation2d.kZero));
+controller
+        .a()
+        .whileTrue(
+            DriveCommands.joystickDriveAtAngle(
+                drive,
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX(),
+                () -> BobotState.getClosestDropoff().getRotationTarget()));
 
-    // controller.y().onTrue(drive.setPose(0.0));
+    controller
+        .b()
+        .whileTrue(
+            DriveCommands.joystickDriveAtAngle(
+                drive,
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX(),
+                () -> BobotState.getHubVARC().getRotationTarget()));
 
-    // Switch to X pattern when X button is pressed
-    // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    controller
+        .x()
+        .whileTrue(
+            DriveCommands.joystickDriveAtAngle(
+                drive,
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX(),
+                () -> BobotState.getClosestTraversal().getRotationTarget()));
 
-    // controller
-    //     .x()
-    //     .whileTrue(
-    //         DriveCommands.joystickDriveAtAngle(
-    //             drive,
-    //             () -> -controller.getLeftY(),
-    //             () -> -controller.getLeftX(),
-    //             () -> BobotState.getTrenchVARC().getRotationTarget()));
+    controller
+        .y()
+        .whileTrue(
+            DriveCommands.joystickDriveAtAngle(
+                drive,
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX(),
+                () -> BobotState.getOutpostVARC().getRotationTarget()));
 
-    // // Lock to 0° when A button is held
-    // controller
-    //     .a()
-    //     .whileTrue(
-    //         DriveCommands.joystickDriveAtAngle(
-    //             drive,
-    //             () -> -controller.getLeftY(),
-    //             () -> -controller.getLeftX(),
-    //             () -> Rotation2d.kZero));
-
-    // // Switch to X pattern when X button is pressed
-    // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-
-    // // Reset gyro to 0° when B button is pressed
-    // controller
-    //     .b()
-    //     .onTrue(
-    //         Commands.runOnce(
-    //                 () ->
-    //                     drive.setPose(
-    //                         new Pose2d(
-    //                             drive.getWheelOdometry().getTranslation(), Rotation2d.kZero)),
-    //                 drive)
-    //             .ignoringDisable(true));
   }
 
   /**

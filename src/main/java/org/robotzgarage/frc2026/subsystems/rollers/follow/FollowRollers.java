@@ -55,29 +55,28 @@ public class FollowRollers {
       io.stop();
     }
 
-    if (
-      logTunablekp.hasChanged(hashCode())
+    if (logTunablekp.hasChanged(hashCode())
         || logTunableki.hasChanged(hashCode())
         || logTunablekd.hasChanged(hashCode())) {
-      this.io.updateFeedBack(GenericFeedbackConfig.builder()
-        .p(logTunablekp.get())
-        .i(logTunableki.get())
-        .d(logTunablekd.get())
-        .build()
-        );
+      this.io.updateFeedBack(
+          GenericFeedbackConfig.builder()
+              .p(logTunablekp.get())
+              .i(logTunableki.get())
+              .d(logTunablekd.get())
+              .build());
     }
 
-    if (logTunableks.hasChanged(hashCode()) 
-    || logTunablekg.hasChanged(hashCode()) 
-    || logTunablekv.hasChanged(hashCode())
-    || logTunableka.hasChanged(hashCode())) {
-      this.io.updateFeedForward(GenericFeedForwardConfig.builder()
-        .s(logTunableks.get())
-        .g(logTunablekg.get())
-        .v(logTunablekv.get())
-        .a(logTunableka.get())
-        .build()
-        );
+    if (logTunableks.hasChanged(hashCode())
+        || logTunablekg.hasChanged(hashCode())
+        || logTunablekv.hasChanged(hashCode())
+        || logTunableka.hasChanged(hashCode())) {
+      this.io.updateFeedForward(
+          GenericFeedForwardConfig.builder()
+              .s(logTunableks.get())
+              .g(logTunablekg.get())
+              .v(logTunablekv.get())
+              .a(logTunableka.get())
+              .build());
     }
   }
 

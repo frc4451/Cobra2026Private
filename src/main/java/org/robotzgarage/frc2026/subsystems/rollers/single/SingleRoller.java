@@ -5,7 +5,6 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
-
 import org.littletonrobotics.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 import org.robotzgarage.frc2026.util.MotorConfigs.GenericFeedForwardConfig;
@@ -51,29 +50,28 @@ public class SingleRoller {
       io.stop();
     }
 
-    if (
-      logTunablekp.hasChanged(hashCode())
+    if (logTunablekp.hasChanged(hashCode())
         || logTunableki.hasChanged(hashCode())
         || logTunablekd.hasChanged(hashCode())) {
-      this.io.updateFeedBack(GenericFeedbackConfig.builder()
-        .p(logTunablekp.get())
-        .i(logTunableki.get())
-        .d(logTunablekd.get())
-        .build()
-        );
+      this.io.updateFeedBack(
+          GenericFeedbackConfig.builder()
+              .p(logTunablekp.get())
+              .i(logTunableki.get())
+              .d(logTunablekd.get())
+              .build());
     }
 
-    if (logTunableks.hasChanged(hashCode()) 
-    || logTunablekg.hasChanged(hashCode()) 
-    || logTunablekv.hasChanged(hashCode())
-    || logTunableka.hasChanged(hashCode())) {
-      this.io.updateFeedForward(GenericFeedForwardConfig.builder()
-        .s(logTunableks.get())
-        .g(logTunablekg.get())
-        .v(logTunablekv.get())
-        .a(logTunableka.get())
-        .build()
-        );
+    if (logTunableks.hasChanged(hashCode())
+        || logTunablekg.hasChanged(hashCode())
+        || logTunablekv.hasChanged(hashCode())
+        || logTunableka.hasChanged(hashCode())) {
+      this.io.updateFeedForward(
+          GenericFeedForwardConfig.builder()
+              .s(logTunableks.get())
+              .g(logTunablekg.get())
+              .v(logTunablekv.get())
+              .a(logTunableka.get())
+              .build());
     }
   }
 

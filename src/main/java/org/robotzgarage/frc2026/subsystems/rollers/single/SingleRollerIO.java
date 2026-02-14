@@ -60,7 +60,7 @@ public interface SingleRollerIO {
     return LoggedRobot.defaultPeriodSecs;
   }
 
-/** Reads the PID configs giving a GenericFeedBackConfig */
+  /** Reads the PID configs giving a GenericFeedBackConfig */
   public default GenericFeedbackConfig readFeedBack() {
     return new GenericFeedbackConfig(0.0, 0.0, 0.0);
   }
