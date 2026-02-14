@@ -283,6 +283,7 @@ public class FieldConstants {
         new Translation3d(depth, (fieldWidth / 2) + distanceFromCenterY + (width / 2), height);
     public static final Translation3d rightCorner =
         new Translation3d(depth, (fieldWidth / 2) + distanceFromCenterY - (width / 2), height);
+    // public static final Pose2d depotPose2d =
   }
 
   public static class Outpost {
@@ -294,5 +295,8 @@ public class FieldConstants {
     // Relevant reference points on alliance side
     public static final Translation2d centerPoint =
         new Translation2d(0, aprilTagFieldLayout.getTagPose(29).get().getY());
+
+    /*Added by Benjamin*/
+    public static final Pose2d outpostPose2d = aprilTagFieldLayout.getTagPose(29).get().toPose2d();
   }
 }
