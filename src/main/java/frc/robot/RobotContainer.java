@@ -163,11 +163,12 @@ public class RobotContainer {
     // Configure the button bindings
     if (Constants.tuningMode) {
       configureTunerBindings(tunercontroller);
-    } else {
-      configureDriverBindings(drivercontroller);
-      configureOperatorBindings(operatorcontroller);
-    }
-    DriverStation.silenceJoystickConnectionWarning(true);
+    } 
+    
+    configureDriverBindings(drivercontroller);
+    configureOperatorBindings(operatorcontroller);
+    
+      DriverStation.silenceJoystickConnectionWarning(true);
     // configureVisionDebugControls(visionDebugController);
   }
 
