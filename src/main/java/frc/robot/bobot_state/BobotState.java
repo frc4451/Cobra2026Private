@@ -14,7 +14,6 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import lombok.Getter;
 import lombok.Setter;
-import org.littletonrobotics.AllianceFlipUtil;
 import org.littletonrobotics.FieldConstants.Hub;
 import org.littletonrobotics.junction.Logger;
 import org.robotzgarage.frc2026.math.varc.TargetAngleTracker;
@@ -30,6 +29,7 @@ public class BobotState extends VirtualSubsystem {
   @Getter private static final OutpostDropoffVARC outpostVARC = new OutpostDropoffVARC();
   @Getter private static final DepotDropoffVARC depotVARC = new DepotDropoffVARC();
   @Getter private static TargetAngleTracker closestDropoff;
+  @Getter private static TargetAngleTracker closestTraversal;
 
   private static final Queue<PoseObservation> globalPoseObservations =
       new LinkedBlockingQueue<>(20);
@@ -56,16 +56,17 @@ public class BobotState extends VirtualSubsystem {
     return BobotState.constrainedPoseObservations;
   }
 
-  public static TargetAngleTracker getClosestTraversalVARC() {
-    boolean isBumpCloser = bumpVARC.getDistance().lt(trenchVARC.getDistance());
-    return isBumpCloser ? bumpVARC : trenchVARC;
-  }
+  // public static TargetAngleTracker getClosestTraversalVARC() {
+  //   boolean isBumpCloser = bumpVARC.getDistance().lt(trenchVARC.getDistance());
+  //   BobotState.closestTraversal = isBumpCloser ? bumpVARC : trenchVARC;
+  //   return closestTraversal;
+  // }
 
-  public static TargetAngleTracker getClosestDropoffVARC() {
-    boolean isOutpostCloser = outpostVARC.getDistance().lt(depotVARC.getDistance());
-    BobotState.closestDropoff = isOutpostCloser ? outpostVARC : depotVARC;
-    return closestDropoff;
-  }
+  // public static TargetAngleTracker getClosestDropoffVARC() {
+  //   boolean isOutpostCloser = outpostVARC.getDistance().lt(depotVARC.getDistance());
+  //   BobotState.closestDropoff = isOutpostCloser ? outpostVARC : depotVARC;
+  //   return closestDropoff;
+  // }
 
   public void periodic() {
     hubVARC.update();
@@ -73,7 +74,13 @@ public class BobotState extends VirtualSubsystem {
     bumpVARC.update();
     outpostVARC.update();
     depotVARC.update();
-    getClosestDropoffVARC();
+    // getClosestDropoffVARC();
+
+    BobotState.closestDropoff =
+        outpostVARC.getDistance().lt(depotVARC.getDistance()) ? outpostVARC : depotVARC;
+
+    BobotState.closestTraversal =
+        bumpVARC.getDistance().lt(trenchVARC.getDistance()) ? bumpVARC : trenchVARC;
 
     {
       String subLogTitle = logRoot + "Interpolation/";
@@ -88,29 +95,81 @@ public class BobotState extends VirtualSubsystem {
 
     {
       String subLogTitle = logRoot + "VARC/";
-      Logger.recordOutput(
-          subLogTitle + "Hub/TargetPose", AllianceFlipUtil.apply(Hub.innerCenterPoint));
-      Logger.recordOutput(
-          subLogTitle + "Hub/TargetRotationDeg", hubVARC.getRotationTarget().getDegrees());
-      Logger.recordOutput(subLogTitle + "Hub/TargetDistanceFeet", hubVARC.getDistance().in(Feet));
-      Logger.recordOutput(
-          subLogTitle + "Trench/TargetDistanceFeet", trenchVARC.getDistance().in(Feet));
-      Logger.recordOutput(
-          subLogTitle + "Trench/TargetRotationDeg", trenchVARC.getRotationTarget().getDegrees());
-      Logger.recordOutput(subLogTitle + "Bump/TargetDistanceFeet", bumpVARC.getDistance().in(Feet));
-      Logger.recordOutput(
-          subLogTitle + "Outpost/TargetAngleDeg", outpostVARC.getRotationTarget().getDegrees());
-      Logger.recordOutput(subLogTitle + "Outpost/TargetPose", outpostVARC.getTargetPose());
-      Logger.recordOutput(subLogTitle + "Depot/TargetPose", depotVARC.getTargetPose());
-      Logger.recordOutput(
-          subLogTitle + "ClosestDropoff/TargetPose", closestDropoff.getTargetPose());
+
+      {
+        // hub log
+        String varcSubTitle = subLogTitle + "Hub/";
+
+        Logger.recordOutput(varcSubTitle + "TargetPose", hubVARC.getTargetPose());
+        Logger.recordOutput(
+            varcSubTitle + "TargetRotationDeg", hubVARC.getRotationTarget().getDegrees());
+        Logger.recordOutput(varcSubTitle + "TargetDistanceFeet", hubVARC.getDistance().in(Feet));
+      }
+
+      {
+        // trench log
+        String varcSubTitle = subLogTitle + "Trench/";
+        Logger.recordOutput(varcSubTitle + "TargetPose", trenchVARC.getTargetPose());
+        Logger.recordOutput(
+            varcSubTitle + "TargetRotationDeg", trenchVARC.getRotationTarget().getDegrees());
+        Logger.recordOutput(varcSubTitle + "TargetDistanceFeet", trenchVARC.getDistance().in(Feet));
+      }
+
+      {
+        // bump log
+        String varcSubTitle = subLogTitle + "Bump/";
+        Logger.recordOutput(varcSubTitle + "TargetPose", bumpVARC.getTargetPose());
+        Logger.recordOutput(
+            varcSubTitle + "TargetRotatinDeg", bumpVARC.getRotationTarget().getDegrees());
+        Logger.recordOutput(varcSubTitle + "TargetDistanceFeet", bumpVARC.getDistance().in(Feet));
+      }
+
+      {
+        // outpost log
+        String varcSubTitle = subLogTitle + "Outpost/";
+        Logger.recordOutput(varcSubTitle + "TargetPose", outpostVARC.getTargetPose());
+        Logger.recordOutput(
+            varcSubTitle + "TargetRotationDeg", outpostVARC.getRotationTarget().getDegrees());
+        Logger.recordOutput(
+            varcSubTitle + "TargetDistanceFeet", outpostVARC.getDistance().in(Feet));
+      }
+
+      {
+        // depot log
+        String varcSubTitle = subLogTitle + "Depot/";
+        Logger.recordOutput(varcSubTitle + "TargetPose", depotVARC.getTargetPose());
+        Logger.recordOutput(
+            varcSubTitle + "TargetRotationDeg", depotVARC.getRotationTarget().getDegrees());
+        Logger.recordOutput(varcSubTitle + "TargetDistanceFeet", depotVARC.getDistance().in(Feet));
+      }
+
+      {
+        // closest traversal log
+        String closestSubTitle = subLogTitle + "Traversal/";
+        Logger.recordOutput(closestSubTitle + "TargetPose", closestTraversal.getTargetPose());
+        Logger.recordOutput(
+            closestSubTitle + "TargetRotationDeg",
+            closestTraversal.getRotationTarget().getDegrees());
+        Logger.recordOutput(
+            closestSubTitle + "TargetDistanceFeet", closestTraversal.getDistance().in(Feet));
+      }
+
+      {
+        // closest dropoff log
+        String closestSubTitle = subLogTitle + "Dropoff/";
+        Logger.recordOutput(closestSubTitle + "TargetPose", closestDropoff.getTargetPose());
+        Logger.recordOutput(
+            closestSubTitle + "TargetRotationDeg", closestDropoff.getRotationTarget().getDegrees());
+        Logger.recordOutput(
+            closestSubTitle + "TargetDistabceFeet", closestDropoff.getDistance().in(Feet));
+      }
     }
   }
 
   public void simulationPeriodic() {}
 
-  public enum ClosestAlignment {
-    LeftBump,
-    RightBump
-  }
+  // public enum ClosestAlignment {
+  //   LeftBump,
+  //   RightBump
+  // }
 }

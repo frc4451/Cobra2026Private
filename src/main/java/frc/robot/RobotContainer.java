@@ -250,7 +250,7 @@ public class RobotContainer {
                 drive,
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX(),
-                () -> BobotState.getClosestDropoffVARC().getRotationTarget()));
+                () -> BobotState.getClosestDropoff().getRotationTarget()));
 
     controller
         .b()
@@ -268,7 +268,7 @@ public class RobotContainer {
                 drive,
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX(),
-                () -> BobotState.getClosestTraversalVARC().getRotationTarget()));
+                () -> BobotState.getClosestTraversal().getRotationTarget()));
 
     controller
         .y()
