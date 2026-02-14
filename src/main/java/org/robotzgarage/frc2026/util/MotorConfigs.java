@@ -1,9 +1,11 @@
 package org.robotzgarage.frc2026.util;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
+import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.thethriftybot.devices.ThriftyNova.EncoderType;
 import com.thethriftybot.util.Conversion.PositionUnit;
@@ -42,7 +44,9 @@ public class MotorConfigs {
       double phoenixUpdateFreqHz,
       Slot0Configs slot0Config,
       MotionMagicConfigs mmConfig,
-      SoftwareLimitSwitchConfigs softwareLimitSwitch) {
+      SoftwareLimitSwitchConfigs softwareLimitSwitch,
+      CurrentLimitsConfigs currentLimitConfig,
+      TorqueCurrentConfigs torqueCurrentConfigs) {
     public TalonFXConfig {
 
       // Default should be 50hz
@@ -57,6 +61,20 @@ public class MotorConfigs {
             new SoftwareLimitSwitchConfigs()
                 .withForwardSoftLimitEnable(false)
                 .withReverseSoftLimitEnable(false);
+      }
+
+      // By default we want to limit the motor to only 40 amps, but there
+      // are some cases, such as with the Kraken X60, where you may want to
+      // push past 40 amps and have more torque
+      if (currentLimitConfig == null) {
+        currentLimitConfig =
+            new CurrentLimitsConfigs()
+                .withSupplyCurrentLimitEnable(true)
+                .withSupplyCurrentLimit(currentLimitAmps);
+      }
+
+      if (torqueCurrentConfigs == null) {
+        torqueCurrentConfigs = new TorqueCurrentConfigs();
       }
     }
   }
@@ -117,9 +135,13 @@ public class MotorConfigs {
   public record TalonFXSConfigSim(
       @NonNull TalonFXSConfig hardware, @NonNull DCMotor dcMotor, double moi) {}
 
-  /** Shorthand PID config for any generic PID controller */
+  /** Shorthand Feed Back config for any generic PID controller */
   @Builder
-  public record GenericPIDConfig(double p, double i, double d, double ff) {}
+  public record GenericFeedbackConfig(double p, double i, double d) {}
+
+  /** Shorthand Feed Forward config for any generic SGVA controller */
+  @Builder
+  public record GenericFeedForwardConfig(double s, double g, double v, double a) {}
 
   @Builder
   public record ThriftyNovaConfig(
@@ -133,7 +155,8 @@ public class MotorConfigs {
       boolean invert,
       boolean isBrakeMode,
       boolean enableSoftLimits,
-      GenericPIDConfig pidConfig,
+      GenericFeedbackConfig fbConfig,
+      GenericFeedForwardConfig ffConfig,
       PositionUnit positionUnit,
       VelocityUnit velocityUnit,
       EncoderType encoderType) {
@@ -157,8 +180,12 @@ public class MotorConfigs {
         encoderType = EncoderType.INTERNAL;
       }
 
-      if (pidConfig == null) {
-        pidConfig = GenericPIDConfig.builder().p(1).i(0).d(0).ff(0).build();
+      if (fbConfig == null) {
+        fbConfig = GenericFeedbackConfig.builder().p(0.0).i(0.0).d(0.0).build();
+      }
+
+      if (ffConfig == null) {
+        ffConfig = GenericFeedForwardConfig.builder().s(0.0).g(0.0).v(0.0).a(0.0).build();
       }
     }
   }

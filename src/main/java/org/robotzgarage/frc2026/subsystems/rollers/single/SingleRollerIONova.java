@@ -43,10 +43,10 @@ public class SingleRollerIONova implements SingleRollerIO {
         .usePIDSlot(PIDSlot.SLOT0);
 
     // Handle PID control
-    nova.pid0.setP(config.pidConfig().p());
-    nova.pid0.setI(config.pidConfig().i());
-    nova.pid0.setD(config.pidConfig().d());
-    nova.pid0.setFF(config.pidConfig().ff());
+    // nova.pid0.setP(config.pidConfig().p());
+    // nova.pid0.setI(config.pidConfig().i());
+    // nova.pid0.setD(config.pidConfig().d());
+    // nova.pid0.setFF(config.pidConfig().ff());
 
     // NOTE Find better place to put errors
     for (Error error : nova.getErrors()) {

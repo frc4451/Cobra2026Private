@@ -5,7 +5,10 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import org.littletonrobotics.junction.AutoLog;
+import org.robotzgarage.frc2026.util.MotorConfigs.GenericFeedForwardConfig;
+import org.robotzgarage.frc2026.util.MotorConfigs.GenericFeedbackConfig;
 
 public interface FollowRollersIO {
   @AutoLog
@@ -41,6 +44,15 @@ public interface FollowRollersIO {
   /** Run rollers at set voltage */
   public default void runVolts(double volts) {}
 
+  /** Run roller at specified percentage. Input should be -1.0 to 1.0 */
+  public default void runPercentOutput(double percent) {}
+
+  /** Run rollers with specified Amps */
+  public default void runTorqueCurrent(Current current) {}
+
+  /** Run rollers with specified RotationsPerSecond */
+  public default void setVelocityTorqueCurrent(AngularVelocity velocity) {}
+
   /** Set goal position of rollers to position */
   public default void setGoal(Angle position) {}
 
@@ -49,4 +61,20 @@ public interface FollowRollersIO {
 
   /** Stop rollers */
   public default void stop() {}
+
+  /** Reads the PID configs giving a GenericFeedBackConfig */
+  public default GenericFeedbackConfig readFeedBack() {
+    return new GenericFeedbackConfig(0.0, 0.0, 0.0);
+  }
+
+  /** Updates the PID configs using a GenericFeedBackConfig */
+  public default void updateFeedBack(GenericFeedbackConfig fbConfig) {}
+
+  /** Reads the SGVA configs giving a GenericFeedForwardConfig */
+  public default GenericFeedForwardConfig readFeedForward() {
+    return new GenericFeedForwardConfig(0.0, 0.0, 0.0, 0.0);
+  }
+
+  /** Updates the SGVA configs using a GenericFeedForwardConfig */
+  public default void updateFeedForward(GenericFeedForwardConfig ffConfig) {}
 }

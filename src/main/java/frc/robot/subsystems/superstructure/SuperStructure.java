@@ -11,8 +11,6 @@ import frc.robot.subsystems.superstructure.intakeComponent.IntakeComponent;
 import frc.robot.subsystems.superstructure.shooterComponent.ShooterComponent;
 
 public class SuperStructure extends SubsystemBase {
-  private final String name = "/SuperStructure";
-
   // Components
   private final ShooterComponent shooterComponent;
   private final FeederComponent feederComponent;
