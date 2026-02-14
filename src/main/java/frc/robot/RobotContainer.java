@@ -10,14 +10,11 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.bobot_state.BobotState;
 import frc.robot.commands.DriveCommands;
@@ -28,10 +25,11 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.prototyping.IntakeV1;
+import frc.robot.subsystems.prototyping.IntakeV1Constants;
 import frc.robot.subsystems.prototyping.ShooterV1;
 import frc.robot.subsystems.prototyping.ShooterV1Constants;
 import frc.robot.subsystems.vision.VisionConstants;
-import org.littletonrobotics.LoggedTunableNumber;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIO;
 import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOSimTalonFX;
@@ -51,8 +49,8 @@ import org.robotzgarage.frc2026.util.GarageCommandXboxController;
 public class RobotContainer {
   // Subsystems
   // EX. private final Example example;
+  private final IntakeV1 intake;
   private final ShooterV1 shooter;
-
   private final Drive drive;
 
   // Vision testing
@@ -61,7 +59,7 @@ public class RobotContainer {
   // Controller
   private final GarageCommandXboxController drivercontroller = new GarageCommandXboxController(0);
   private final GarageCommandXboxController operatorcontroller = new GarageCommandXboxController(1);
-
+  private final GarageCommandXboxController tunercontroller = new GarageCommandXboxController(2);
   private final GarageCommandXboxController visionDebugController =
       new GarageCommandXboxController(4);
 
@@ -73,16 +71,22 @@ public class RobotContainer {
     new BobotState();
 
     // SingleRollerIO exampleIO;
-    FollowRollersIO flywheelRollersIO;
-    SingleRollerIO feederIO;
+    SingleRollerIO intakeIO;
+    SingleRollerIO endeffectorIO;
+
+    FollowRollersIO shooterIO;
+    SingleRollerIO towerIO;
     SingleRollerIO kickerIO;
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, it's ALIVE!!! ALIIIIIIVVVE!!!!!
         // EX. exampleIO = new SingleRollerIOTalonFX(exampleConstants.exampleConfig);
-        flywheelRollersIO = new FollowRollersIOTalonFX(ShooterV1Constants.flywheelFollowersConfig);
-        feederIO = new SingleRollerIOTalonFX(ShooterV1Constants.feederShooterConfig);
-        kickerIO = new SingleRollerIOTalonFX(ShooterV1Constants.kickerShooterConfig);
+        intakeIO = new SingleRollerIOTalonFX(IntakeV1Constants.intakeConfig);
+        endeffectorIO = new SingleRollerIOTalonFX(IntakeV1Constants.endeffectorConfig);
+
+        shooterIO = new FollowRollersIOTalonFX(ShooterV1Constants.flywheelFollowersConfig);
+        towerIO = new SingleRollerIOTalonFX(ShooterV1Constants.towerConfig);
+        kickerIO = new SingleRollerIOTalonFX(ShooterV1Constants.kickerConfig);
 
         drive =
             new Drive(
@@ -91,15 +95,16 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
-
         break;
 
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
         // EX. exampleIO = new SingleRollerIOSimTalonFX(exampleConstants.exampleConfigSim);
-        flywheelRollersIO =
-            new FollowRollersIOSimTalonFX(ShooterV1Constants.flywheelFollowersConfigSim);
-        feederIO = new SingleRollerIOSimTalonFX(ShooterV1Constants.feederConfigSim);
+        intakeIO = new SingleRollerIOSimTalonFX(IntakeV1Constants.intakeConfigSim);
+        endeffectorIO = new SingleRollerIOSimTalonFX(IntakeV1Constants.endeffectorConfigSim);
+
+        shooterIO = new FollowRollersIOSimTalonFX(ShooterV1Constants.flywheelFollowersConfigSim);
+        towerIO = new SingleRollerIOSimTalonFX(ShooterV1Constants.towerConfigSim);
         kickerIO = new SingleRollerIOSimTalonFX(ShooterV1Constants.kickerConfigSim);
 
         drive =
@@ -114,8 +119,11 @@ public class RobotContainer {
       default:
         // Replayed robot, disable IO implementations
         // EX. exampleIO = new SingleRollerIO() {};
-        flywheelRollersIO = new FollowRollersIO() {};
-        feederIO = new SingleRollerIO() {};
+        intakeIO = new SingleRollerIO() {};
+        endeffectorIO = new SingleRollerIO() {};
+
+        shooterIO = new FollowRollersIO() {};
+        towerIO = new SingleRollerIO() {};
         kickerIO = new SingleRollerIO() {};
 
         drive =
@@ -128,9 +136,10 @@ public class RobotContainer {
         break;
     }
 
-    shooter = new ShooterV1(flywheelRollersIO, feederIO, kickerIO);
-
+    intake = new IntakeV1(intakeIO, endeffectorIO);
+    shooter = new ShooterV1(shooterIO, towerIO, kickerIO);
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+    vision = new Vision(VisionConstants.visionSubsystemConfig);
 
     // Set up SysId routines
     autoChooser.addOption(
@@ -149,30 +158,12 @@ public class RobotContainer {
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // Configure the button bindings
-
-    configureDriverBindings(drivercontroller);
-
-    vision = new Vision(VisionConstants.visionSubsystemConfig);
-
-    SmartDashboard.putNumber("CameraTest/PoseXMeters", 0);
-    SmartDashboard.putNumber("CameraTest/PoseYMeters", 0);
-    SmartDashboard.putNumber("CameraTest/PoseRotationDeg", 0);
-
-    visionDebugController
-        .back()
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  Pose2d desiredPose =
-                      new Pose2d(
-                          new Translation2d(
-                              SmartDashboard.getNumber("CameraTest/PoseXMeters", 0),
-                              SmartDashboard.getNumber("CameraTest/PoseYMeters", 0)),
-                          Rotation2d.fromDegrees(
-                              SmartDashboard.getNumber("CameraTest/PoseRotationDeg", 0)));
-                  drive.setPose(desiredPose);
-                }));
-    configureDriverBindings(drivercontroller);
+    if (Constants.tuningMode) {
+      configureTunerBindings(tunercontroller);
+    } else {
+      configureDriverBindings(drivercontroller);
+      configureOperatorBindings(operatorcontroller);
+    }
     DriverStation.silenceJoystickConnectionWarning(true);
     // configureVisionDebugControls(visionDebugController);
   }
@@ -183,17 +174,9 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
-  private void configureButtonBindings(GarageCommandXboxController controller) {
-
-    // controller.x().whileTrue(shooter.runShooterFlywheelPercentOut());
-    // controller.x().whileTrue(shooter.runFeederPercentOutput());
-    // controller.x().whileTrue(shooter.runAllPercent());
-    controller.y().whileTrue(shooter.runAllVoltage());
-  }
-
   private void configureDriverBindings(GarageCommandXboxController controller) {
-    LoggedTunableNumber feetFromCenterOfHubX = new LoggedTunableNumber("FeetFromHubCenterX", 0);
-    LoggedTunableNumber feetFromCenterOfHubY = new LoggedTunableNumber("FeetFromHubCenterY", 0);
+    // LoggedTunableNumber feetFromCenterOfHubX = new LoggedTunableNumber("FeetFromHubCenterX", 0);
+    // LoggedTunableNumber feetFromCenterOfHubY = new LoggedTunableNumber("FeetFromHubCenterY", 0);
 
     // Default command, normal field-relative drive
     drive.setDefaultCommand(
@@ -214,7 +197,7 @@ public class RobotContainer {
     //             feetFromCenterOfHubX,
     //             feetFromCenterOfHubY));
 
-    controller
+controller
         .a()
         .whileTrue(
             DriveCommands.joystickDriveAtAngle(
@@ -250,11 +233,62 @@ public class RobotContainer {
                 () -> -controller.getLeftX(),
                 () -> BobotState.getOutpostVARC().getRotationTarget()));
 
-    // controller.a().whileTrue(shooter.runShooterFlywheelVelocityTorqueCurrent());
-    // controller.x().whileTrue(shooter.runShooterFlywheelTorqueCurrent());
-    // controller.a().whileTrue(shooter.runFeederVolts());
-    controller.a().whileTrue(shooter.runShooterTuning());
-    controller.b().whileTrue(shooter.stop());
+  }
+
+  /**
+   * Use this method to define your button->command mappings. Buttons can be created by
+   * instantiating a {@link GenericHID} or one of its subclasses ({@link
+   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
+   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
+   */
+  private void configureOperatorBindings(GarageCommandXboxController controller) {
+    // intake controll
+    controller.povLeft().onTrue(intake.runIntakeVoltageOut());
+    controller.povRight().onTrue(intake.stop());
+    controller.povUp().onTrue(intake.endeffectorGoal());
+    controller.povDown().onTrue(intake.endeffectorHome());
+
+    // shooter controll
+    controller.y().onTrue(shooter.stop());
+    controller.b().onTrue(shooter.runShooterVelocityTorqueCurrent());
+    controller.a().onTrue(shooter.runShooterTuning());
+  }
+
+  /**
+   * Use this method to define your button->command mappings. Buttons can be created by
+   * instantiating a {@link GenericHID} or one of its subclasses ({@link
+   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
+   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
+   */
+  private void configureTunerBindings(GarageCommandXboxController controller) {
+    // intake controll
+    controller.povLeft().onTrue(intake.runIntakeVoltageOut());
+    controller.povRight().onTrue(intake.stop());
+    controller.povUp().onTrue(intake.endeffectorGoal());
+    controller.povDown().onTrue(intake.endeffectorHome());
+
+    // shooter controll
+    controller.y().onTrue(shooter.stop());
+    controller.b().onTrue(shooter.runShooterVelocityTorqueCurrent());
+    controller.a().onTrue(shooter.runShooterTuning());
+
+    // drive controll
+    drive.setDefaultCommand(
+        DriveCommands.joystickDrive(
+            drive,
+            () -> -controller.getLeftY(),
+            () -> -controller.getLeftX(),
+            () -> controller.getRightX()));
+    controller
+        .start()
+        .onTrue(
+            Commands.runOnce(
+                    () ->
+                        drive.setPose(
+                            new Pose2d(
+                                drive.getWheelOdometry().getTranslation(), Rotation2d.kZero)),
+                    drive)
+                .ignoringDisable(true));
   }
 
   /**

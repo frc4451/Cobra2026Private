@@ -31,6 +31,8 @@ public final class Constants {
   }
 
   public static final CANBus rioBus = new CANBus("rio");
+  public static final CANBus susBus = new CANBus("SUSBus", "./logs/example.hoot");
+
   // public static final CANBus canivore = new CANBus("SUSbus");
 
   public static final double triggerPressedThreshold = 0.25;

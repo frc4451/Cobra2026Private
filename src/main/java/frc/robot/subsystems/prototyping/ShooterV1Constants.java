@@ -16,7 +16,7 @@ import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfigSim;
 
 public class ShooterV1Constants {
   public static final double shooterReduction = 1.0;
-  public static final double feederReduction = 4.0;
+  public static final double towerReduction = 4.0;
   public static final double kickerReduction = 4.0;
 
   public static final FlywheelConfig shooterFlywheelConfig =
@@ -27,12 +27,12 @@ public class ShooterV1Constants {
           .reduction(shooterReduction)
           .build();
 
-  public static final FlywheelConfig feederFlywheelConfig =
+  public static final FlywheelConfig towerFlywheelConfig =
       FlywheelConfig.builder()
           .radius(Inches.of(3.0))
           .gearbox(DCMotor.getFalcon500Foc(1))
           .moi(0.00002)
-          .reduction(feederReduction)
+          .reduction(towerReduction)
           .build();
 
   public static final FlywheelConfig kickerFlywheelConfig =
@@ -121,12 +121,12 @@ public class ShooterV1Constants {
   //                   .withMotionMagicJerk(20.0 * shooterReduction))
   //           .build();
 
-  public static final TalonFXConfig feederShooterConfig =
+  public static final TalonFXConfig towerConfig =
       TalonFXConfig.builder()
           .canId(23)
           .canBus(Constants.rioBus)
           // .phoenixUpdateFreqHz(50)
-          .reduction(feederReduction)
+          .reduction(towerReduction)
           .currentLimitAmps(30)
           .invert(true)
           .isBrakeMode(true)
@@ -143,19 +143,19 @@ public class ShooterV1Constants {
                   .withKD(0.0))
           .mmConfig(
               new MotionMagicConfigs()
-                  .withMotionMagicCruiseVelocity(5.0 * feederReduction)
-                  .withMotionMagicAcceleration(4.5 * feederReduction)
-                  .withMotionMagicJerk(20.0 * feederReduction))
+                  .withMotionMagicCruiseVelocity(5.0 * towerReduction)
+                  .withMotionMagicAcceleration(4.5 * towerReduction)
+                  .withMotionMagicJerk(20.0 * towerReduction))
           .build();
 
-  public static final TalonFXConfigSim feederConfigSim =
+  public static final TalonFXConfigSim towerConfigSim =
       TalonFXConfigSim.builder()
-          .config(feederShooterConfig)
-          .dcMotor(feederFlywheelConfig.gearbox())
-          .moi(feederFlywheelConfig.moi())
+          .config(towerConfig)
+          .dcMotor(towerFlywheelConfig.gearbox())
+          .moi(towerFlywheelConfig.moi())
           .build();
 
-  public static final TalonFXConfig kickerShooterConfig =
+  public static final TalonFXConfig kickerConfig =
       TalonFXConfig.builder()
           .canId(24)
           .canBus(Constants.rioBus)
@@ -198,7 +198,7 @@ public class ShooterV1Constants {
 
   public static final TalonFXConfigSim kickerConfigSim =
       TalonFXConfigSim.builder()
-          .config(kickerShooterConfig)
+          .config(kickerConfig)
           .dcMotor(kickerFlywheelConfig.gearbox())
           .moi(kickerFlywheelConfig.moi())
           .build();

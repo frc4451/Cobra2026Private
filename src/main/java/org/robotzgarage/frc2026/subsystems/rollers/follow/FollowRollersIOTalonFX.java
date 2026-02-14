@@ -24,7 +24,8 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.util.PhoenixUtil;
-import org.robotzgarage.frc2026.util.MotorConfigs.GenericPIDConfig;
+import org.robotzgarage.frc2026.util.MotorConfigs.GenericFeedForwardConfig;
+import org.robotzgarage.frc2026.util.MotorConfigs.GenericFeedbackConfig;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfigFollower;
 
 public class FollowRollersIOTalonFX implements FollowRollersIO {
@@ -218,15 +219,31 @@ public class FollowRollersIOTalonFX implements FollowRollersIO {
   }
 
   @Override
-  public GenericPIDConfig readPID() {
-    return new GenericPIDConfig(cfg.Slot0.kP, cfg.Slot0.kI, cfg.Slot0.kD, 0.0);
+  public GenericFeedbackConfig readFeedBack() {
+    return new GenericFeedbackConfig(cfg.Slot0.kP, cfg.Slot0.kI, cfg.Slot0.kD);
   }
 
   @Override
-  public void updatePID(double kP, double kI, double kD) {
-    cfg.Slot0.kP = kP;
-    cfg.Slot0.kI = 0.0;
-    cfg.Slot0.kD = kD;
+  public void updateFeedBack(GenericFeedbackConfig fbConfig) {
+    cfg.Slot0.kP = fbConfig.p();
+    cfg.Slot0.kI = fbConfig.i();
+    cfg.Slot0.kD = fbConfig.d();
+
+    PhoenixUtil.tryUntilOk(5, () -> leader.getConfigurator().apply(cfg));
+    PhoenixUtil.tryUntilOk(5, () -> follower.getConfigurator().apply(cfg));
+  }
+
+  @Override
+  public GenericFeedForwardConfig readFeedForward() {
+    return new GenericFeedForwardConfig(cfg.Slot0.kS, cfg.Slot0.kG, cfg.Slot0.kV, cfg.Slot0.kA);
+  }
+
+  @Override
+  public void updateFeedForward(GenericFeedForwardConfig ffConfig) {
+    cfg.Slot0.kS = ffConfig.s();
+    cfg.Slot0.kG = ffConfig.g();
+    cfg.Slot0.kV = ffConfig.v();
+    cfg.Slot0.kA = ffConfig.a();
 
     PhoenixUtil.tryUntilOk(5, () -> leader.getConfigurator().apply(cfg));
     PhoenixUtil.tryUntilOk(5, () -> follower.getConfigurator().apply(cfg));

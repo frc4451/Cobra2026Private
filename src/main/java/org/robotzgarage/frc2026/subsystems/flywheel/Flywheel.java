@@ -94,6 +94,10 @@ public class Flywheel extends SingleRoller {
     io.runTorqueCurrent(amps);
   }
 
+  public void setGoal(Angle angle) {
+    io.setGoal(angle);
+  }
+
   public boolean isNear(AngularVelocity tolerance) {
     return MathUtil.isNear(
         inputs.velocity.in(RotationsPerSecond),
