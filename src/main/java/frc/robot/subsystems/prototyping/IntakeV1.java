@@ -23,8 +23,6 @@ public class IntakeV1 extends SubsystemBase {
 
   private static final LoggedTunableNumber endeffectorGoal =
       new LoggedTunableNumber(name + "/EndeffectorGoal", 45.0);
-  private static final LoggedTunableNumber endeffectorkp =
-      new LoggedTunableNumber(name + "/EndeffectorkP", 3.0);
 
   // Subsystems
   private final Flywheel intake;
@@ -40,10 +38,6 @@ public class IntakeV1 extends SubsystemBase {
     // Periodic modes
     intake.periodic();
     endeffector.periodic();
-
-    if (endeffectorkp.hasChanged(hashCode())) {
-      this.endeffector.updatePID(endeffectorkp.get(), 0, 0);
-    }
   }
 
   public Command runIntakePercentOut() {

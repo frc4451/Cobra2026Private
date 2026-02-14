@@ -23,8 +23,6 @@ public class ShooterV1 extends SubsystemBase {
       new LoggedTunableNumber(name + "/ShooterPercent", 0.78);
   private static final LoggedTunableNumber shooterVelocity =
       new LoggedTunableNumber(name + "/ShooterVelocity", 67.0);
-  private static final LoggedTunableNumber shooterkp =
-      new LoggedTunableNumber(name + "/ShooterkP", 3.0);
 
   private static final LoggedTunableNumber towerAmps =
       new LoggedTunableNumber(name + "/FeederAmps", 20.0);
@@ -58,10 +56,6 @@ public class ShooterV1 extends SubsystemBase {
     tower.periodic();
     kicker.periodic();
     shooter.periodic();
-
-    if (shooterkp.hasChanged(hashCode())) {
-      this.shooter.updatePID(shooterkp.get(), 0, 0);
-    }
   }
 
   public Command runShooterTuning() {

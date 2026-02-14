@@ -145,8 +145,4 @@ public class Pivot extends SingleRoller {
   public boolean atGoal() {
     return isNear(getGoalPosition());
   }
-
-  public void updatePID(double kP, double kI, double kD) {
-    io.updatePID(kP, kI, kD);
-  }
 }

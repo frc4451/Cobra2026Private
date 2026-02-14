@@ -8,7 +8,8 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.LoggedRobot;
-import org.robotzgarage.frc2026.util.MotorConfigs.GenericPIDConfig;
+import org.robotzgarage.frc2026.util.MotorConfigs.GenericFeedForwardConfig;
+import org.robotzgarage.frc2026.util.MotorConfigs.GenericFeedbackConfig;
 
 public interface SingleRollerIO {
   @AutoLog
@@ -59,9 +60,19 @@ public interface SingleRollerIO {
     return LoggedRobot.defaultPeriodSecs;
   }
 
-  public default GenericPIDConfig readPID() {
-    return new GenericPIDConfig(0.0, 0.0, 0.0, 0.0);
+/** Reads the PID configs giving a GenericFeedBackConfig */
+  public default GenericFeedbackConfig readFeedBack() {
+    return new GenericFeedbackConfig(0.0, 0.0, 0.0);
   }
 
-  public default void updatePID(double kP, double kI, double kD) {}
+  /** Updates the PID configs using a GenericFeedBackConfig */
+  public default void updateFeedBack(GenericFeedbackConfig fbConfig) {}
+
+  /** Reads the SGVA configs giving a GenericFeedForwardConfig */
+  public default GenericFeedForwardConfig readFeedForward() {
+    return new GenericFeedForwardConfig(0.0, 0.0, 0.0, 0.0);
+  }
+
+  /** Updates the SGVA configs using a GenericFeedForwardConfig */
+  public default void updateFeedForward(GenericFeedForwardConfig ffConfig) {}
 }
