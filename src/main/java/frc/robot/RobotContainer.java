@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.autonomous.AutonomousHelpers;
+import frc.robot.autonomous.bline.BLineManager;
 import frc.robot.bobot_state.BobotState;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
@@ -163,13 +164,21 @@ public class RobotContainer {
     // Configure the button bindings
     if (Constants.tuningMode) {
       configureTunerBindings(tunercontroller);
-    } 
-    
+    }
+
     configureDriverBindings(drivercontroller);
     configureOperatorBindings(operatorcontroller);
-    
-      DriverStation.silenceJoystickConnectionWarning(true);
+
+    configureBLineRoutines();
+
+    DriverStation.silenceJoystickConnectionWarning(true);
     // configureVisionDebugControls(visionDebugController);
+  }
+
+  private void configureBLineRoutines() {
+    BLineManager bLineManager = new BLineManager(drive);
+
+    autoChooser.addOption("BLine Auto Example", bLineManager.getSampleBLineAutoRoutine());
   }
 
   /**
@@ -308,6 +317,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return Commands.none();
+    return autoChooser.get();
   }
 }
