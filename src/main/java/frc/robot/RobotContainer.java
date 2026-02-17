@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.autonomous.AutonomousHelpers;
+import frc.robot.autonomous.AutonomousManager;
 import frc.robot.autonomous.bline.BLineManager;
 import frc.robot.bobot_state.BobotState;
 import frc.robot.commands.DriveCommands;
@@ -170,6 +171,7 @@ public class RobotContainer {
     configureOperatorBindings(operatorcontroller);
 
     configureBLineRoutines();
+    configureAutonomousRoutines();
 
     DriverStation.silenceJoystickConnectionWarning(true);
     // configureVisionDebugControls(visionDebugController);
@@ -179,6 +181,13 @@ public class RobotContainer {
     BLineManager bLineManager = new BLineManager(drive);
 
     autoChooser.addOption("BLine Auto Example", bLineManager.getSampleBLineAutoRoutine());
+  }
+
+  private void configureAutonomousRoutines() {
+    AutonomousManager autonomousManager = new AutonomousManager(drive, intake, shooter);
+
+    autoChooser.addOption("Falinks", autonomousManager.falinks());
+    autoChooser.addOption("Nosepass", autonomousManager.nosepass());
   }
 
   /**

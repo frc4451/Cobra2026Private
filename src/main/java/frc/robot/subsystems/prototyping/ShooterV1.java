@@ -4,8 +4,10 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.LoggedTunableNumber;
 import org.robotzgarage.frc2026.subsystems.flywheel.Flywheel;
 import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollers;
@@ -67,6 +69,16 @@ public class ShooterV1 extends SubsystemBase {
         });
   }
 
+  public Command runShooterReal(AngularVelocity targetShooterVelocity) {
+    return run(
+        () -> {
+          shooter.setVelocityTorqueCurrent(targetShooterVelocity);
+          // These two are guesses from the LoggedTunableNumbers that Josh gave us
+          tower.runVolts(10);
+          kicker.runVolts(7.0);
+        });
+  }
+
   public Command runShooterTorqueCurrent() {
     return run(
         () -> {
@@ -97,6 +109,10 @@ public class ShooterV1 extends SubsystemBase {
           double clampedVelocity = MathUtil.clamp(shooterVelocity.get(), 0.0, 200.0);
           shooter.setVelocityTorqueCurrent(RotationsPerSecond.of(clampedVelocity));
         });
+  }
+
+  public Command runShooterVelocityTorqueCurrent(AngularVelocity velocity) {
+    return run(() -> shooter.setVelocityTorqueCurrent(velocity));
   }
 
   public Command runTowerTorqueCurrent() {
@@ -147,10 +163,25 @@ public class ShooterV1 extends SubsystemBase {
         });
   }
 
+  /** You need to know when the Flywheel is at the velocity target we want */
+  public Trigger isShooterFlywheelNearRPS(
+      AngularVelocity taretVelocity, AngularVelocity tolerance) {
+    return new Trigger(
+        () -> this.shooter.getInputs().leaderVelocity.isNear(taretVelocity, tolerance));
+  }
+
   public Command stop() {
-    return run(
+    return runOnce(
         () -> {
           shooter.stop();
+          tower.stop();
+          kicker.stop();
+        });
+  }
+
+  public Command stopFeeding() {
+    return runOnce(
+        () -> {
           tower.stop();
           kicker.stop();
         });

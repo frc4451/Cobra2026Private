@@ -73,7 +73,7 @@ public class IntakeV1Constants {
           .gearbox(DCMotor.getFalcon500Foc(1))
           .reduction(endeffectorReduction)
           .armLength(Feet.of(1))
-          .initialAngle(Degrees.of(0))
+          .initialAngle(Degrees.of(90))
           .minAngle(Degrees.of(0))
           .maxAngle(Degrees.of(90))
           .tolerance(Degrees.of(1))

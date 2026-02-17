@@ -4,8 +4,10 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.LoggedTunableNumber;
 import org.robotzgarage.frc2026.subsystems.flywheel.Flywheel;
 import org.robotzgarage.frc2026.subsystems.pivot.Pivot;
@@ -48,6 +50,14 @@ public class IntakeV1 extends SubsystemBase {
         });
   }
 
+  public Command runIntakePercentOut(double percentOut) {
+    return run(
+        () -> {
+          double clampedPercent = MathUtil.clamp(intakePercent.get(), -1.0, 1.0);
+          intake.runPercentOutput(clampedPercent);
+        });
+  }
+
   public Command runIntakeTorqueCurrent() {
     return run(
         () -> {
@@ -68,12 +78,24 @@ public class IntakeV1 extends SubsystemBase {
     return run(() -> endeffector.setGoalPosition(Degrees.of(endeffectorGoal.get())));
   }
 
+  public Command endeffectorGoal(Angle angle) {
+    return run(() -> endeffector.setGoalPosition(angle));
+  }
+
+  public Command retractIntake() {
+    return run(() -> endeffectorGoal(Degrees.of(90.0)));
+  }
+
+  public Trigger isNearGoal(Angle tolerance) {
+    return new Trigger(() -> this.endeffector.isNear(endeffector.getGoalPosition(), tolerance));
+  }
+
   public Command endeffectorHome() {
     return run(() -> endeffector.setGoalPosition(Degrees.of(0.0)));
   }
 
   public Command stop() {
-    return run(
+    return runOnce(
         () -> {
           intake.stop();
         });

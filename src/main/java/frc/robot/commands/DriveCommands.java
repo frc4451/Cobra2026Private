@@ -32,7 +32,7 @@ import java.util.function.Supplier;
 
 public class DriveCommands {
   private static final double DEADBAND = 0.1;
-  private static final double ANGLE_KP = 0.5;
+  private static final double ANGLE_KP = 5.0;
   private static final double ANGLE_KD = 0.4;
   private static final double ANGLE_MAX_VELOCITY = 8.0;
   private static final double ANGLE_MAX_ACCELERATION = 20.0;
@@ -148,6 +148,52 @@ public class DriveCommands {
 
         // Reset PID controller when command starts
         .beforeStarting(() -> angleController.reset(drive.getRotation().getRadians()));
+  }
+
+  public static Command snapToAngle(
+      Drive drive, Supplier<Rotation2d> targetSupplier, double toleranceDegrees) {
+
+    ProfiledPIDController angleController =
+        new ProfiledPIDController(
+            ANGLE_KP,
+            0.0,
+            ANGLE_KD,
+            new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
+
+    angleController.enableContinuousInput(-Math.PI, Math.PI);
+
+    return Commands.run(
+            () -> {
+              double omega =
+                  angleController.calculate(
+                      drive.getRotation().getRadians(), targetSupplier.get().getRadians());
+
+              drive.runVelocity(
+                  ChassisSpeeds.fromFieldRelativeSpeeds(0.0, 0.0, omega, drive.getRotation()));
+            },
+            drive)
+
+        // Reset controller when starting
+        .beforeStarting(() -> angleController.reset(drive.getRotation().getRadians()))
+
+        // End when within tolerance AND nearly stopped
+        .until(
+            () -> {
+              double error =
+                  MathUtil.angleModulus(
+                      drive.getRotation().minus(targetSupplier.get()).getRadians());
+
+              boolean withinTolerance = Math.abs(error) < Units.degreesToRadians(toleranceDegrees);
+
+              boolean settled =
+                  Math.abs(drive.getChassisSpeeds().omegaRadiansPerSecond)
+                      < Units.degreesToRadians(10);
+
+              return withinTolerance && settled;
+            })
+
+        // Stop drivetrain when done
+        .finallyDo(interrupted -> drive.runVelocity(new ChassisSpeeds()));
   }
 
   /**

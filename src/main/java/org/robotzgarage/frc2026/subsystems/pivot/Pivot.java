@@ -58,6 +58,8 @@ public class Pivot extends SingleRoller {
     this.name = name;
     this.config = config;
 
+    this.io.resetPosition(config.initialAngle());
+
     if (RobotBase.isSimulation()) {
       pivotSim =
           Optional.of(
@@ -130,8 +132,11 @@ public class Pivot extends SingleRoller {
   }
 
   public boolean isNear(Angle angle) {
-    return MathUtil.isNear(
-        inputs.position.in(Rotations), angle.in(Rotations), config.tolerance().in(Rotations));
+    return inputs.position.isNear(angle, config.tolerance());
+  }
+
+  public boolean isNear(Angle angle, Angle tolerance) {
+    return inputs.position.isNear(angle, tolerance);
   }
 
   public boolean isNearLowerLimit() {

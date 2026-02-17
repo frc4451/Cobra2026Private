@@ -5,6 +5,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
+import lombok.Getter;
 import org.littletonrobotics.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 import org.robotzgarage.frc2026.util.MotorConfigs.GenericFeedForwardConfig;
@@ -22,6 +23,7 @@ public class FollowRollers {
   private final LoggedTunableNumber logTunablekv;
   private final LoggedTunableNumber logTunableka;
 
+  @Getter
   protected final FollowRollersMagicIOInputsAutoLogged inputs =
       new FollowRollersMagicIOInputsAutoLogged();
 
