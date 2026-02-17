@@ -53,7 +53,8 @@ public class AutonomousManager {
             .until(
                 shooter.isShooterFlywheelNearRPS(exampleShooterVelocity, exampleShooterTolerance))
             .andThen(Commands.print(formattedPrefix + "Flywheel has met target velocity")),
-        Commands.sequence(Commands.print(formattedPrefix + "Shooter is shooting, feeder and tower are running")),
+        Commands.sequence(
+            Commands.print(formattedPrefix + "Shooter is shooting, feeder and tower are running")),
         shooter.runShooterReal(exampleShooterVelocity).withTimeout(estimatedShooterEmptyTime),
         shooter.stop(),
         Commands.print(formattedPrefix + "Finished shooting"));
@@ -83,6 +84,7 @@ public class AutonomousManager {
 
     Path crossTheBumpThenRotate = new Path("Falinks - 01");
     Path driveIntoFuelFirst = new Path("Falinks - 02");
+    Path driveBackIntoFuel = new Path("Falinks - 02A");
     Path crossTheBumpToAlliance = new Path("Falinks - 03");
 
     return Commands.sequence(
@@ -95,14 +97,17 @@ public class AutonomousManager {
             Commands.sequence(
                 Commands.print("Backing up into Fuel"),
                 Commands.race(
-                        drive.getBLineBuilder().build(driveIntoFuelFirst),
+                        Commands.sequence(
+                            drive.getBLineBuilder().build(driveIntoFuelFirst),
+                            drive.getBLineBuilder().build(driveBackIntoFuel)),
                         intake.runIntakePercentOut(0.75))
                     .andThen(intake.stop())),
             Commands.sequence(
                 Commands.print("Driving back over bump"),
                 drive.getBLineBuilder().build(crossTheBumpToAlliance)),
             Commands.sequence(Commands.print("Rotate to Hub"), this.rotateToHub()),
-            Commands.sequence(Commands.print("Shoot again"), this.handleShot("Second Shot"), shooter.stop()))
+            Commands.sequence(
+                Commands.print("Shoot again"), this.handleShot("Second Shot"), shooter.stop()))
 
         // .withTimeout(MAX_TIMEOUT)
         .andThen(Commands.print("Falinks - End"))
