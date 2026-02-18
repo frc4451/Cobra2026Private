@@ -39,78 +39,52 @@ public class AutonomousManager {
         drive, () -> BobotState.getHubVARC().getRotationTarget(), rotationToleranceDegrees);
   }
 
-  private Command handleShot(String prefix) {
-    String formattedPrefix = prefix + " - ";
-
-    AngularVelocity exampleShooterVelocity = RotationsPerSecond.of(80);
-    AngularVelocity exampleShooterTolerance = RotationsPerSecond.of(1);
-    Time estimatedShooterEmptyTime = Seconds.of(2);
+  private Command handleShot(double velocity, double tolerance, double emptyTime) {
+    AngularVelocity shooterVelocity = RotationsPerSecond.of(velocity);
+    AngularVelocity shooterTolerance = RotationsPerSecond.of(tolerance);
+    Time estimatedShooterEmptyTime = Seconds.of(emptyTime);
 
     return Commands.sequence(
-        Commands.print(formattedPrefix + "Starting Shooter Flywheel"),
         shooter
-            .runShooterVelocityTorqueCurrent(exampleShooterVelocity)
+            // set velocity to shooter at with torque current
+            .runShooterVelocityTorqueCurrent(shooterVelocity)
             .until(
-                shooter.isShooterFlywheelNearRPS(exampleShooterVelocity, exampleShooterTolerance))
-            .andThen(Commands.print(formattedPrefix + "Flywheel has met target velocity")),
+                // wait to start tower, until shooter is at velocity
+                shooter.isShooterFlywheelNearRPS(shooterVelocity, shooterTolerance)),
         Commands.sequence(
-            Commands.print(formattedPrefix + "Shooter is shooting, feeder and tower are running")),
-        shooter.runShooterReal(exampleShooterVelocity).withTimeout(estimatedShooterEmptyTime),
-        shooter.stop(),
-        Commands.print(formattedPrefix + "Finished shooting"));
+            // shoots shooter for the estimated empty time
+            shooter.runShooterReal(shooterVelocity).withTimeout(estimatedShooterEmptyTime),
+            shooter.stop()));
   }
 
+  /** deploys intake to set position to intake at */
   private Command deployIntake() {
-    return Commands.sequence(
-        Commands.print("Deploying Intake"),
-        intake.endeffectorHome().until(intake.isNearGoal(Degrees.of(5))));
+    return Commands.sequence(intake.endeffectorGoal().until(intake.isNearGoal(Degrees.of(5))));
   }
 
-  public Command nosepass() {
+  /** retracks intake to starting position */
+  private Command retrackeIntake() {
+    return Commands.sequence(intake.endeffectorHome().until(intake.isNearGoal(Degrees.of(5))));
+  }
+
+  private Command BLineTrajectory(String name) {
+    return Commands.sequence(drive.getBLineBuilder().build(new Path(name)));
+  }
+
+  public Command gastly() {
     return Commands.sequence(
-        Commands.print("Testing rotate to hub"),
+        BLineTrajectory("Gastly-01"),
+        this.deployIntake(),
+        BLineTrajectory("Gastly-02"),
+        BLineTrajectory("Gastly-03"),
+        BLineTrajectory("Gastly-04"),
+        BLineTrajectory("Gastly-05"),
         this.rotateToHub(),
-        Commands.print("Finished rotating to hub"));
-  }
-
-  /**
-   * Dratini: Straight Line, collect, and score
-   *
-   * <p>Steps: 1) Shoot for One Second 2) (BLine) Drive over the bump 3) Re-orient and deploy intake
-   * 4) (BLine) Drive into fuel to collect 5) (BLine) Drive back over bump with full hopper 6)
-   * VARC-align to shoot into Hub
-   */
-  public Command falinks() {
-
-    Path crossTheBumpThenRotate = new Path("Falinks - 01");
-    Path driveIntoFuelFirst = new Path("Falinks - 02");
-    Path driveBackIntoFuel = new Path("Falinks - 02A");
-    Path crossTheBumpToAlliance = new Path("Falinks - 03");
-
-    return Commands.sequence(
-            this.rotateToHub(),
-            this.handleShot("First Shot"),
-            Commands.sequence(
-                Commands.print("Driving across the Bump"),
-                drive.getBLineBuilder().build(crossTheBumpThenRotate)),
-            this.deployIntake(),
-            Commands.sequence(
-                Commands.print("Backing up into Fuel"),
-                Commands.race(
-                        Commands.sequence(
-                            drive.getBLineBuilder().build(driveIntoFuelFirst),
-                            drive.getBLineBuilder().build(driveBackIntoFuel)),
-                        intake.runIntakePercentOut(0.75))
-                    .andThen(intake.stop())),
-            Commands.sequence(
-                Commands.print("Driving back over bump"),
-                drive.getBLineBuilder().build(crossTheBumpToAlliance)),
-            Commands.sequence(Commands.print("Rotate to Hub"), this.rotateToHub()),
-            Commands.sequence(
-                Commands.print("Shoot again"), this.handleShot("Second Shot"), shooter.stop()))
-
-        // .withTimeout(MAX_TIMEOUT)
-        .andThen(Commands.print("Falinks - End"))
-        .beforeStarting(Commands.print("Falinks - Start"));
+        this.handleShot(80.0, 1.0, 2.0),
+        this.deployIntake(),
+        BLineTrajectory("Gastly-06"),
+        BLineTrajectory("Gastly-07"),
+        this.rotateToHub(),
+        this.handleShot(80.0, 1.0, 2.0));
   }
 }

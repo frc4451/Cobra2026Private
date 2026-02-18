@@ -19,16 +19,16 @@ public class BLineManager {
                 BobotState::getGlobalPose, // Supplier for current robot pose
                 drive::getChassisSpeeds, // Supplier for current speeds
                 drive::runVelocity, // Consumer to drive the robot
-                new PIDController(5.0, 0.0, 0.0), // Translation PID
+                new PIDController(2.5, 0.0, 0.0), // Translation PID
                 new PIDController(3.0, 0.0, 0.0), // Rotation PID
                 new PIDController(2.0, 0.0, 0.0) // Cross-track PID
                 )
-            .withDefaultShouldFlip(); // Auto-flip for red alliance
-    // .withPoseReset(drive::resetPose);  // Reset odometry at path start
+            .withDefaultShouldFlip() // Auto-flip for red alliance
+            .withPoseReset(drive::setPose); // Reset odometry at path start
   }
 
   public Command getSampleBLineAutoRoutine() {
-    Path examplePath = new Path("example_a");
+    Path examplePath = new Path("jolteon-03");
 
     return Commands.sequence(pathBuilder.build(examplePath));
   }
