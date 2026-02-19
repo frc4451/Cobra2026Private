@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.bobot_state.BobotState;
 import frc.robot.commands.DriveCommands;
-import frc.robot.lib.BLine.Path;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.prototyping.IntakeV1;
 import frc.robot.subsystems.prototyping.ShooterV1;
@@ -39,22 +38,28 @@ public class AutonomousManager {
         drive, () -> BobotState.getHubVARC().getRotationTarget(), rotationToleranceDegrees);
   }
 
-  private Command handleShot(double velocity, double tolerance, double emptyTime) {
+  private Command rotateToDropOff() {
+    return DriveCommands.snapToAngle(
+        drive, () -> BobotState.getClosestDropoff().getRotationTarget(), rotationToleranceDegrees);
+  }
+
+  private Command handleShot(String prefix, double velocity, double tolerance, double emptyTime) {
+    String formattedPrefix = prefix + " - ";
     AngularVelocity shooterVelocity = RotationsPerSecond.of(velocity);
     AngularVelocity shooterTolerance = RotationsPerSecond.of(tolerance);
     Time estimatedShooterEmptyTime = Seconds.of(emptyTime);
 
     return Commands.sequence(
+        Commands.print(formattedPrefix + "Starting Shooter Flywheel"),
         shooter
-            // set velocity to shooter at with torque current
             .runShooterVelocityTorqueCurrent(shooterVelocity)
-            .until(
-                // wait to start tower, until shooter is at velocity
-                shooter.isShooterFlywheelNearRPS(shooterVelocity, shooterTolerance)),
+            .until(shooter.isShooterFlywheelNearRPS(shooterVelocity, shooterTolerance))
+            .andThen(Commands.print(formattedPrefix + "Flywheel has met target velocity")),
         Commands.sequence(
-            // shoots shooter for the estimated empty time
-            shooter.runShooterReal(shooterVelocity).withTimeout(estimatedShooterEmptyTime),
-            shooter.stop()));
+            Commands.print(formattedPrefix + "Shooter is shooting, feeder and tower are running")),
+        shooter.runShooterReal(shooterVelocity).withTimeout(estimatedShooterEmptyTime),
+        shooter.stop(),
+        Commands.print(formattedPrefix + "Finished shooting"));
   }
 
   /** deploys intake to set position to intake at */
@@ -67,24 +72,66 @@ public class AutonomousManager {
     return Commands.sequence(intake.endeffectorHome().until(intake.isNearGoal(Degrees.of(5))));
   }
 
-  private Command BLineTrajectory(String name) {
-    return Commands.sequence(drive.getBLineBuilder().build(new Path(name)));
+  public Command BLineMechcanismTest() {
+    return Commands.sequence(
+        deployIntake(),
+        drive.BLineTrajectory("BLineTest-01"),
+        retrackeIntake(),
+        this.rotateToHub(),
+        handleShot("Test shot", 50.0, 1.0, 2.0),
+        drive.BLineTrajectory("BLineTest-02"),
+        handleShot("Test shot 2", 80.0, 1.0, 1.0),
+        this.rotateToHub());
   }
 
-  public Command gastly() {
-    return Commands.sequence(
-        BLineTrajectory("Gastly-01"),
-        this.deployIntake(),
-        BLineTrajectory("Gastly-02"),
-        BLineTrajectory("Gastly-03"),
-        BLineTrajectory("Gastly-04"),
-        BLineTrajectory("Gastly-05"),
-        this.rotateToHub(),
-        this.handleShot(80.0, 1.0, 2.0),
-        this.deployIntake(),
-        BLineTrajectory("Gastly-06"),
-        BLineTrajectory("Gastly-07"),
-        this.rotateToHub(),
-        this.handleShot(80.0, 1.0, 2.0));
-  }
+  // public Command gastly() {
+  //   return Commands.sequence(
+  //       BLineTrajectory("Gastly-01"),
+  //       this.deployIntake(),
+  //       BLineTrajectory("Gastly-02"),
+  //       BLineTrajectory("Gastly-03"),
+  //       BLineTrajectory("Gastly-04"),
+  //       BLineTrajectory("Gastly-05"),
+  //       this.rotateToHub(),
+  //       this.handleShot(80.0, 1.0, 2.0),
+  //       this.deployIntake(),
+  //       BLineTrajectory("Gastly-06"),
+  //       BLineTrajectory("Gastly-07"),
+  //       this.rotateToHub(),
+  //       this.handleShot(80.0, 1.0, 2.0));
+  // }
+
+  // public Command falinks() {
+
+  //   Path crossTheBumpThenRotate = new Path("Falinks - 01");
+  //   Path driveIntoFuelFirst = new Path("Falinks - 02");
+  //   Path driveBackIntoFuel = new Path("Falinks - 02A");
+  //   Path crossTheBumpToAlliance = new Path("Falinks - 03");
+
+  //   return Commands.sequence(
+  //           this.rotateToHub(),
+  //           this.handleShot("First Shot"),
+  //           Commands.sequence(
+  //               Commands.print("Driving across the Bump"),
+  //               drive.getBLineBuilder().build(crossTheBumpThenRotate)),
+  //           this.deployIntake(),
+  //           Commands.sequence(
+  //               Commands.print("Backing up into Fuel"),
+  //               Commands.race(
+  //                       Commands.sequence(
+  //                           drive.getBLineBuilder().build(driveIntoFuelFirst),
+  //                           drive.getBLineBuilder().build(driveBackIntoFuel)),
+  //                       intake.runIntakePercentOut(0.75))
+  //                   .andThen(intake.stop())),
+  //           Commands.sequence(
+  //               Commands.print("Driving back over bump"),
+  //               drive.getBLineBuilder().build(crossTheBumpToAlliance)),
+  //           Commands.sequence(Commands.print("Rotate to Hub"), this.rotateToHub()),
+  //           Commands.sequence(
+  //               Commands.print("Shoot again"), this.handleShot("Second Shot"), shooter.stop()))
+
+  //       // .withTimeout(MAX_TIMEOUT)
+  //       .andThen(Commands.print("Falinks - End"))
+  //       .beforeStarting(Commands.print("Falinks - Start"));
+  // }
 }

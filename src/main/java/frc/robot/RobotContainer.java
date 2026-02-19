@@ -186,8 +186,9 @@ public class RobotContainer {
   private void configureAutonomousRoutines() {
     AutonomousManager autonomousManager = new AutonomousManager(drive, intake, shooter);
 
-    autoChooser.addOption("Falinks", autonomousManager.gastly());
+    // autoChooser.addOption("Falinks", autonomousManager.gastly());
     // autoChooser.addOption("Nosepass", autonomousManager.nosepass());
+    autoChooser.addOption("BLine auto/Mechanism Test", autonomousManager.BLineMechcanismTest());
   }
 
   /**
