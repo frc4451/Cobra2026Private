@@ -24,7 +24,7 @@ public class IntakeV1 extends SubsystemBase {
       new LoggedTunableNumber(name + "/IntakeVoltage", 6.0);
 
   private static final LoggedTunableNumber endeffectorGoal =
-      new LoggedTunableNumber(name + "/EndeffectorGoal", 0.0);
+      new LoggedTunableNumber(name + "/EndeffectorGoal", 90.0);
 
   // Subsystems
   private final Flywheel intake;
@@ -83,7 +83,7 @@ public class IntakeV1 extends SubsystemBase {
   }
 
   public Command endeffectorHome() {
-    return run(() -> endeffector.setGoalPosition(Degrees.of(90.0)));
+    return run(() -> endeffector.setGoalPosition(Degrees.of(0.0)));
   }
 
   public Trigger isNearGoal(Angle tolerance) {
