@@ -64,24 +64,29 @@ public class AutonomousManager {
 
   /** deploys intake to set position to intake at */
   private Command deployIntake() {
-    return Commands.sequence(intake.endeffectorGoal().until(intake.isNearGoal(Degrees.of(5))));
+    return Commands.sequence(
+        intake.endeffectorGoal().until(intake.isNearGoal(Degrees.of(5))),
+        Commands.print("Deploy Intake"));
   }
 
   /** retracks intake to starting position */
-  private Command retrackeIntake() {
-    return Commands.sequence(intake.endeffectorHome().until(intake.isNearGoal(Degrees.of(5))));
+  private Command retractIntake() {
+    return Commands.sequence(
+        intake.endeffectorHome().until(intake.isNearGoal(Degrees.of(5))),
+        Commands.print("Retract Intake"));
   }
 
   public Command BLineMechcanismTest() {
     return Commands.sequence(
         deployIntake(),
         drive.BLineTrajectory("BLineTest-01"),
-        retrackeIntake(),
+        retractIntake(),
         this.rotateToHub(),
         handleShot("Test shot", 50.0, 1.0, 2.0),
         drive.BLineTrajectory("BLineTest-02"),
-        handleShot("Test shot 2", 80.0, 1.0, 1.0),
-        this.rotateToHub());
+        this.rotateToHub(),
+        handleShot("Test shot 2", 80.0, 1.0, 1.0)
+        );
   }
 
   // public Command gastly() {
