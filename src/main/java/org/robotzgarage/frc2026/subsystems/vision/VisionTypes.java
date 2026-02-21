@@ -58,6 +58,13 @@ public final class VisionTypes {
     }
   }
 
+  public static final record ObjectDetectionCameraConfig(
+      VisionSource source, SimCameraConfig simCameraConfig) {}
+
+  @Builder
+  public static final record ObjectDetectionTrackedResult(
+      @NonNull Rotation2d pitch, @NonNull Rotation2d yaw, double area) {}
+
   public static final record AprilTagCameraConfig(
       VisionSource source,
       SimCameraConfig simConfig,
