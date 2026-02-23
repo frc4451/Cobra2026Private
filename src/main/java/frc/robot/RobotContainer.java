@@ -32,6 +32,7 @@ import frc.robot.subsystems.prototyping.IntakeV1;
 import frc.robot.subsystems.prototyping.IntakeV1Constants;
 import frc.robot.subsystems.prototyping.ShooterV1;
 import frc.robot.subsystems.prototyping.ShooterV1Constants;
+import frc.robot.subsystems.vision.ObjectDetectionVision;
 import frc.robot.subsystems.vision.VisionConstants;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIO;
@@ -58,6 +59,7 @@ public class RobotContainer {
 
   // Vision testing
   private final AprilTagVision aprilTagVision;
+  private final ObjectDetectionVision objectDetectionVision;
 
   // Controller
   private final GarageCommandXboxController drivercontroller = new GarageCommandXboxController(0);
@@ -142,6 +144,7 @@ public class RobotContainer {
     intake = new IntakeV1(intakeIO, endeffectorIO);
     shooter = new ShooterV1(shooterIO, towerIO, kickerIO);
     aprilTagVision = new AprilTagVision(VisionConstants.visionSubsystemConfig);
+    objectDetectionVision = new ObjectDetectionVision();
 
     // Autonomous choices
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
