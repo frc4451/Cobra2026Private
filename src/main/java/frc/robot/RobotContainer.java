@@ -83,7 +83,7 @@ public class RobotContainer {
     FollowRollersIO shooterIO;
 
     SingleRollerIO towerIO;
-    SingleRollerIO kickerIO;
+    SingleRollerIO spindexerIO;
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, it's ALIVE!!! ALIIIIIIVVVE!!!!!
@@ -94,7 +94,7 @@ public class RobotContainer {
         shooterIO = new FollowRollersIOTalonFX(ShooterConstants.flywheelFollowersConfig);
 
         towerIO = new SingleRollerIOTalonFX(FeederConstants.towerConfig);
-        kickerIO = new SingleRollerIOTalonFX(FeederConstants.kickerConfig);
+        spindexerIO = new SingleRollerIOTalonFX(FeederConstants.spindexerConfig);
 
         drive =
             new Drive(
@@ -114,7 +114,7 @@ public class RobotContainer {
         shooterIO = new FollowRollersIOSimTalonFX(ShooterConstants.flywheelFollowersConfigSim);
 
         towerIO = new SingleRollerIOSimTalonFX(FeederConstants.towerConfigSim);
-        kickerIO = new SingleRollerIOSimTalonFX(FeederConstants.kickerConfigSim);
+        spindexerIO = new SingleRollerIOSimTalonFX(FeederConstants.spindexerConfigSim);
 
         drive =
             new Drive(
@@ -134,7 +134,7 @@ public class RobotContainer {
         shooterIO = new FollowRollersIO() {};
 
         towerIO = new SingleRollerIO() {};
-        kickerIO = new SingleRollerIO() {};
+        spindexerIO = new SingleRollerIO() {};
 
         drive =
             new Drive(
@@ -146,7 +146,7 @@ public class RobotContainer {
         break;
     }
 
-    feeder = new Feeder(towerIO, kickerIO);
+    feeder = new Feeder(towerIO, spindexerIO);
     intake = new Intake(intakeIO, endeffectorIO);
     shooter = new Shooter(shooterIO);
     aprilTagVision = new AprilTagVision(VisionConstants.visionSubsystemConfig);

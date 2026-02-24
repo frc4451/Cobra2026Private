@@ -19,27 +19,28 @@ public class Feeder extends SubsystemBase {
   private static final LoggedTunableNumber towerPercent =
       new LoggedTunableNumber(name + "/TowerPercent", 0.5);
 
-  private static final LoggedTunableNumber kickerAmps =
-      new LoggedTunableNumber(name + "/KickerAmps", 20.0);
-  private static final LoggedTunableNumber kickerVoltage =
-      new LoggedTunableNumber(name + "/KickerVoltage", 7.0);
-  private static final LoggedTunableNumber kickerPercent =
-      new LoggedTunableNumber(name + "/KickerPercent", 0.5);
+  private static final LoggedTunableNumber spindexerAmps =
+      new LoggedTunableNumber(name + "/SpindexerAmps", 20.0);
+  private static final LoggedTunableNumber spindexerVoltage =
+      new LoggedTunableNumber(name + "/SpindexerVoltage", 7.0);
+  private static final LoggedTunableNumber spindexerPercent =
+      new LoggedTunableNumber(name + "/SpindexerPercent", 0.5);
 
   // Subsystems
   private final Flywheel tower;
-  private final Flywheel kicker;
+  private final Flywheel spindexer;
 
   // Constructor to decide if it's real or sim
-  public Feeder(SingleRollerIO towerIO, SingleRollerIO kickerIO) {
+  public Feeder(SingleRollerIO towerIO, SingleRollerIO spindexerIO) {
     tower = new Flywheel(name + "/Tower", towerIO, FeederConstants.towerFlywheelConfig);
-    kicker = new Flywheel(name + "/Kicker", kickerIO, FeederConstants.kickerFlywheelConfig);
+    spindexer =
+        new Flywheel(name + "/Spindexer", spindexerIO, FeederConstants.spindexerFlywheelConfig);
   }
 
   public void periodic() {
     // Periodic modes
     tower.periodic();
-    kicker.periodic();
+    spindexer.periodic();
   }
 
   public Command runTowerTorqueCurrent() {
@@ -66,27 +67,27 @@ public class Feeder extends SubsystemBase {
         });
   }
 
-  public Command runKickerTorqueCurrent() {
+  public Command runSpindexerTorqueCurrent() {
     return run(
         () -> {
-          double clampedCurrent = MathUtil.clamp(kickerAmps.get(), -100.0, 100.0);
-          kicker.runTorqueCurrent(Amps.of(clampedCurrent));
+          double clampedCurrent = MathUtil.clamp(spindexerAmps.get(), -100.0, 100.0);
+          spindexer.runTorqueCurrent(Amps.of(clampedCurrent));
         });
   }
 
-  public Command runKickerVoltage() {
+  public Command runSpindexerVoltage() {
     return run(
         () -> {
-          double clampedVoltage = MathUtil.clamp(kickerVoltage.get(), -12.0, 12.0);
-          kicker.runVolts(clampedVoltage);
+          double clampedVoltage = MathUtil.clamp(spindexerVoltage.get(), -12.0, 12.0);
+          spindexer.runVolts(clampedVoltage);
         });
   }
 
-  public Command runKickerPercentOut() {
+  public Command runSpindexerPercentOut() {
     return run(
         () -> {
-          double clampedPercent = MathUtil.clamp(kickerPercent.get(), -1.0, 1.0);
-          kicker.runPercentOutput(clampedPercent);
+          double clampedPercent = MathUtil.clamp(spindexerPercent.get(), -1.0, 1.0);
+          spindexer.runPercentOutput(clampedPercent);
         });
   }
 
@@ -94,7 +95,7 @@ public class Feeder extends SubsystemBase {
     return runOnce(
         () -> {
           tower.stop();
-          kicker.stop();
+          spindexer.stop();
         });
   }
 }

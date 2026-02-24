@@ -12,7 +12,7 @@ import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfigSim;
 
 public class FeederConstants {
   public static final double towerReduction = 4.0;
-  public static final double kickerReduction = 4.0;
+  public static final double spindexerReduction = 4.0;
 
   public static final FlywheelConfig towerFlywheelConfig =
       FlywheelConfig.builder()
@@ -22,12 +22,12 @@ public class FeederConstants {
           .reduction(towerReduction)
           .build();
 
-  public static final FlywheelConfig kickerFlywheelConfig =
+  public static final FlywheelConfig spindexerFlywheelConfig =
       FlywheelConfig.builder()
           .radius(Inches.of(3.0))
           .gearbox(DCMotor.getFalcon500Foc(1))
           .moi(0.00002)
-          .reduction(kickerReduction)
+          .reduction(spindexerReduction)
           .build();
 
   public static final TalonFXConfig towerConfig =
@@ -64,12 +64,12 @@ public class FeederConstants {
           .moi(towerFlywheelConfig.moi())
           .build();
 
-  public static final TalonFXConfig kickerConfig =
+  public static final TalonFXConfig spindexerConfig =
       TalonFXConfig.builder()
           .canId(24)
           .canBus(Constants.rioBus)
           // .phoenixUpdateFreqHz(50)
-          .reduction(kickerReduction)
+          .reduction(spindexerReduction)
           .currentLimitAmps(30)
           .invert(true)
           .isBrakeMode(true)
@@ -86,15 +86,15 @@ public class FeederConstants {
                   .withKD(0.0))
           .mmConfig(
               new MotionMagicConfigs()
-                  .withMotionMagicCruiseVelocity(5.0 * kickerReduction)
-                  .withMotionMagicAcceleration(4.5 * kickerReduction)
-                  .withMotionMagicJerk(20.0 * kickerReduction))
+                  .withMotionMagicCruiseVelocity(5.0 * spindexerReduction)
+                  .withMotionMagicAcceleration(4.5 * spindexerReduction)
+                  .withMotionMagicJerk(20.0 * spindexerReduction))
           .build();
 
-  public static final TalonFXConfigSim kickerConfigSim =
+  public static final TalonFXConfigSim spindexerConfigSim =
       TalonFXConfigSim.builder()
-          .config(kickerConfig)
-          .dcMotor(kickerFlywheelConfig.gearbox())
-          .moi(kickerFlywheelConfig.moi())
+          .config(spindexerConfig)
+          .dcMotor(spindexerFlywheelConfig.gearbox())
+          .moi(spindexerFlywheelConfig.moi())
           .build();
 }
