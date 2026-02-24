@@ -1,4 +1,4 @@
-package frc.robot.subsystems.prototyping;
+package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Feet;
@@ -22,7 +22,7 @@ import org.robotzgarage.frc2026.util.MechanismConfigs.RootMechanismConfig;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfig;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfigSim;
 
-public class IntakeV1Constants {
+public class IntakeConstants {
   public static final double intakeReduction = 1.0;
   public static final double endeffectorReduction = 75.0;
 

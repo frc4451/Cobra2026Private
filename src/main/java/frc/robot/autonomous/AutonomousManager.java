@@ -12,18 +12,18 @@ import frc.robot.bobot_state.BobotState;
 import frc.robot.commands.DriveCommands;
 import frc.robot.lib.BLine.Path;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.prototyping.IntakeV1;
-import frc.robot.subsystems.prototyping.ShooterV1;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.shooter.Shooter;
 
 public class AutonomousManager {
   private final Drive drive;
-  private final IntakeV1 intake;
-  private final ShooterV1 shooter;
+  private final Intake intake;
+  private final Shooter shooter;
 
   private static final double rotationToleranceDegrees = 1.0;
   private static final Time MAX_TIMEOUT = Seconds.of(20);
 
-  public AutonomousManager(Drive drive, IntakeV1 intakeV1, ShooterV1 shooterV1) {
+  public AutonomousManager(Drive drive, Intake intakeV1, Shooter shooterV1) {
     this.drive = drive;
     this.intake = intakeV1;
     this.shooter = shooterV1;
@@ -53,7 +53,9 @@ public class AutonomousManager {
                 shooter.isShooterFlywheelNearRPS(shooterVelocity, shooterTolerance)),
         Commands.sequence(
             // shoots shooter for the estimated empty time
-            shooter.runShooterReal(shooterVelocity).withTimeout(estimatedShooterEmptyTime),
+            shooter
+                .runShooterVelocityTorqueCurrent(shooterVelocity)
+                .withTimeout(estimatedShooterEmptyTime),
             shooter.stop()));
   }
 

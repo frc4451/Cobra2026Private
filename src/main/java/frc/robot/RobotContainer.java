@@ -28,10 +28,12 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
-import frc.robot.subsystems.prototyping.IntakeV1;
-import frc.robot.subsystems.prototyping.IntakeV1Constants;
-import frc.robot.subsystems.prototyping.ShooterV1;
-import frc.robot.subsystems.prototyping.ShooterV1Constants;
+import frc.robot.subsystems.feeder.Feeder;
+import frc.robot.subsystems.feeder.FeederConstants;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeConstants;
+import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.subsystems.vision.VisionConstants;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIO;
@@ -52,9 +54,10 @@ import org.robotzgarage.frc2026.util.GarageCommandXboxController;
 public class RobotContainer {
   // Subsystems
   // EX. private final Example example;
-  private final IntakeV1 intake;
-  private final ShooterV1 shooter;
   private final Drive drive;
+  private final Feeder feeder;
+  private final Intake intake;
+  private final Shooter shooter;
 
   // Vision testing
   private final AprilTagVision aprilTagVision;
@@ -78,18 +81,20 @@ public class RobotContainer {
     SingleRollerIO endeffectorIO;
 
     FollowRollersIO shooterIO;
+
     SingleRollerIO towerIO;
     SingleRollerIO kickerIO;
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, it's ALIVE!!! ALIIIIIIVVVE!!!!!
         // EX. exampleIO = new SingleRollerIOTalonFX(exampleConstants.exampleConfig);
-        intakeIO = new SingleRollerIOTalonFX(IntakeV1Constants.intakeConfig);
-        endeffectorIO = new SingleRollerIOTalonFX(IntakeV1Constants.endeffectorConfig);
+        intakeIO = new SingleRollerIOTalonFX(IntakeConstants.intakeConfig);
+        endeffectorIO = new SingleRollerIOTalonFX(IntakeConstants.endeffectorConfig);
 
-        shooterIO = new FollowRollersIOTalonFX(ShooterV1Constants.flywheelFollowersConfig);
-        towerIO = new SingleRollerIOTalonFX(ShooterV1Constants.towerConfig);
-        kickerIO = new SingleRollerIOTalonFX(ShooterV1Constants.kickerConfig);
+        shooterIO = new FollowRollersIOTalonFX(ShooterConstants.flywheelFollowersConfig);
+
+        towerIO = new SingleRollerIOTalonFX(FeederConstants.towerConfig);
+        kickerIO = new SingleRollerIOTalonFX(FeederConstants.kickerConfig);
 
         drive =
             new Drive(
@@ -103,12 +108,13 @@ public class RobotContainer {
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
         // EX. exampleIO = new SingleRollerIOSimTalonFX(exampleConstants.exampleConfigSim);
-        intakeIO = new SingleRollerIOSimTalonFX(IntakeV1Constants.intakeConfigSim);
-        endeffectorIO = new SingleRollerIOSimTalonFX(IntakeV1Constants.endeffectorConfigSim);
+        intakeIO = new SingleRollerIOSimTalonFX(IntakeConstants.intakeConfigSim);
+        endeffectorIO = new SingleRollerIOSimTalonFX(IntakeConstants.endeffectorConfigSim);
 
-        shooterIO = new FollowRollersIOSimTalonFX(ShooterV1Constants.flywheelFollowersConfigSim);
-        towerIO = new SingleRollerIOSimTalonFX(ShooterV1Constants.towerConfigSim);
-        kickerIO = new SingleRollerIOSimTalonFX(ShooterV1Constants.kickerConfigSim);
+        shooterIO = new FollowRollersIOSimTalonFX(ShooterConstants.flywheelFollowersConfigSim);
+
+        towerIO = new SingleRollerIOSimTalonFX(FeederConstants.towerConfigSim);
+        kickerIO = new SingleRollerIOSimTalonFX(FeederConstants.kickerConfigSim);
 
         drive =
             new Drive(
@@ -126,6 +132,7 @@ public class RobotContainer {
         endeffectorIO = new SingleRollerIO() {};
 
         shooterIO = new FollowRollersIO() {};
+
         towerIO = new SingleRollerIO() {};
         kickerIO = new SingleRollerIO() {};
 
@@ -139,8 +146,9 @@ public class RobotContainer {
         break;
     }
 
-    intake = new IntakeV1(intakeIO, endeffectorIO);
-    shooter = new ShooterV1(shooterIO, towerIO, kickerIO);
+    feeder = new Feeder(towerIO, kickerIO);
+    intake = new Intake(intakeIO, endeffectorIO);
+    shooter = new Shooter(shooterIO);
     aprilTagVision = new AprilTagVision(VisionConstants.visionSubsystemConfig);
 
     // Autonomous choices
@@ -272,7 +280,7 @@ public class RobotContainer {
    */
   private void configureOperatorBindings(GarageCommandXboxController controller) {
     // intake controll
-    controller.povLeft().onTrue(intake.runIntakeVoltageOut());
+    controller.povLeft().onTrue(intake.runRollersVoltageOut());
     controller.povRight().onTrue(intake.stop());
     controller.povUp().onTrue(intake.endeffectorGoal());
     controller.povDown().onTrue(intake.endeffectorHome());
@@ -280,7 +288,7 @@ public class RobotContainer {
     // shooter controll
     controller.y().onTrue(shooter.stop());
     controller.b().onTrue(shooter.runShooterVelocityTorqueCurrent());
-    controller.a().onTrue(shooter.runShooterTuning());
+    // controller.a().onTrue(shooter.runShooterTuning());
   }
 
   /**
@@ -291,7 +299,7 @@ public class RobotContainer {
    */
   private void configureTunerBindings(GarageCommandXboxController controller) {
     // intake controll
-    controller.povLeft().onTrue(intake.runIntakeVoltageOut());
+    controller.povLeft().onTrue(intake.runRollersVoltageOut());
     controller.povRight().onTrue(intake.stop());
     controller.povUp().onTrue(intake.endeffectorGoal());
     controller.povDown().onTrue(intake.endeffectorHome());
@@ -299,7 +307,7 @@ public class RobotContainer {
     // shooter controll
     controller.y().onTrue(shooter.stop());
     controller.b().onTrue(shooter.runShooterVelocityTorqueCurrent());
-    controller.a().onTrue(shooter.runShooterTuning());
+    // controller.a().onTrue(shooter.runShooterTuning());
 
     // drive controll
     drive.setDefaultCommand(

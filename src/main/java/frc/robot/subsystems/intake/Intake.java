@@ -1,4 +1,4 @@
-package frc.robot.subsystems.prototyping;
+package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
@@ -13,64 +13,64 @@ import org.robotzgarage.frc2026.subsystems.flywheel.Flywheel;
 import org.robotzgarage.frc2026.subsystems.pivot.Pivot;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
 
-public class IntakeV1 extends SubsystemBase {
-  private static final String name = "/IntakeV1";
+public class Intake extends SubsystemBase {
+  private static final String name = "/Intake";
 
   private static final LoggedTunableNumber intakePercent =
-      new LoggedTunableNumber(name + "/IntakePercent", 0.75);
+      new LoggedTunableNumber(name + "/RollersPercent", 0.75);
   private static final LoggedTunableNumber intakeAmps =
-      new LoggedTunableNumber(name + "/IntakeAmps", 20.0);
+      new LoggedTunableNumber(name + "/RollersAmps", 20.0);
   private static final LoggedTunableNumber intakeVoltage =
-      new LoggedTunableNumber(name + "/IntakeVoltage", 6.0);
+      new LoggedTunableNumber(name + "/RollersVoltage", 6.0);
 
   private static final LoggedTunableNumber endeffectorGoal =
       new LoggedTunableNumber(name + "/EndeffectorGoal", 45.0);
 
   // Subsystems
-  private final Flywheel intake;
+  private final Flywheel rollers;
   private final Pivot endeffector;
 
   // Constructor to decide if it's real or sim
-  public IntakeV1(SingleRollerIO intakeIO, SingleRollerIO endeffectorIO) {
-    intake = new Flywheel(name + "/Intake", intakeIO, IntakeV1Constants.flywheelConfig);
-    endeffector = new Pivot(name + "/endeffector", endeffectorIO, IntakeV1Constants.pivotConfig);
+  public Intake(SingleRollerIO intakeIO, SingleRollerIO endeffectorIO) {
+    rollers = new Flywheel(name + "/Intake", intakeIO, IntakeConstants.flywheelConfig);
+    endeffector = new Pivot(name + "/endeffector", endeffectorIO, IntakeConstants.pivotConfig);
   }
 
   public void periodic() {
     // Periodic modes
-    intake.periodic();
+    rollers.periodic();
     endeffector.periodic();
   }
 
-  public Command runIntakePercentOut() {
+  public Command runRollersPercentOut() {
     return run(
         () -> {
           double clampedPercent = MathUtil.clamp(intakePercent.get(), -1.0, 1.0);
-          intake.runPercentOutput(clampedPercent);
+          rollers.runPercentOutput(clampedPercent);
         });
   }
 
-  public Command runIntakePercentOut(double percentOut) {
+  public Command runRollersPercentOut(double percentOut) {
     return run(
         () -> {
           double clampedPercent = MathUtil.clamp(intakePercent.get(), -1.0, 1.0);
-          intake.runPercentOutput(clampedPercent);
+          rollers.runPercentOutput(clampedPercent);
         });
   }
 
-  public Command runIntakeTorqueCurrent() {
+  public Command runRollersTorqueCurrent() {
     return run(
         () -> {
           double clampedAmps = MathUtil.clamp(intakeAmps.get(), 0.0, 40.0);
-          intake.setTorque(Amps.of(clampedAmps));
+          rollers.setTorque(Amps.of(clampedAmps));
         });
   }
 
-  public Command runIntakeVoltageOut() {
+  public Command runRollersVoltageOut() {
     return run(
         () -> {
           double clampedVoltage = MathUtil.clamp(intakeVoltage.get(), -12.0, 12.0);
-          intake.runVolts(clampedVoltage);
+          rollers.runVolts(clampedVoltage);
         });
   }
 
@@ -82,7 +82,7 @@ public class IntakeV1 extends SubsystemBase {
     return run(() -> endeffector.setGoalPosition(angle));
   }
 
-  public Command retractIntake() {
+  public Command retractEndeffector() {
     return run(() -> endeffectorGoal(Degrees.of(90.0)));
   }
 
@@ -97,7 +97,7 @@ public class IntakeV1 extends SubsystemBase {
   public Command stop() {
     return runOnce(
         () -> {
-          intake.stop();
+          rollers.stop();
         });
   }
 }
