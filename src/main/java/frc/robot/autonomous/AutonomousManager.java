@@ -73,20 +73,11 @@ public class AutonomousManager {
     return Commands.sequence(drive.getBLineBuilder().build(new Path(name)));
   }
 
-  public Command gastly() {
+  public Command himithy() {
     return Commands.sequence(
-        BLineTrajectory("Gastly-01"),
+        BLineTrajectory("SnG-LT-1"),
         this.deployIntake(),
-        BLineTrajectory("Gastly-02"),
-        BLineTrajectory("Gastly-03"),
-        BLineTrajectory("Gastly-04"),
-        BLineTrajectory("Gastly-05"),
-        this.rotateToHub(),
-        this.handleShot(80.0, 1.0, 2.0),
-        this.deployIntake(),
-        BLineTrajectory("Gastly-06"),
-        BLineTrajectory("Gastly-07"),
-        this.rotateToHub(),
-        this.handleShot(80.0, 1.0, 2.0));
+        BLineTrajectory("LT-SimpleIntake-1"),
+        BLineTrajectory("SimpleIntake-CrossField"));
   }
 }
