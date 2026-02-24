@@ -12,6 +12,7 @@ import org.littletonrobotics.LoggedTunableNumber;
 import org.robotzgarage.frc2026.subsystems.flywheel.Flywheel;
 import org.robotzgarage.frc2026.subsystems.pivot.Pivot;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
+import org.robotzgarage.frc2026.util.TuningUtils.TuningUnit;
 
 public class Intake extends SubsystemBase {
   private static final String name = "/Intake";
@@ -99,5 +100,13 @@ public class Intake extends SubsystemBase {
         () -> {
           rollers.stop();
         });
+  }
+
+  public Command rollersFeedForwardCharacterization(TuningUnit unit) {
+    return this.rollers.feedForwardRollerCharacterization(unit);
+  }
+
+  public Command endeffectorFeedForwardCharacterization(TuningUnit unit) {
+    return this.endeffector.feedForwardRollerCharacterization(unit);
   }
 }

@@ -44,6 +44,7 @@ import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalon
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFX;
 import org.robotzgarage.frc2026.subsystems.vision.AprilTagVision;
 import org.robotzgarage.frc2026.util.GarageCommandXboxController;
+import org.robotzgarage.frc2026.util.TuningUtils.TuningUnit;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -181,6 +182,8 @@ public class RobotContainer {
     configureBLineRoutines();
     configureAutonomousRoutines();
 
+    configureTuningRoutines();
+
     DriverStation.silenceJoystickConnectionWarning(true);
     // configureVisionDebugControls(visionDebugController);
   }
@@ -196,6 +199,31 @@ public class RobotContainer {
 
     autoChooser.addOption("Falinks", autonomousManager.gastly());
     // autoChooser.addOption("Nosepass", autonomousManager.nosepass());
+  }
+
+  private void configureTuningRoutines() {
+    if (Constants.tuningMode) {
+      autoChooser.addOption(
+          "Tune Pivot Roller (Volts)",
+          this.intake.rollersFeedForwardCharacterization(TuningUnit.VOLTS));
+      autoChooser.addOption(
+          "Tune Pivot Roller (Amps)",
+          this.intake.rollersFeedForwardCharacterization(TuningUnit.AMPS));
+
+      autoChooser.addOption(
+          "Tune Pivot Endeffector (Volts)",
+          this.intake.endeffectorFeedForwardCharacterization(TuningUnit.VOLTS));
+      autoChooser.addOption(
+          "Tune Pivot Endeffector (Amps)",
+          this.intake.endeffectorFeedForwardCharacterization(TuningUnit.AMPS));
+
+      autoChooser.addOption(
+          "Tune Shooter Flywheels (Volts)",
+          this.shooter.feedforwardCharacterization(TuningUnit.VOLTS));
+      autoChooser.addOption(
+          "Tune Shooter Flywheels (Amps)",
+          this.shooter.feedforwardCharacterization(TuningUnit.AMPS));
+    }
   }
 
   /**

@@ -17,7 +17,6 @@ import frc.robot.Constants;
 import org.robotzgarage.frc2026.subsystems.flywheel.Flywheel.FlywheelConfig;
 import org.robotzgarage.frc2026.subsystems.pivot.Pivot.PivotConfig;
 import org.robotzgarage.frc2026.subsystems.pivot.PivotMechanism.PivotMechanismConfig;
-import org.robotzgarage.frc2026.util.CTREUtils.MotionMagicHelpers;
 import org.robotzgarage.frc2026.util.MechanismConfigs.RootMechanismConfig;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfig;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfigSim;
@@ -90,26 +89,27 @@ public class IntakeConstants {
           .currentLimitAmps(40)
           .invert(true)
           .isBrakeMode(true)
-          .foc(false)
+          .foc(true)
           .slot0Config(
               // When in doubt, refer to CTRE
               // https://v6.docs.ctr-electronics.com/en/latest/docs/api-reference/device-specific/talonfx/motion-magic.html
               new Slot0Configs()
                   // feedforward
-                  .withKS(MotionMagicHelpers.getVoltage(0.0))
+                  .withKS(0.267117)
                   .withGravityType(GravityTypeValue.Arm_Cosine)
                   // .withKG(0.04)
-                  .withKV(MotionMagicHelpers.getRotationsVelocity(0.5))
+                  .withKV(5.933969)
+                  //   .withKV(MotionMagicHelpers.getRotationsVelocity(0.5))
                   // .withKA(MotionMagicHelpers.getRotationsAcceleration(0.12))
                   // feedback
-                  .withKP(MotionMagicHelpers.getRotations(6.0))
+                  .withKP(6.0)
                   // .withKI(MotionMagicHelpers.getRotationsVelocity(3.0))
-                  .withKD(MotionMagicHelpers.getRotationsVelocity(0.25)))
+                  .withKD(0.25))
           .mmConfig(
               new MotionMagicConfigs()
-                  .withMotionMagicCruiseVelocity(MotionMagicHelpers.getRotationsVelocity(2))
-                  .withMotionMagicAcceleration(MotionMagicHelpers.getRotationsAcceleration(1.0))
-                  .withMotionMagicJerk(MotionMagicHelpers.getRotationsJerk(1.0)))
+                  .withMotionMagicCruiseVelocity(20.0 * endeffectorReduction)
+                  .withMotionMagicAcceleration(80.0 * endeffectorReduction)
+                  .withMotionMagicJerk(320.0 * endeffectorReduction))
           .softwareLimitSwitch(
               new SoftwareLimitSwitchConfigs()
                   .withForwardSoftLimitEnable(true)
