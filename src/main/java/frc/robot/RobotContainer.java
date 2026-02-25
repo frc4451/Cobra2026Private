@@ -191,7 +191,7 @@ public class RobotContainer {
   //   }
 
   private void configureAutonomousRoutines() {
-    AutonomousManager autonomousManager = new AutonomousManager(drive, intake, shooter);
+    AutonomousManager autonomousManager = new AutonomousManager(drive, intake, shooter, feeder);
 
     autoChooser.addOption("Himithy", autonomousManager.himithy());
   }
@@ -280,8 +280,8 @@ public class RobotContainer {
     // intake controll
     controller.povLeft().onTrue(intake.runRollersVoltageOut());
     controller.povRight().onTrue(intake.stop());
-    controller.povUp().onTrue(intake.endeffectorGoal());
-    controller.povDown().onTrue(intake.endeffectorHome());
+    controller.povUp().onTrue(intake.endeffectorDeploy());
+    controller.povDown().onTrue(intake.endeffectorStart());
 
     // shooter controll
     controller.y().onTrue(shooter.stop());
@@ -299,8 +299,8 @@ public class RobotContainer {
     // intake controll
     controller.povLeft().onTrue(intake.runRollersVoltageOut());
     controller.povRight().onTrue(intake.stop());
-    controller.povUp().onTrue(intake.endeffectorGoal());
-    controller.povDown().onTrue(intake.endeffectorHome());
+    controller.povUp().onTrue(intake.endeffectorDeploy());
+    controller.povDown().onTrue(intake.endeffectorStart());
 
     // shooter controll
     controller.y().onTrue(shooter.stop());

@@ -12,6 +12,7 @@ import frc.robot.bobot_state.BobotState;
 import frc.robot.commands.DriveCommands;
 import frc.robot.lib.BLine.Path;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
 
@@ -19,14 +20,16 @@ public class AutonomousManager {
   private final Drive drive;
   private final Intake intake;
   private final Shooter shooter;
+  private final Feeder feeder;
 
   private static final double rotationToleranceDegrees = 1.0;
   private static final Time MAX_TIMEOUT = Seconds.of(20);
 
-  public AutonomousManager(Drive drive, Intake intakeV1, Shooter shooterV1) {
+  public AutonomousManager(Drive drive, Intake intake, Shooter shooter, Feeder feeder) {
     this.drive = drive;
-    this.intake = intakeV1;
-    this.shooter = shooterV1;
+    this.intake = intake;
+    this.shooter = shooter;
+    this.feeder = feeder;
   }
 
   /**
@@ -71,22 +74,22 @@ public class AutonomousManager {
 
   /** deploys intake to set position to intake at */
   private Command deployIntake() {
-    return Commands.sequence(intake.endeffectorGoal().until(intake.isNearGoal(Degrees.of(5))))
+    return Commands.sequence(intake.endeffectorDeploy().until(intake.isNearGoal(Degrees.of(5))))
         .beforeStarting(Commands.print("deploy: start"))
         .andThen(Commands.print("deploy: end"));
   }
 
   /** retracks intake to starting position */
   private Command retrackIntake() {
-    return Commands.sequence(intake.endeffectorHome().until(intake.isNearGoal(Degrees.of(5))))
+    return Commands.sequence(intake.endeffectorStart().until(intake.isNearGoal(Degrees.of(5))))
         .beforeStarting(Commands.print("retrack: start"))
         .andThen(Commands.print("deploy: end"));
   }
 
-  /** retracks intake to starting position */
+  /** lifts intake to an offset position for bump transversal */
   private Command liftIntake() {
-    return Commands.sequence(
-            intake.endeffectorGoal(Degrees.of(10.0)).until(intake.isNearGoal(Degrees.of(5))))
+    return Commands.sequence(intake.endeffectorLift())
+        .until(intake.isNearGoal(Degrees.of(5)))
         .beforeStarting(Commands.print("lift: start"))
         .andThen(Commands.print("lift: end"));
   }
