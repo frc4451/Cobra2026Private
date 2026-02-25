@@ -4,6 +4,8 @@ import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Distance;
 
@@ -97,5 +99,10 @@ public class PoseUtils {
     Translation2d targetTranslation = target.getTranslation();
     double distanceToTarget = currentTranslation.getDistance(targetTranslation);
     return Meters.of(distanceToTarget);
+  }
+
+  public static Transform2d transform3dTo2d(Transform3d other) {
+    return new Transform2d(
+        other.getTranslation().toTranslation2d(), other.getRotation().toRotation2d());
   }
 }

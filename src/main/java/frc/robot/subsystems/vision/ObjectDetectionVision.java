@@ -56,18 +56,28 @@ public class ObjectDetectionVision extends VirtualSubsystem {
     switch (Constants.currentMode) {
       case REAL:
         intakeFuelDetectionIO =
-            new ObjectDetectionIOPhoton(VisionConstants.intakeFuelDetection.source());
+            new ObjectDetectionIOPhoton(
+                VisionConstants.intakeFuelDetection.source(),
+                () -> BobotState.getGlobalPose(),
+                true);
         hopperFuelDetectionIO =
-            new ObjectDetectionIOPhoton(VisionConstants.hopperFuelDetection.source());
+            new ObjectDetectionIOPhoton(
+                VisionConstants.hopperFuelDetection.source(),
+                () -> BobotState.getGlobalPose(),
+                false);
         break;
       case SIM:
         intakeFuelDetectionIO =
             new ObjectDetectionIOPhotonSim(
                 VisionConstants.intakeFuelDetection.source(),
+                () -> BobotState.getGlobalPose(),
+                true,
                 VisionConstants.intakeFuelDetection.simCameraConfig());
         hopperFuelDetectionIO =
             new ObjectDetectionIOPhotonSim(
                 VisionConstants.hopperFuelDetection.source(),
+                () -> BobotState.getGlobalPose(),
+                false,
                 VisionConstants.hopperFuelDetection.simCameraConfig());
         break;
       case REPLAY:

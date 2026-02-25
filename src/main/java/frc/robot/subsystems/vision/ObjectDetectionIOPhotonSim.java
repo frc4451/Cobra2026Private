@@ -1,5 +1,7 @@
 package frc.robot.subsystems.vision;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import java.util.function.Supplier;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.SimCameraConfig;
@@ -8,8 +10,17 @@ import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.VisionSource;
 public class ObjectDetectionIOPhotonSim extends ObjectDetectionIOPhoton {
   private final PhotonCameraSim cameraSim;
 
-  public ObjectDetectionIOPhotonSim(VisionSource source, SimCameraConfig config) {
-    super(source);
+  public ObjectDetectionIOPhotonSim(
+      VisionSource source, Supplier<Pose2d> robotPoseSupplier, SimCameraConfig config) {
+    this(source, robotPoseSupplier, false, config);
+  }
+
+  public ObjectDetectionIOPhotonSim(
+      VisionSource source,
+      Supplier<Pose2d> robotPoseSupplier,
+      boolean calculatePoses,
+      SimCameraConfig config) {
+    super(source, robotPoseSupplier, calculatePoses);
 
     SimCameraProperties props = config.apply(new SimCameraProperties());
     cameraSim = new PhotonCameraSim(camera, props);
