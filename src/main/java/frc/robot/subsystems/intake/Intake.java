@@ -24,7 +24,7 @@ public class Intake extends SubsystemBase {
       new LoggedTunableNumber(name + "/RollersVoltage", 6.0);
 
   private static final LoggedTunableNumber endeffectorGoal =
-      new LoggedTunableNumber(name + "/EndeffectorGoal", 45.0);
+      new LoggedTunableNumber(name + "/EndeffectorGoal", 0.0);
 
   // Subsystems
   private final Flywheel rollers;

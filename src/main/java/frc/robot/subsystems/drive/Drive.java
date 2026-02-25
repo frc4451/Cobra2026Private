@@ -155,13 +155,25 @@ public class Drive extends SubsystemBase {
           Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
         });
 
+    // // 1. Set global constraints
+    // Path.setDefaultGlobalConstraints(
+    //     new Path.DefaultGlobalConstraints(
+    //         4.0, // maxVelocityMetersPerSec
+    //         3.0, // maxAccelerationMetersPerSec2
+    //         360.0, // maxVelocityDegPerSec
+    //         720.0, // maxAccelerationDegPerSec2
+    //         0.05, // endTranslationToleranceMeters
+    //         2.0, // endRotationToleranceDeg
+    //         0.3 // intermediateHandoffRadiusMeters
+    //         ));
+
     FollowPath.Builder builder =
         new FollowPath.Builder(
                 this, // The drive subsystem to require
                 this::getGlobalPose, // Supplier for current robot pose
                 this::getChassisSpeeds, // Supplier for current speeds
                 this::runVelocity, // Consumer to drive the robot
-                new PIDController(5.0, 0.0, 0.0), // Translation PID
+                new PIDController(10.0, 0.0, 0.0), // Translation PID
                 new PIDController(3.0, 0.0, 0.0), // Rotation PID
                 new PIDController(2.0, 0.0, 0.0) // Cross-track PID
                 )

@@ -35,49 +35,78 @@ public class AutonomousManager {
    * <p>This uses "snapToAngle" to lock the rotation of the robot to the hub
    */
   private Command rotateToHub() {
+    // return drive.getBLineBuilder().build(
+    //   new Path(
+    //     new Path.Waypoint(null)
+    //   )
+    // )
+
     return DriveCommands.snapToAngle(
         drive, () -> BobotState.getHubVARC().getRotationTarget(), rotationToleranceDegrees);
   }
 
-  private Command handleShot(double velocity, double tolerance, double emptyTime) {
+  private Command handleShot(String prefix, double velocity, double tolerance, double emptyTime) {
+    String formattedPrefix = prefix + ": ";
     AngularVelocity shooterVelocity = RotationsPerSecond.of(velocity);
     AngularVelocity shooterTolerance = RotationsPerSecond.of(tolerance);
     Time estimatedShooterEmptyTime = Seconds.of(emptyTime);
 
     return Commands.sequence(
-        shooter
-            // set velocity to shooter at with torque current
-            .runShooterVelocityTorqueCurrent(shooterVelocity)
-            .until(
-                // wait to start tower, until shooter is at velocity
-                shooter.isShooterFlywheelNearRPS(shooterVelocity, shooterTolerance)),
-        Commands.sequence(
+            Commands.print(formattedPrefix + "Starting Shooter Flywheel"),
+            shooter
+                // set velocity to shooter at with torque current
+                .runShooterVelocityTorqueCurrent(shooterVelocity)
+                .until(
+                    // wait to start tower, until shooter is at velocity
+                    shooter.isShooterFlywheelNearRPS(shooterVelocity, shooterTolerance)),
             // shoots shooter for the estimated empty time
+            Commands.print(formattedPrefix + "start shooter"),
             shooter
                 .runShooterVelocityTorqueCurrent(shooterVelocity)
                 .withTimeout(estimatedShooterEmptyTime),
-            shooter.stop()));
+            shooter.stop())
+        .beforeStarting(Commands.print(formattedPrefix + "start"))
+        .andThen(Commands.print(formattedPrefix + "end"));
   }
 
   /** deploys intake to set position to intake at */
   private Command deployIntake() {
-    return Commands.sequence(intake.endeffectorGoal().until(intake.isNearGoal(Degrees.of(5))));
+    return Commands.sequence(intake.endeffectorGoal().until(intake.isNearGoal(Degrees.of(5))))
+        .beforeStarting(Commands.print("deploy: start"))
+        .andThen(Commands.print("deploy: end"));
   }
 
   /** retracks intake to starting position */
-  private Command retrackeIntake() {
-    return Commands.sequence(intake.endeffectorHome().until(intake.isNearGoal(Degrees.of(5))));
+  private Command retrackIntake() {
+    return Commands.sequence(intake.endeffectorHome().until(intake.isNearGoal(Degrees.of(5))))
+        .beforeStarting(Commands.print("retrack: start"))
+        .andThen(Commands.print("deploy: end"));
+  }
+
+  /** retracks intake to starting position */
+  private Command liftIntake() {
+    return Commands.sequence(
+            intake.endeffectorGoal(Degrees.of(10.0)).until(intake.isNearGoal(Degrees.of(5))))
+        .beforeStarting(Commands.print("lift: start"))
+        .andThen(Commands.print("lift: end"));
   }
 
   private Command BLineTrajectory(String name) {
-    return Commands.sequence(drive.getBLineBuilder().build(new Path(name)));
+    return Commands.sequence(drive.getBLineBuilder().build(new Path(name)))
+        .beforeStarting(Commands.print(name + ": start"))
+        .andThen(Commands.print(name + ": end"));
   }
 
   public Command himithy() {
     return Commands.sequence(
-        BLineTrajectory("SnG-LT-1"),
-        this.deployIntake(),
-        BLineTrajectory("LT-SimpleIntake-1"),
-        BLineTrajectory("SimpleIntake-CrossField"));
+            BLineTrajectory("SnG-LT-1"),
+            this.deployIntake(),
+            BLineTrajectory("LT-SimpleIntake-1"),
+            BLineTrajectory("SimpleIntake-CrossField"),
+            BLineTrajectory("CrossField-Shoot"),
+            this.rotateToHub(),
+            this.handleShot("shot 1", 70.0, 1.0, 5.0))
+        .beforeStarting(Commands.print("Path start"))
+        .andThen(Commands.print("Path end"));
   }
 }
