@@ -223,6 +223,20 @@ public class RobotContainer {
       autoChooser.addOption(
           "Tune Shooter Flywheels (Amps)",
           this.shooter.feedforwardCharacterization(TuningUnit.AMPS));
+
+      autoChooser.addOption(
+          "Tune Kicker Flywheels (Volts)",
+          this.feeder.kickerFeedForwardCharacterization(TuningUnit.VOLTS));
+      autoChooser.addOption(
+          "Tune Kicker Flywheels (Amps)",
+          this.feeder.kickerFeedForwardCharacterization(TuningUnit.AMPS));
+
+      autoChooser.addOption(
+          "Tune Tower Flywheels (Volts)",
+          this.feeder.towerFeedForwardCharacterization(TuningUnit.VOLTS));
+      autoChooser.addOption(
+          "Tune Tower Flywheels (Amps)",
+          this.feeder.towerFeedForwardCharacterization(TuningUnit.AMPS));
     }
   }
 

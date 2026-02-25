@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.LoggedTunableNumber;
 import org.robotzgarage.frc2026.subsystems.flywheel.Flywheel;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
+import org.robotzgarage.frc2026.util.TuningUtils.TuningUnit;
 
 public class Feeder extends SubsystemBase {
   private static final String name = "/Feeder";
@@ -96,5 +97,13 @@ public class Feeder extends SubsystemBase {
           tower.stop();
           kicker.stop();
         });
+  }
+
+  public Command towerFeedForwardCharacterization(TuningUnit unit) {
+    return this.tower.feedForwardRollerCharacterization(unit);
+  }
+
+  public Command kickerFeedForwardCharacterization(TuningUnit unit) {
+    return this.kicker.feedForwardRollerCharacterization(unit);
   }
 }
