@@ -22,7 +22,7 @@ public class Feeder extends SubsystemBase {
   private static final LoggedTunableNumber spindexerAmps =
       new LoggedTunableNumber(name + "/SpindexerAmps", 20.0);
   private static final LoggedTunableNumber spindexerVoltage =
-      new LoggedTunableNumber(name + "/SpindexerVoltage", 7.0);
+      new LoggedTunableNumber(name + "/SpindexerVoltage", 6.0);
   private static final LoggedTunableNumber spindexerPercent =
       new LoggedTunableNumber(name + "/SpindexerPercent", 0.5);
 
@@ -41,6 +41,14 @@ public class Feeder extends SubsystemBase {
     // Periodic modes
     tower.periodic();
     spindexer.periodic();
+  }
+
+  public Command runFeederVoltage() {
+    return run(
+        () -> {
+          tower.runVolts(towerVoltage.get());
+          spindexer.runVolts(spindexerVoltage.get());
+        });
   }
 
   public Command runTowerTorqueCurrent() {

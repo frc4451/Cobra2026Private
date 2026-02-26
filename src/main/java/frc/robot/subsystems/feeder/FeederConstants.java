@@ -32,8 +32,8 @@ public class FeederConstants {
 
   public static final TalonFXConfig towerConfig =
       TalonFXConfig.builder()
-          .canId(23)
-          .canBus(Constants.rioBus)
+          .canId(41)
+          .canBus(Constants.susBus)
           // .phoenixUpdateFreqHz(50)
           .reduction(towerReduction)
           .currentLimitAmps(30)
@@ -66,8 +66,8 @@ public class FeederConstants {
 
   public static final TalonFXConfig spindexerConfig =
       TalonFXConfig.builder()
-          .canId(24)
-          .canBus(Constants.rioBus)
+          .canId(42)
+          .canBus(Constants.susBus)
           // .phoenixUpdateFreqHz(50)
           .reduction(spindexerReduction)
           .currentLimitAmps(30)

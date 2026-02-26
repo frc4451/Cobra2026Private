@@ -21,7 +21,7 @@ public class Intake extends SubsystemBase {
   private static final LoggedTunableNumber intakeAmps =
       new LoggedTunableNumber(name + "/RollersAmps", 20.0);
   private static final LoggedTunableNumber intakeVoltage =
-      new LoggedTunableNumber(name + "/RollersVoltage", 6.0);
+      new LoggedTunableNumber(name + "/RollersVoltage", 10.0);
 
   private static final LoggedTunableNumber endeffectorStart =
       new LoggedTunableNumber(name + "/EndeffectorStart", 90.0);
@@ -37,7 +37,8 @@ public class Intake extends SubsystemBase {
   public enum EndeffectorState {
     STARTING(Degrees.of(endeffectorStart.get())),
     DEPLOYED(Degrees.of(endeffectorDeploy.get())),
-    LIFTED(Degrees.of(endeffectorLift.get()));
+    LIFTED(Degrees.of(endeffectorLift.get())),
+    SQUEEZE(null);
 
     private Angle angle;
 
@@ -46,6 +47,8 @@ public class Intake extends SubsystemBase {
     }
   }
 
+  private EndeffectorState currentState = EndeffectorState.STARTING;
+
   // Constructor to decide if it's real or sim
   public Intake(SingleRollerIO intakeIO, SingleRollerIO endeffectorIO) {
     rollers = new Flywheel(name + "/Intake", intakeIO, IntakeConstants.flywheelConfig);
@@ -53,6 +56,22 @@ public class Intake extends SubsystemBase {
   }
 
   public void periodic() {
+    switch (currentState) {
+      case STARTING:
+        endeffectorStart();
+        break;
+      case DEPLOYED:
+        endeffectorDeploy();
+        break;
+      case LIFTED:
+        endeffectorLift();
+        break;
+      case SQUEEZE:
+        endeffectorSqueeze();
+        break;
+      default:
+        break;
+    }
     // Periodic modes
     rollers.periodic();
     endeffector.periodic();
@@ -94,14 +113,21 @@ public class Intake extends SubsystemBase {
     return run(() -> endeffector.setGoalPosition(Degrees.of(endeffectorLift.get())));
   }
 
+  public Command endeffectorSqueeze() {
+    return run(() -> endeffector.setGoalPosition(Degrees.of(80)));
+  }
+
   public Trigger isNearGoal(Angle tolerance) {
     return new Trigger(() -> this.endeffector.isNear(endeffector.getGoalPosition(), tolerance));
   }
 
+  public void setCurrentState(EndeffectorState state) {
+    if (currentState != state) {
+      currentState = state;
+    }
+  }
+
   public Command stop() {
-    return runOnce(
-        () -> {
-          rollers.stop();
-        });
+    return runOnce(() -> rollers.stop());
   }
 }

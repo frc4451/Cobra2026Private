@@ -8,13 +8,10 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.autonomous.AutonomousHelpers;
 import frc.robot.autonomous.AutonomousManager;
@@ -64,7 +61,6 @@ public class RobotContainer {
   // Controller
   private final GarageCommandXboxController drivercontroller = new GarageCommandXboxController(0);
   private final GarageCommandXboxController operatorcontroller = new GarageCommandXboxController(1);
-  private final GarageCommandXboxController tunercontroller = new GarageCommandXboxController(2);
   private final GarageCommandXboxController visionDebugController =
       new GarageCommandXboxController(4);
 
@@ -170,10 +166,6 @@ public class RobotContainer {
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // Configure the button bindings
-    if (Constants.tuningMode) {
-      configureTunerBindings(tunercontroller);
-    }
-
     configureDriverBindings(drivercontroller);
     configureOperatorBindings(operatorcontroller);
 
@@ -277,53 +269,20 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureOperatorBindings(GarageCommandXboxController controller) {
-    // intake controll
-    controller.povLeft().onTrue(intake.runRollersVoltageOut());
-    controller.povRight().onTrue(intake.stop());
-    controller.povUp().onTrue(intake.endeffectorDeploy());
-    controller.povDown().onTrue(intake.endeffectorStart());
-
-    // shooter controll
-    controller.y().onTrue(shooter.stop());
-    controller.b().onTrue(shooter.runShooterVelocityTorqueCurrent());
-    // controller.a().onTrue(shooter.runShooterTuning());
-  }
-
-  /**
-   * Use this method to define your button->command mappings. Buttons can be created by
-   * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
-   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-   */
-  private void configureTunerBindings(GarageCommandXboxController controller) {
-    // intake controll
-    controller.povLeft().onTrue(intake.runRollersVoltageOut());
-    controller.povRight().onTrue(intake.stop());
-    controller.povUp().onTrue(intake.endeffectorDeploy());
-    controller.povDown().onTrue(intake.endeffectorStart());
-
-    // shooter controll
-    controller.y().onTrue(shooter.stop());
-    controller.b().onTrue(shooter.runShooterVelocityTorqueCurrent());
-    // controller.a().onTrue(shooter.runShooterTuning());
-
-    // drive controll
-    drive.setDefaultCommand(
-        DriveCommands.joystickDrive(
-            drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> controller.getRightX()));
-    controller
-        .start()
-        .onTrue(
-            Commands.runOnce(
-                    () ->
-                        drive.setPose(
-                            new Pose2d(
-                                drive.getWheelOdometry().getTranslation(), Rotation2d.kZero)),
-                    drive)
-                .ignoringDisable(true));
+    // intake roller controlls
+    controller.leftTrigger().onTrue(intake.runRollersVoltageOut());
+    controller.leftTrigger().onFalse(intake.stop());
+    // intake endeffector controlls
+    controller.povLeft().onTrue(intake.endeffectorStart());
+    controller.povUp().onTrue(intake.endeffectorSqueeze());
+    controller.povRight().onTrue(intake.endeffectorLift());
+    controller.povDown().onTrue(intake.endeffectorDeploy());
+    // shooter controlls
+    controller.rightTrigger().onTrue(shooter.runShooterVelocityTorqueCurrent());
+    controller.rightTrigger().onFalse(shooter.stop());
+    // feeder controlls
+    controller.a().onTrue(feeder.runFeederVoltage());
+    controller.a().onFalse(feeder.stop());
   }
 
   /**
