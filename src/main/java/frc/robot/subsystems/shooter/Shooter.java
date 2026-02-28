@@ -8,6 +8,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.bobot_state.BobotState;
 import org.littletonrobotics.LoggedTunableNumber;
 import org.robotzgarage.frc2026.subsystems.flywheel.FlywheelFollower;
 import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIO;
@@ -74,6 +75,13 @@ public class Shooter extends SubsystemBase {
 
   public Command runShooterVelocityTorqueCurrent(AngularVelocity velocity) {
     return run(() -> shooter.setVelocityTorqueCurrent(velocity));
+  }
+
+  public Command runShooterToHub() {
+    return run(
+        () ->
+            shooter.setVelocityTorqueCurrent(
+                BobotState.getHubInterpolator().getCalculation().primaryVelocity()));
   }
 
   /** You need to know when the Flywheel is at the velocity target we want */

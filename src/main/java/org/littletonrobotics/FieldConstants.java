@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import org.robotzgarage.frc2026.math.distance_calc.PoseUtils;
 
 /**
  * Contains information for location of field element and other useful reference points.
@@ -90,6 +91,17 @@ public class FieldConstants {
             aprilTagFieldLayout.getTagPose(26).get().getX() + width / 2.0,
             fieldWidth / 2.0,
             innerHeight);
+
+    public static final Translation3d ehmaybelmao =
+        PoseUtils.averageOfProvidedPoses(
+            aprilTagFieldLayout.getTagPose(27).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(26).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(25).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(24).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(21).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(20).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(19).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(18).get().getTranslation());
 
     public static final Translation2d nearLeftCorner =
         new Translation2d(topCenterPoint.getX() - width / 2.0, fieldWidth / 2.0 + width / 2.0);

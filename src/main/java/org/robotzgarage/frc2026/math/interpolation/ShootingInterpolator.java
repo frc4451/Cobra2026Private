@@ -37,7 +37,14 @@ public class ShootingInterpolator {
       Distance distanceToTarget,
       Angle pitch,
       AngularVelocity primaryVelocity,
-      AngularVelocity secondaryVelocity) {}
+      AngularVelocity secondaryVelocity) {
+
+    public DistanceAngleSpeedEntry {
+      if (secondaryVelocity == null) {
+        secondaryVelocity = primaryVelocity;
+      }
+    }
+  }
 
   /**
    * Interpolation table manager for distance-to-targets tailored for shooter mechanisms.

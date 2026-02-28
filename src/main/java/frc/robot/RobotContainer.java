@@ -194,17 +194,17 @@ public class RobotContainer {
   private void configureTuningRoutines() {
     if (Constants.tuningMode) {
       autoChooser.addOption(
-          "Tune Pivot Roller (Volts)",
+          "Tune Intake Roller (Volts)",
           this.intake.rollersFeedForwardCharacterization(TuningUnit.VOLTS));
       autoChooser.addOption(
-          "Tune Pivot Roller (Amps)",
+          "Tune Intake Roller (Amps)",
           this.intake.rollersFeedForwardCharacterization(TuningUnit.AMPS));
 
       autoChooser.addOption(
-          "Tune Pivot Endeffector (Volts)",
+          "Tune Intake Endeffector (Volts)",
           this.intake.endeffectorFeedForwardCharacterization(TuningUnit.VOLTS));
       autoChooser.addOption(
-          "Tune Pivot Endeffector (Amps)",
+          "Tune Intake Endeffector (Amps)",
           this.intake.endeffectorFeedForwardCharacterization(TuningUnit.AMPS));
 
       autoChooser.addOption(
@@ -215,10 +215,10 @@ public class RobotContainer {
           this.shooter.feedforwardCharacterization(TuningUnit.AMPS));
 
       autoChooser.addOption(
-          "Tune Kicker Flywheels (Volts)",
+          "Tune Spindexer Flywheels (Volts)",
           this.feeder.kickerFeedForwardCharacterization(TuningUnit.VOLTS));
       autoChooser.addOption(
-          "Tune Kicker Flywheels (Amps)",
+          "Tune Spindexer Flywheels (Amps)",
           this.feeder.kickerFeedForwardCharacterization(TuningUnit.AMPS));
 
       autoChooser.addOption(
@@ -302,6 +302,9 @@ public class RobotContainer {
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX(),
                 () -> BobotState.getOutpostVARC().getRotationTarget()));
+
+    controller.rightTrigger().onTrue(shooter.runShooterToHub());
+    controller.rightTrigger().onFalse(shooter.stop());
   }
 
   /**
