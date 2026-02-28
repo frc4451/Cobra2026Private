@@ -77,8 +77,8 @@ public class FeederConstants {
           .slot0Config(
               new Slot0Configs()
                   // feedforward
-                  .withKS(0.008331)
-                  .withKV(0.471394)
+                  .withKS(0.471394)
+                  .withKV(0.008331)
                   .withKA(0.0)
                   // feedback
                   .withKP(1.0)
