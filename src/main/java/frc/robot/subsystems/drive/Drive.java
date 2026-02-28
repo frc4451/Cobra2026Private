@@ -100,9 +100,10 @@ public class Drive extends SubsystemBase {
         new SwerveModulePosition(),
         new SwerveModulePosition()
       };
-  // Pure Wheel Odometry
-  private SwerveDrivePoseEstimator wheelOdometryPoseEstimator =
-      new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
+  // // Pure Wheel Odometry
+  // private SwerveDrivePoseEstimator wheelOdometryPoseEstimator =
+  //     new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions,
+  // Pose2d.kZero);
 
   // Global Pose with MultiTag/Lowest Ambiguity
   private SwerveDrivePoseEstimator globalPoseEstimator =
@@ -250,8 +251,8 @@ public class Drive extends SubsystemBase {
       }
 
       // Apply update
-      wheelOdometryPoseEstimator.updateWithTime(
-          sampleTimestamps[i], rawGyroRotation, modulePositions);
+      // wheelOdometryPoseEstimator.updateWithTime(
+      //     sampleTimestamps[i], rawGyroRotation, modulePositions);
 
       globalPoseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
       constrainedPoseEstimator.updateWithTime(
@@ -393,20 +394,20 @@ public class Drive extends SubsystemBase {
   }
 
   /** Returns the current odometry pose. */
-  @AutoLogOutput(key = "Odometry/Robot")
-  public Pose2d getWheelOdometry() {
-    return wheelOdometryPoseEstimator.getEstimatedPosition();
-  }
+  // @AutoLogOutput(key = "Odometry/Wheel")
+  // public Pose2d getWheelOdometry() {
+  //   return wheelOdometryPoseEstimator.getEstimatedPosition();
+  // }
 
   /** Returns the current odometry rotation. */
   public Rotation2d getRotation() {
-    return getWheelOdometry().getRotation();
+    return getRawGyroRotation();
   }
 
   /** Resets the current odometry pose. */
   public void setPose(Pose2d pose) {
     SwerveModulePosition[] modulePostions = getModulePositions();
-    wheelOdometryPoseEstimator.resetPosition(rawGyroRotation, modulePostions, pose);
+    // wheelOdometryPoseEstimator.resetPosition(rawGyroRotation, modulePostions, pose);
     globalPoseEstimator.resetPosition(rawGyroRotation, modulePostions, pose);
     constrainedPoseEstimator.resetPosition(rawGyroRotation, modulePostions, pose);
   }

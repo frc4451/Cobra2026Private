@@ -92,6 +92,12 @@ public class BobotState extends VirtualSubsystem {
     BobotState.closestTraversal =
         bumpVARC.getDistance().lt(trenchVARC.getDistance()) ? bumpVARC : trenchVARC;
 
+    // {
+    //   String subLogTitle = logRoot + "Vision/";
+    //   Logger.recordOutput(subLogTitle + "NumGlobalPoses",
+    // BobotState.getGlobalPoseObservations().size());
+    // }
+
     {
       String subLogTitle = logRoot + "Interpolation/";
       Logger.recordOutput(
