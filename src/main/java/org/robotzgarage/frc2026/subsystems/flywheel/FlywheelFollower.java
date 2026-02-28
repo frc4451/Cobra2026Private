@@ -8,6 +8,8 @@ import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
@@ -83,7 +85,27 @@ public class FlywheelFollower extends FollowRollers {
         });
   }
 
-  public void setVoltage(double voltage) {
-    io.runVolts(voltage);
+  public void runVolts(double inputsVolts) {
+    io.runVolts(inputsVolts);
+  }
+
+  public void runPercentOutput(double percent) {
+    io.runPercentOutput(percent);
+  }
+
+  public void runTorqueCurrent(Current current) {
+    io.runTorqueCurrent(current);
+  }
+
+  public void setVelocityTorqueCurrent(AngularVelocity velocity) {
+    io.setVelocityTorqueCurrent(velocity);
+  }
+
+  public void setGoal(Angle position) {
+    io.setGoal(position);
+  }
+
+  public void stop() {
+    io.stop();
   }
 }

@@ -19,6 +19,7 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -40,6 +41,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.bobot_state.BobotState;
 import frc.robot.generated.TunerConstants;
+import frc.robot.lib.BLine.FollowPath;
 import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -78,6 +80,9 @@ public class Drive extends SubsystemBase {
               1),
           getModuleTranslations());
 
+  // BLine Specific Configurations
+  @Getter private final FollowPath.Builder bLineBuilder;
+
   static final Lock odometryLock = new ReentrantLock();
   private final GyroIO gyroIO;
   private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
@@ -95,9 +100,10 @@ public class Drive extends SubsystemBase {
         new SwerveModulePosition(),
         new SwerveModulePosition()
       };
-  // Pure Wheel Odometry
-  private SwerveDrivePoseEstimator wheelOdometryPoseEstimator =
-      new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
+  // // Pure Wheel Odometry
+  // private SwerveDrivePoseEstimator wheelOdometryPoseEstimator =
+  //     new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions,
+  // Pose2d.kZero);
 
   // Global Pose with MultiTag/Lowest Ambiguity
   private SwerveDrivePoseEstimator globalPoseEstimator =
@@ -149,6 +155,37 @@ public class Drive extends SubsystemBase {
         (targetPose) -> {
           Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
         });
+
+    // // 1. Set global constraints
+    // Path.setDefaultGlobalConstraints(
+    //     new Path.DefaultGlobalConstraints(
+    //         4.0, // maxVelocityMetersPerSec
+    //         3.0, // maxAccelerationMetersPerSec2
+    //         360.0, // maxVelocityDegPerSec
+    //         720.0, // maxAccelerationDegPerSec2
+    //         0.05, // endTranslationToleranceMeters
+    //         2.0, // endRotationToleranceDeg
+    //         0.3 // intermediateHandoffRadiusMeters
+    //         ));
+
+    FollowPath.Builder builder =
+        new FollowPath.Builder(
+                this, // The drive subsystem to require
+                this::getGlobalPose, // Supplier for current robot pose
+                this::getChassisSpeeds, // Supplier for current speeds
+                this::runVelocity, // Consumer to drive the robot
+                new PIDController(10.0, 0.0, 0.0), // Translation PID
+                new PIDController(3.0, 0.0, 0.0), // Rotation PID
+                new PIDController(2.0, 0.0, 0.0) // Cross-track PID
+                )
+            .withDefaultShouldFlip(); // Auto-flip for red alliance
+
+    // if it is autonomous, assume that we start in the correct initial position
+    if (Constants.currentMode == Mode.SIM) {
+      builder = builder.withPoseReset(this::setPose); // Reset odometry at path start
+    }
+
+    bLineBuilder = builder;
 
     // Configure SysId
     sysId =
@@ -214,8 +251,8 @@ public class Drive extends SubsystemBase {
       }
 
       // Apply update
-      wheelOdometryPoseEstimator.updateWithTime(
-          sampleTimestamps[i], rawGyroRotation, modulePositions);
+      // wheelOdometryPoseEstimator.updateWithTime(
+      //     sampleTimestamps[i], rawGyroRotation, modulePositions);
 
       globalPoseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
       constrainedPoseEstimator.updateWithTime(
@@ -334,7 +371,7 @@ public class Drive extends SubsystemBase {
 
   /** Returns the measured chassis speeds of the robot. */
   @AutoLogOutput(key = "SwerveChassisSpeeds/Measured")
-  private ChassisSpeeds getChassisSpeeds() {
+  public ChassisSpeeds getChassisSpeeds() {
     return kinematics.toChassisSpeeds(getModuleStates());
   }
 
@@ -357,21 +394,22 @@ public class Drive extends SubsystemBase {
   }
 
   /** Returns the current odometry pose. */
-  @AutoLogOutput(key = "Odometry/Robot")
-  public Pose2d getWheelOdometry() {
-    return wheelOdometryPoseEstimator.getEstimatedPosition();
-  }
+  // @AutoLogOutput(key = "Odometry/Wheel")
+  // public Pose2d getWheelOdometry() {
+  //   return wheelOdometryPoseEstimator.getEstimatedPosition();
+  // }
 
   /** Returns the current odometry rotation. */
   public Rotation2d getRotation() {
-    return getWheelOdometry().getRotation();
+    return getRawGyroRotation();
   }
 
   /** Resets the current odometry pose. */
   public void setPose(Pose2d pose) {
-    wheelOdometryPoseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
-    globalPoseEstimator.resetPosition(rawGyroRotation, lastModulePositions, pose);
-    constrainedPoseEstimator.resetPosition(rawGyroRotation, lastModulePositions, pose);
+    SwerveModulePosition[] modulePostions = getModulePositions();
+    // wheelOdometryPoseEstimator.resetPosition(rawGyroRotation, modulePostions, pose);
+    globalPoseEstimator.resetPosition(rawGyroRotation, modulePostions, pose);
+    constrainedPoseEstimator.resetPosition(rawGyroRotation, modulePostions, pose);
   }
 
   /** Returns the maximum linear speed in meters per sec. */

@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.bobot_state.BobotState;
 import frc.robot.subsystems.drive.Drive;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -32,7 +33,7 @@ import java.util.function.Supplier;
 
 public class DriveCommands {
   private static final double DEADBAND = 0.1;
-  private static final double ANGLE_KP = 0.5;
+  private static final double ANGLE_KP = 5.0;
   private static final double ANGLE_KD = 0.4;
   private static final double ANGLE_MAX_VELOCITY = 8.0;
   private static final double ANGLE_MAX_ACCELERATION = 20.0;
@@ -90,8 +91,8 @@ public class DriveCommands {
               ChassisSpeeds.fromFieldRelativeSpeeds(
                   speeds,
                   isFlipped
-                      ? drive.getRotation().plus(new Rotation2d(Math.PI))
-                      : drive.getRotation()));
+                      ? BobotState.getGlobalPose().getRotation().plus(new Rotation2d(Math.PI))
+                      : BobotState.getGlobalPose().getRotation()));
         },
         drive);
   }
@@ -126,7 +127,8 @@ public class DriveCommands {
               // Calculate angular speed
               double omega =
                   angleController.calculate(
-                      drive.getRotation().getRadians(), rotationSupplier.get().getRadians());
+                      BobotState.getGlobalPose().getRotation().getRadians(),
+                      rotationSupplier.get().getRadians());
 
               // Convert to field relative speeds & send command
               ChassisSpeeds speeds =
@@ -141,13 +143,66 @@ public class DriveCommands {
                   ChassisSpeeds.fromFieldRelativeSpeeds(
                       speeds,
                       isFlipped
-                          ? drive.getRotation().plus(new Rotation2d(Math.PI))
-                          : drive.getRotation()));
+                          ? BobotState.getGlobalPose().getRotation().plus(new Rotation2d(Math.PI))
+                          : BobotState.getGlobalPose().getRotation()));
             },
             drive)
 
         // Reset PID controller when command starts
-        .beforeStarting(() -> angleController.reset(drive.getRotation().getRadians()));
+        .beforeStarting(
+            () -> angleController.reset(BobotState.getGlobalPose().getRotation().getRadians()));
+  }
+
+  public static Command snapToAngle(
+      Drive drive, Supplier<Rotation2d> targetSupplier, double toleranceDegrees) {
+
+    ProfiledPIDController angleController =
+        new ProfiledPIDController(
+            ANGLE_KP,
+            0.0,
+            ANGLE_KD,
+            new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
+
+    angleController.enableContinuousInput(-Math.PI, Math.PI);
+
+    return Commands.run(
+            () -> {
+              double omega =
+                  angleController.calculate(
+                      BobotState.getGlobalPose().getRotation().getRadians(),
+                      targetSupplier.get().getRadians());
+
+              drive.runVelocity(
+                  ChassisSpeeds.fromFieldRelativeSpeeds(
+                      0.0, 0.0, omega, BobotState.getGlobalPose().getRotation()));
+            },
+            drive)
+
+        // Reset controller when starting
+        .beforeStarting(
+            () -> angleController.reset(BobotState.getGlobalPose().getRotation().getRadians()))
+
+        // End when within tolerance AND nearly stopped
+        .until(
+            () -> {
+              double error =
+                  MathUtil.angleModulus(
+                      BobotState.getGlobalPose()
+                          .getRotation()
+                          .minus(targetSupplier.get())
+                          .getRadians());
+
+              boolean withinTolerance = Math.abs(error) < Units.degreesToRadians(toleranceDegrees);
+
+              boolean settled =
+                  Math.abs(drive.getChassisSpeeds().omegaRadiansPerSecond)
+                      < Units.degreesToRadians(10);
+
+              return withinTolerance && settled;
+            })
+
+        // Stop drivetrain when done
+        .finallyDo(interrupted -> drive.runVelocity(new ChassisSpeeds()));
   }
 
   /**
@@ -244,14 +299,14 @@ public class DriveCommands {
             Commands.runOnce(
                 () -> {
                   state.positions = drive.getWheelRadiusCharacterizationPositions();
-                  state.lastAngle = drive.getRotation();
+                  state.lastAngle = BobotState.getGlobalPose().getRotation();
                   state.gyroDelta = 0.0;
                 }),
 
             // Update gyro delta
             Commands.run(
                     () -> {
-                      var rotation = drive.getRotation();
+                      var rotation = BobotState.getGlobalPose().getRotation();
                       state.gyroDelta += Math.abs(rotation.minus(state.lastAngle).getRadians());
                       state.lastAngle = rotation;
                     })

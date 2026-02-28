@@ -8,15 +8,13 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.autonomous.AutonomousHelpers;
+import frc.robot.autonomous.AutonomousManager;
 import frc.robot.bobot_state.BobotState;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
@@ -26,10 +24,12 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
-import frc.robot.subsystems.prototyping.IntakeV1;
-import frc.robot.subsystems.prototyping.IntakeV1Constants;
-import frc.robot.subsystems.prototyping.ShooterV1;
-import frc.robot.subsystems.prototyping.ShooterV1Constants;
+import frc.robot.subsystems.feeder.Feeder;
+import frc.robot.subsystems.feeder.FeederConstants;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeConstants;
+import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.ShooterConstants;
 import frc.robot.subsystems.vision.VisionConstants;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIO;
@@ -40,6 +40,7 @@ import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalon
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFX;
 import org.robotzgarage.frc2026.subsystems.vision.AprilTagVision;
 import org.robotzgarage.frc2026.util.GarageCommandXboxController;
+import org.robotzgarage.frc2026.util.TuningUtils.TuningUnit;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -50,9 +51,10 @@ import org.robotzgarage.frc2026.util.GarageCommandXboxController;
 public class RobotContainer {
   // Subsystems
   // EX. private final Example example;
-  private final IntakeV1 intake;
-  private final ShooterV1 shooter;
   private final Drive drive;
+  private final Feeder feeder;
+  private final Intake intake;
+  private final Shooter shooter;
 
   // Vision testing
   private final AprilTagVision aprilTagVision;
@@ -60,7 +62,6 @@ public class RobotContainer {
   // Controller
   private final GarageCommandXboxController drivercontroller = new GarageCommandXboxController(0);
   private final GarageCommandXboxController operatorcontroller = new GarageCommandXboxController(1);
-  private final GarageCommandXboxController tunercontroller = new GarageCommandXboxController(2);
   private final GarageCommandXboxController visionDebugController =
       new GarageCommandXboxController(4);
 
@@ -76,18 +77,20 @@ public class RobotContainer {
     SingleRollerIO endeffectorIO;
 
     FollowRollersIO shooterIO;
+
     SingleRollerIO towerIO;
-    SingleRollerIO kickerIO;
+    SingleRollerIO spindexerIO;
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, it's ALIVE!!! ALIIIIIIVVVE!!!!!
         // EX. exampleIO = new SingleRollerIOTalonFX(exampleConstants.exampleConfig);
-        intakeIO = new SingleRollerIOTalonFX(IntakeV1Constants.intakeConfig);
-        endeffectorIO = new SingleRollerIOTalonFX(IntakeV1Constants.endeffectorConfig);
+        intakeIO = new SingleRollerIOTalonFX(IntakeConstants.intakeConfig);
+        endeffectorIO = new SingleRollerIOTalonFX(IntakeConstants.endeffectorConfig);
 
-        shooterIO = new FollowRollersIOTalonFX(ShooterV1Constants.flywheelFollowersConfig);
-        towerIO = new SingleRollerIOTalonFX(ShooterV1Constants.towerConfig);
-        kickerIO = new SingleRollerIOTalonFX(ShooterV1Constants.kickerConfig);
+        shooterIO = new FollowRollersIOTalonFX(ShooterConstants.flywheelFollowersConfig);
+
+        towerIO = new SingleRollerIOTalonFX(FeederConstants.towerConfig);
+        spindexerIO = new SingleRollerIOTalonFX(FeederConstants.spindexerConfig);
 
         drive =
             new Drive(
@@ -101,12 +104,13 @@ public class RobotContainer {
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
         // EX. exampleIO = new SingleRollerIOSimTalonFX(exampleConstants.exampleConfigSim);
-        intakeIO = new SingleRollerIOSimTalonFX(IntakeV1Constants.intakeConfigSim);
-        endeffectorIO = new SingleRollerIOSimTalonFX(IntakeV1Constants.endeffectorConfigSim);
+        intakeIO = new SingleRollerIOSimTalonFX(IntakeConstants.intakeConfigSim);
+        endeffectorIO = new SingleRollerIOSimTalonFX(IntakeConstants.endeffectorConfigSim);
 
-        shooterIO = new FollowRollersIOSimTalonFX(ShooterV1Constants.flywheelFollowersConfigSim);
-        towerIO = new SingleRollerIOSimTalonFX(ShooterV1Constants.towerConfigSim);
-        kickerIO = new SingleRollerIOSimTalonFX(ShooterV1Constants.kickerConfigSim);
+        shooterIO = new FollowRollersIOSimTalonFX(ShooterConstants.flywheelFollowersConfigSim);
+
+        towerIO = new SingleRollerIOSimTalonFX(FeederConstants.towerConfigSim);
+        spindexerIO = new SingleRollerIOSimTalonFX(FeederConstants.spindexerConfigSim);
 
         drive =
             new Drive(
@@ -124,8 +128,9 @@ public class RobotContainer {
         endeffectorIO = new SingleRollerIO() {};
 
         shooterIO = new FollowRollersIO() {};
+
         towerIO = new SingleRollerIO() {};
-        kickerIO = new SingleRollerIO() {};
+        spindexerIO = new SingleRollerIO() {};
 
         drive =
             new Drive(
@@ -137,8 +142,9 @@ public class RobotContainer {
         break;
     }
 
-    intake = new IntakeV1(intakeIO, endeffectorIO);
-    shooter = new ShooterV1(shooterIO, towerIO, kickerIO);
+    feeder = new Feeder(towerIO, spindexerIO);
+    intake = new Intake(intakeIO, endeffectorIO);
+    shooter = new Shooter(shooterIO);
     aprilTagVision = new AprilTagVision(VisionConstants.visionSubsystemConfig);
 
     // Autonomous choices
@@ -161,15 +167,67 @@ public class RobotContainer {
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // Configure the button bindings
-    if (Constants.tuningMode) {
-      configureTunerBindings(tunercontroller);
-    } 
-    
     configureDriverBindings(drivercontroller);
     configureOperatorBindings(operatorcontroller);
-    
-      DriverStation.silenceJoystickConnectionWarning(true);
+
+    // configureBLineRoutines();
+    configureAutonomousRoutines();
+
+    configureTuningRoutines();
+
+    DriverStation.silenceJoystickConnectionWarning(true);
     // configureVisionDebugControls(visionDebugController);
+  }
+
+  //   private void configureBLineRoutines() {
+  //     BLineManager bLineManager = new BLineManager(drive);
+
+  //     autoChooser.addOption("BLine Auto Example", bLineManager.getSampleBLineAutoRoutine());
+  //   }
+
+  private void configureAutonomousRoutines() {
+    AutonomousManager autonomousManager = new AutonomousManager(drive, intake, shooter, feeder);
+
+    autoChooser.addOption("Himithy", autonomousManager.himithy());
+  }
+
+  private void configureTuningRoutines() {
+    if (Constants.tuningMode) {
+      autoChooser.addOption(
+          "Tune Intake Roller (Volts)",
+          this.intake.rollersFeedForwardCharacterization(TuningUnit.VOLTS));
+      autoChooser.addOption(
+          "Tune Intake Roller (Amps)",
+          this.intake.rollersFeedForwardCharacterization(TuningUnit.AMPS));
+
+      autoChooser.addOption(
+          "Tune Intake Endeffector (Volts)",
+          this.intake.endeffectorFeedForwardCharacterization(TuningUnit.VOLTS));
+      autoChooser.addOption(
+          "Tune Intake Endeffector (Amps)",
+          this.intake.endeffectorFeedForwardCharacterization(TuningUnit.AMPS));
+
+      autoChooser.addOption(
+          "Tune Shooter Flywheels (Volts)",
+          this.shooter.feedforwardCharacterization(TuningUnit.VOLTS));
+      autoChooser.addOption(
+          "Tune Shooter Flywheels (Amps)",
+          this.shooter.feedforwardCharacterization(TuningUnit.AMPS));
+
+      autoChooser.addOption(
+          "Tune Spindexer Flywheels (Volts)",
+          this.feeder.kickerFeedForwardCharacterization(TuningUnit.VOLTS));
+      autoChooser.addOption(
+          "Tune Spindexer Flywheels (Amps)",
+          this.feeder.kickerFeedForwardCharacterization(TuningUnit.AMPS));
+
+      autoChooser.addOption(
+          "Tune Tower Flywheels (Volts)",
+          this.feeder.towerFeedForwardCharacterization(TuningUnit.VOLTS));
+      autoChooser.addOption(
+          "Tune Tower Flywheels (Amps)",
+          this.feeder.towerFeedForwardCharacterization(TuningUnit.AMPS));
+    }
   }
 
   /**
@@ -244,6 +302,11 @@ public class RobotContainer {
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX(),
                 () -> BobotState.getOutpostVARC().getRotationTarget()));
+
+    controller.rightTrigger().onTrue(shooter.runShooterToHub());
+    controller.rightTrigger().onFalse(shooter.stop());
+    controller.leftTrigger().onTrue(shooter.runShooterVelocityTorqueCurrent());
+    controller.leftTrigger().onFalse(shooter.stop());
   }
 
   /**
@@ -253,53 +316,20 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureOperatorBindings(GarageCommandXboxController controller) {
-    // intake controll
-    controller.povLeft().onTrue(intake.runIntakeVoltageOut());
-    controller.povRight().onTrue(intake.stop());
-    controller.povUp().onTrue(intake.endeffectorGoal());
-    controller.povDown().onTrue(intake.endeffectorHome());
-
-    // shooter controll
-    controller.y().onTrue(shooter.stop());
-    controller.b().onTrue(shooter.runShooterVelocityTorqueCurrent());
-    controller.a().onTrue(shooter.runShooterTuning());
-  }
-
-  /**
-   * Use this method to define your button->command mappings. Buttons can be created by
-   * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
-   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-   */
-  private void configureTunerBindings(GarageCommandXboxController controller) {
-    // intake controll
-    controller.povLeft().onTrue(intake.runIntakeVoltageOut());
-    controller.povRight().onTrue(intake.stop());
-    controller.povUp().onTrue(intake.endeffectorGoal());
-    controller.povDown().onTrue(intake.endeffectorHome());
-
-    // shooter controll
-    controller.y().onTrue(shooter.stop());
-    controller.b().onTrue(shooter.runShooterVelocityTorqueCurrent());
-    controller.a().onTrue(shooter.runShooterTuning());
-
-    // drive controll
-    drive.setDefaultCommand(
-        DriveCommands.joystickDrive(
-            drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> controller.getRightX()));
-    controller
-        .start()
-        .onTrue(
-            Commands.runOnce(
-                    () ->
-                        drive.setPose(
-                            new Pose2d(
-                                drive.getWheelOdometry().getTranslation(), Rotation2d.kZero)),
-                    drive)
-                .ignoringDisable(true));
+    // intake roller controlls
+    controller.leftTrigger().onTrue(intake.runRollersVoltageOut());
+    controller.leftTrigger().onFalse(intake.stop());
+    // intake endeffector controlls
+    controller.povLeft().onTrue(intake.endeffectorStart());
+    controller.povUp().onTrue(intake.endeffectorSqueeze());
+    controller.povRight().onTrue(intake.endeffectorLift());
+    controller.povDown().onTrue(intake.endeffectorDeploy());
+    // shooter controlls
+    controller.rightTrigger().onTrue(shooter.runShooterVelocityTorqueCurrent());
+    controller.rightTrigger().onFalse(shooter.stop());
+    // feeder controlls
+    controller.a().onTrue(feeder.runFeederVoltage());
+    controller.a().onFalse(feeder.stop());
   }
 
   /**
@@ -308,6 +338,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return Commands.none();
+    return autoChooser.get();
   }
 }

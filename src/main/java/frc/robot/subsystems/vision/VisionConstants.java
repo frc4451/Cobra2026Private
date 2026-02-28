@@ -15,6 +15,7 @@ import java.util.Optional;
 import org.photonvision.PhotonPoseEstimator.ConstrainedSolvepnpParams;
 import org.photonvision.simulation.VisionSystemSim;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.AprilTagCameraConfig;
+import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.ObjectDetectionCameraConfig;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.PoseEstimationMethod;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.RobotRelativeTransform;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.SimCameraConfig;
@@ -26,6 +27,20 @@ public class VisionConstants {
       Constants.currentMode == Mode.SIM
           ? Optional.of(new VisionSystemSim("AprilTagSim"))
           : Optional.empty();
+
+  public static final ObjectDetectionCameraConfig hopperFuelDetection =
+      new ObjectDetectionCameraConfig(
+          new VisionSource(
+              "ColemanCam",
+              RobotRelativeTransform.builder()
+                  .forwardPositive(Inches.of(6.691))
+                  .leftPositive(Inches.of(2.625))
+                  .upPositive(Inches.of(19.256))
+                  .rollCCWPositive(Degrees.zero())
+                  .pitchCCWPositive(Degrees.of(-22.5))
+                  .yawCCWPositive(Degrees.of(180))
+                  .build()),
+          SimCameraConfig.ARDUCAM_OV9281_65);
 
   public static final List<AprilTagCameraConfig> aprilTagCamerasConfigs =
       List.of(
