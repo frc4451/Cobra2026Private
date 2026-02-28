@@ -14,7 +14,7 @@ import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfigFollower;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfigFollowerSim;
 
 public class ShooterConstants {
-  public static final double shooterReduction = 1.0;
+  public static final double shooterReduction = 22.0 / 24.0;
 
   public static final FlywheelConfig shooterFlywheelConfig =
       FlywheelConfig.builder()
@@ -31,17 +31,17 @@ public class ShooterConstants {
           // .phoenixUpdateFreqHz(50)
           .reduction(shooterReduction)
           .currentLimitAmps(40)
-          .invert(true)
+          .invert(false)
           .isBrakeMode(false)
           .foc(Constants.focEnabled)
           .slot0Config(
               new Slot0Configs()
                   // feedforward
-                  .withKS(0.346908)
-                  .withKV(0.015187)
-                  .withKA(0.033069)
+                  .withKS(13.641352)
+                  .withKV(0.0)
+                  .withKA(4.3122000)
                   // feedback
-                  .withKP(5.0)
+                  .withKP(16.0)
                   .withKI(0.0)
                   .withKD(0.0))
           .mmConfig(
@@ -65,7 +65,7 @@ public class ShooterConstants {
       TalonFXConfigFollower.builder()
           .leader(leaderShooterConfig)
           .followerCanId(22)
-          .invertFollower(true)
+          .invertFollower(false)
           .build();
 
   public static final TalonFXConfigFollowerSim flywheelFollowersConfigSim =

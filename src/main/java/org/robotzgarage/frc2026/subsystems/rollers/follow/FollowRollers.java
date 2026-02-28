@@ -212,6 +212,9 @@ public class FollowRollers {
                   System.out.println("kS (" + unitLabel + "): " + formatter.format(kS));
                   System.out.println(
                       tuningConstant + " (" + unitLabel + " per rot/s): " + formatter.format(kV));
+
+                  Logger.recordOutput("TuningRoutine/" + name + "/kS", kS);
+                  Logger.recordOutput("TuningRoutine/" + name + "/kUnit", tuningConstant);
                 })
             .andThen(
                 Commands.sequence(

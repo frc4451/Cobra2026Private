@@ -30,7 +30,6 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterConstants;
-import frc.robot.subsystems.vision.VisionConstants;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIO;
 import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOSimTalonFX;
@@ -38,7 +37,6 @@ import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOTalonFX
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFX;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFX;
-import org.robotzgarage.frc2026.subsystems.vision.AprilTagVision;
 import org.robotzgarage.frc2026.util.GarageCommandXboxController;
 import org.robotzgarage.frc2026.util.TuningUtils.TuningUnit;
 
@@ -57,7 +55,7 @@ public class RobotContainer {
   private final Shooter shooter;
 
   // Vision testing
-  private final AprilTagVision aprilTagVision;
+  //   private final AprilTagVision aprilTagVision;
 
   // Controller
   private final GarageCommandXboxController drivercontroller = new GarageCommandXboxController(0);
@@ -145,7 +143,7 @@ public class RobotContainer {
     feeder = new Feeder(towerIO, spindexerIO);
     intake = new Intake(intakeIO, endeffectorIO);
     shooter = new Shooter(shooterIO);
-    aprilTagVision = new AprilTagVision(VisionConstants.visionSubsystemConfig);
+    // aprilTagVision = new AprilTagVision(VisionConstants.visionSubsystemConfig);
 
     // Autonomous choices
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());

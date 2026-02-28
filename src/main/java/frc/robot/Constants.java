@@ -41,5 +41,5 @@ public final class Constants {
   public static final boolean focEnabled = true;
   public static final boolean tuningMode = true;
   public static final boolean disableHAL = false;
-  public static final double tuningFFRampRate = 0.1;
+  public static final double tuningFFRampRate = 0.5;
 }
