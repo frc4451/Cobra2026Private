@@ -1,6 +1,7 @@
 package frc.robot.subsystems.vision;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -14,7 +15,6 @@ import org.littletonrobotics.LoggedTunableNumber;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.ObjectDetectionStrategy;
-import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.ObjectDetectionTrackedResult;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.VisionSource;
 import org.robotzgarage.frc2026.util.VirtualSubsystem;
 
@@ -33,8 +33,7 @@ public class ObjectDetectionVision extends VirtualSubsystem {
   private static final LoggedTunableNumber clusteringThresholdDegrees =
       new LoggedTunableNumber("ObjectDetection/Intake/ClusteringThresholdDegrees", 5.0);
 
-  private final List<List<ObjectDetectionTrackedResult>> clusteredObjectDetectionResults =
-      new ArrayList<>();
+  private final List<List<Pose3d>> clusteredObjectDetectionResults = new ArrayList<>();
 
   public final FuelTracker fuelTracker = new FuelTracker();
 
@@ -120,7 +119,11 @@ public class ObjectDetectionVision extends VirtualSubsystem {
       }
     }
 
+    // Clustering
+
     fuelTracker.update();
+    List<Pose3d> knownFuelPoses = fuelTracker.getObjectPoses();
+    intakeCanSeeFuel = !fuelTracker.getObjectPoses().isEmpty();
 
     // if (intakeFuelDetection.)
 
