@@ -46,8 +46,8 @@ public class IntakeConstants {
           .slot0Config(
               new Slot0Configs()
                   // feedforward
-                  .withKS(0.05)
-                  .withKV(0.05)
+                  .withKS(0.008341)
+                  .withKV(0.117786)
                   .withKA(0.0)
                   // feedback
                   .withKP(3.0)
@@ -102,7 +102,7 @@ public class IntakeConstants {
                   //   .withKV(MotionMagicHelpers.getRotationsVelocity(0.5))
                   // .withKA(MotionMagicHelpers.getRotationsAcceleration(0.12))
                   // feedback
-                  .withKP(6.0)
+                  .withKP(15.0)
                   // .withKI(MotionMagicHelpers.getRotationsVelocity(3.0))
                   .withKD(0.25))
           .mmConfig(

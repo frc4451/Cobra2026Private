@@ -127,7 +127,8 @@ public class DriveCommands {
               // Calculate angular speed
               double omega =
                   angleController.calculate(
-                      BobotState.getGlobalPose().getRotation().getRadians(), rotationSupplier.get().getRadians());
+                      BobotState.getGlobalPose().getRotation().getRadians(),
+                      rotationSupplier.get().getRadians());
 
               // Convert to field relative speeds & send command
               ChassisSpeeds speeds =
@@ -148,7 +149,8 @@ public class DriveCommands {
             drive)
 
         // Reset PID controller when command starts
-        .beforeStarting(() -> angleController.reset(BobotState.getGlobalPose().getRotation().getRadians()));
+        .beforeStarting(
+            () -> angleController.reset(BobotState.getGlobalPose().getRotation().getRadians()));
   }
 
   public static Command snapToAngle(
@@ -167,22 +169,28 @@ public class DriveCommands {
             () -> {
               double omega =
                   angleController.calculate(
-                      BobotState.getGlobalPose().getRotation().getRadians(), targetSupplier.get().getRadians());
+                      BobotState.getGlobalPose().getRotation().getRadians(),
+                      targetSupplier.get().getRadians());
 
               drive.runVelocity(
-                  ChassisSpeeds.fromFieldRelativeSpeeds(0.0, 0.0, omega, BobotState.getGlobalPose().getRotation()));
+                  ChassisSpeeds.fromFieldRelativeSpeeds(
+                      0.0, 0.0, omega, BobotState.getGlobalPose().getRotation()));
             },
             drive)
 
         // Reset controller when starting
-        .beforeStarting(() -> angleController.reset(BobotState.getGlobalPose().getRotation().getRadians()))
+        .beforeStarting(
+            () -> angleController.reset(BobotState.getGlobalPose().getRotation().getRadians()))
 
         // End when within tolerance AND nearly stopped
         .until(
             () -> {
               double error =
                   MathUtil.angleModulus(
-                      BobotState.getGlobalPose().getRotation().minus(targetSupplier.get()).getRadians());
+                      BobotState.getGlobalPose()
+                          .getRotation()
+                          .minus(targetSupplier.get())
+                          .getRadians());
 
               boolean withinTolerance = Math.abs(error) < Units.degreesToRadians(toleranceDegrees);
 
