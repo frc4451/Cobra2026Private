@@ -10,6 +10,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
@@ -87,6 +88,14 @@ public class Flywheel extends SingleRoller {
 
   public void setVoltage(double voltage) {
     io.runVolts(voltage);
+  }
+
+  public void setTorque(Current amps) {
+    io.runTorqueCurrent(amps);
+  }
+
+  public void setGoal(Angle angle) {
+    io.setGoal(angle);
   }
 
   public boolean isNear(AngularVelocity tolerance) {

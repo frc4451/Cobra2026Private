@@ -150,6 +150,52 @@ public class DriveCommands {
         .beforeStarting(() -> angleController.reset(drive.getRotation().getRadians()));
   }
 
+  public static Command snapToAngle(
+      Drive drive, Supplier<Rotation2d> targetSupplier, double toleranceDegrees) {
+
+    ProfiledPIDController angleController =
+        new ProfiledPIDController(
+            ANGLE_KP,
+            0.0,
+            ANGLE_KD,
+            new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
+
+    angleController.enableContinuousInput(-Math.PI, Math.PI);
+
+    return Commands.run(
+            () -> {
+              double omega =
+                  angleController.calculate(
+                      drive.getRotation().getRadians(), targetSupplier.get().getRadians());
+
+              drive.runVelocity(
+                  ChassisSpeeds.fromFieldRelativeSpeeds(0.0, 0.0, omega, drive.getRotation()));
+            },
+            drive)
+
+        // Reset controller when starting
+        .beforeStarting(() -> angleController.reset(drive.getRotation().getRadians()))
+
+        // End when within tolerance AND nearly stopped
+        .until(
+            () -> {
+              double error =
+                  MathUtil.angleModulus(
+                      drive.getRotation().minus(targetSupplier.get()).getRadians());
+
+              boolean withinTolerance = Math.abs(error) < Units.degreesToRadians(toleranceDegrees);
+
+              boolean settled =
+                  Math.abs(drive.getChassisSpeeds().omegaRadiansPerSecond)
+                      < Units.degreesToRadians(10);
+
+              return withinTolerance && settled;
+            })
+
+        // Stop drivetrain when done
+        .finallyDo(interrupted -> drive.runVelocity(new ChassisSpeeds()));
+  }
+
   /**
    * Measures the velocity feedforward constants for the drive motors.
    *

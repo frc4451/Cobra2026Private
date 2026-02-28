@@ -12,7 +12,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 public class AutonomousHelpers {
   public static Command driveToInitialPose(String initialPathName) {
 
-    Command pathFindingCommand = Commands.none();
+    // Command pathFindingCommand = Commands.none();
+    Command pathFindingCommand;
     try {
       PathPlannerPath path = PathPlannerPath.fromPathFile(initialPathName);
       Pose2d startingPose = path.getStartingHolonomicPose().get();
@@ -27,6 +28,7 @@ public class AutonomousHelpers {
 
     } catch (Exception e) {
       DriverStation.reportError("oopsie woopsie" + e.getMessage(), e.getStackTrace());
+      pathFindingCommand = Commands.none();
     }
     return pathFindingCommand;
   }

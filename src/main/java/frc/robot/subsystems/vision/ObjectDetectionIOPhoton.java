@@ -78,7 +78,7 @@ public class ObjectDetectionIOPhoton implements ObjectDetectionIO {
           Translation2d cameraToObject =
               PhotonUtils.estimateCameraToTargetTranslation(
                   distanceToTargetMeters, new Rotation2d(-Units.degreesToRadians(target.getYaw())));
-          
+
           Pose3d objectPose =
               new Pose3d(
                       this.robotPoseSupplier
@@ -110,7 +110,6 @@ public class ObjectDetectionIOPhoton implements ObjectDetectionIO {
     // Update all inputs at the end
     inputs.connected = this.camera.isConnected();
     inputs.numObjectsInView = relativeYaws.size();
-    inputs.relativeTargets = relativeYaws.toArray(ObjectDetectionTrackedResult[]::new);
     inputs.validObjectPoses = validObjectPoses.toArray(Pose3d[]::new);
     inputs.invalidObjectPoses = invalidObjectPoses.toArray(Pose3d[]::new);
 
