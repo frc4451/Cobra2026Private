@@ -46,8 +46,8 @@ public class IntakeConstants {
           .slot0Config(
               new Slot0Configs()
                   // feedforward
-                  .withKS(0.008341)
-                  .withKV(0.117786)
+                  .withKS(0.117786)
+                  .withKV(0.008341)
                   .withKA(0.0)
                   // feedback
                   .withKP(3.0)
@@ -95,10 +95,10 @@ public class IntakeConstants {
               // https://v6.docs.ctr-electronics.com/en/latest/docs/api-reference/device-specific/talonfx/motion-magic.html
               new Slot0Configs()
                   // feedforward
-                  .withKS(0.267117)
+                  .withKS(5.933969)
                   .withGravityType(GravityTypeValue.Arm_Cosine)
                   // .withKG(0.04)
-                  .withKV(5.933969)
+                  .withKV(0.267117)
                   //   .withKV(MotionMagicHelpers.getRotationsVelocity(0.5))
                   // .withKA(MotionMagicHelpers.getRotationsAcceleration(0.12))
                   // feedback
