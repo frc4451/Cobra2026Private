@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.LoggedTunableNumber;
-import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollers;
+import org.robotzgarage.frc2026.subsystems.flywheel.FlywheelFollower;
 import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIO;
 import org.robotzgarage.frc2026.util.TuningUtils.TuningUnit;
 
@@ -26,11 +26,13 @@ public class Shooter extends SubsystemBase {
       new LoggedTunableNumber(name + "/ShooterVelocity", 67.0);
 
   // Subsystems
-  private final FollowRollers shooter;
+  private final FlywheelFollower shooter;
 
   // Constructor to decide if it's real or sim
   public Shooter(FollowRollersIO shooterFlyWheelIO) {
-    this.shooter = new FollowRollers(name + "/Shooter", shooterFlyWheelIO);
+    this.shooter =
+        new FlywheelFollower(
+            name + "/Shooter", shooterFlyWheelIO, ShooterConstants.shooterFlywheelConfig);
   }
 
   public void periodic() {

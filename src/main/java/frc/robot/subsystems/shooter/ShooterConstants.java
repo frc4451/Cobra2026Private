@@ -8,7 +8,7 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
 import edu.wpi.first.math.system.plant.DCMotor;
 import frc.robot.Constants;
-import org.robotzgarage.frc2026.subsystems.flywheel.Flywheel.FlywheelConfig;
+import org.robotzgarage.frc2026.subsystems.flywheel.FlywheelFollower.FlywheelConfig;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfig;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfigFollower;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfigFollowerSim;
@@ -27,7 +27,7 @@ public class ShooterConstants {
   public static final TalonFXConfig leaderShooterConfig =
       TalonFXConfig.builder()
           .canId(21)
-          .canBus(Constants.rioBus)
+          .canBus(Constants.susBus)
           // .phoenixUpdateFreqHz(50)
           .reduction(shooterReduction)
           .currentLimitAmps(40)

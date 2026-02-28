@@ -22,14 +22,33 @@ public class Intake extends SubsystemBase {
   private static final LoggedTunableNumber intakeAmps =
       new LoggedTunableNumber(name + "/RollersAmps", 20.0);
   private static final LoggedTunableNumber intakeVoltage =
-      new LoggedTunableNumber(name + "/RollersVoltage", 6.0);
+      new LoggedTunableNumber(name + "/RollersVoltage", 10.0);
 
-  private static final LoggedTunableNumber endeffectorGoal =
-      new LoggedTunableNumber(name + "/EndeffectorGoal", 45.0);
+  private static final LoggedTunableNumber endeffectorStart =
+      new LoggedTunableNumber(name + "/EndeffectorStart", 90.0);
+  private static final LoggedTunableNumber endeffectorDeploy =
+      new LoggedTunableNumber(name + "/EndeffectorDeploy", 0.0);
+  private static final LoggedTunableNumber endeffectorLift =
+      new LoggedTunableNumber(name + "/EndeffectorLift", 10.0);
 
   // Subsystems
   private final Flywheel rollers;
   private final Pivot endeffector;
+
+  public enum EndeffectorState {
+    STARTING(Degrees.of(endeffectorStart.get())),
+    DEPLOYED(Degrees.of(endeffectorDeploy.get())),
+    LIFTED(Degrees.of(endeffectorLift.get())),
+    SQUEEZE(null);
+
+    private Angle angle;
+
+    private EndeffectorState(Angle angle) {
+      this.angle = angle;
+    }
+  }
+
+  private EndeffectorState currentState = EndeffectorState.STARTING;
 
   // Constructor to decide if it's real or sim
   public Intake(SingleRollerIO intakeIO, SingleRollerIO endeffectorIO) {
@@ -38,20 +57,28 @@ public class Intake extends SubsystemBase {
   }
 
   public void periodic() {
+    switch (currentState) {
+      case STARTING:
+        endeffectorStart();
+        break;
+      case DEPLOYED:
+        endeffectorDeploy();
+        break;
+      case LIFTED:
+        endeffectorLift();
+        break;
+      case SQUEEZE:
+        endeffectorSqueeze();
+        break;
+      default:
+        break;
+    }
     // Periodic modes
     rollers.periodic();
     endeffector.periodic();
   }
 
   public Command runRollersPercentOut() {
-    return run(
-        () -> {
-          double clampedPercent = MathUtil.clamp(intakePercent.get(), -1.0, 1.0);
-          rollers.runPercentOutput(clampedPercent);
-        });
-  }
-
-  public Command runRollersPercentOut(double percentOut) {
     return run(
         () -> {
           double clampedPercent = MathUtil.clamp(intakePercent.get(), -1.0, 1.0);
@@ -75,31 +102,34 @@ public class Intake extends SubsystemBase {
         });
   }
 
-  public Command endeffectorGoal() {
-    return run(() -> endeffector.setGoalPosition(Degrees.of(endeffectorGoal.get())));
+  public Command endeffectorStart() {
+    return run(() -> endeffector.setGoalPosition(Degrees.of(endeffectorStart.get())));
   }
 
-  public Command endeffectorGoal(Angle angle) {
-    return run(() -> endeffector.setGoalPosition(angle));
+  public Command endeffectorDeploy() {
+    return run(() -> endeffector.setGoalPosition(Degrees.of(endeffectorDeploy.get())));
   }
 
-  public Command retractEndeffector() {
-    return run(() -> endeffectorGoal(Degrees.of(90.0)));
+  public Command endeffectorLift() {
+    return run(() -> endeffector.setGoalPosition(Degrees.of(endeffectorLift.get())));
+  }
+
+  public Command endeffectorSqueeze() {
+    return run(() -> endeffector.setGoalPosition(Degrees.of(80)));
   }
 
   public Trigger isNearGoal(Angle tolerance) {
     return new Trigger(() -> this.endeffector.isNear(endeffector.getGoalPosition(), tolerance));
   }
 
-  public Command endeffectorHome() {
-    return run(() -> endeffector.setGoalPosition(Degrees.of(0.0)));
+  public void setCurrentState(EndeffectorState state) {
+    if (currentState != state) {
+      currentState = state;
+    }
   }
 
   public Command stop() {
-    return runOnce(
-        () -> {
-          rollers.stop();
-        });
+    return runOnce(() -> rollers.stop());
   }
 
   public Command rollersFeedForwardCharacterization(TuningUnit unit) {
