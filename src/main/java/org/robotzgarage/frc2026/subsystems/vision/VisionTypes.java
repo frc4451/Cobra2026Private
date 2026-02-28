@@ -59,11 +59,15 @@ public final class VisionTypes {
   }
 
   public static final record ObjectDetectionCameraConfig(
-      VisionSource source, SimCameraConfig simCameraConfig) {}
+      VisionSource source,
+      SimCameraConfig simCameraConfig,
+      List<ObjectDetectionStrategy> objectDetectionStrategies) {}
 
   @Builder
   public static final record ObjectDetectionTrackedResult(
       @NonNull Rotation2d pitch, @NonNull Rotation2d yaw, double area) {}
+
+  public static final record ObjectDetectionTrackedPose(Pose3d pose, double timestampSeconds) {}
 
   public static final record AprilTagCameraConfig(
       VisionSource source,
@@ -75,6 +79,11 @@ public final class VisionTypes {
     SINGLE_TAG,
     TRIG,
     CONSTRAINED
+  }
+
+  public static enum ObjectDetectionStrategy {
+    QUANTITY,
+    POSE_TRACKING
   }
 
   /**

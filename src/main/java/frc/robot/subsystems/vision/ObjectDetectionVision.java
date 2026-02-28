@@ -1,26 +1,19 @@
 package frc.robot.subsystems.vision;
 
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Radians;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.robot.Constants;
 import frc.robot.bobot_state.BobotState;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import lombok.Getter;
 import org.littletonrobotics.LoggedTunableNumber;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
-import org.photonvision.PhotonUtils;
+import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.ObjectDetectionStrategy;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.ObjectDetectionTrackedResult;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.VisionSource;
 import org.robotzgarage.frc2026.util.VirtualSubsystem;
@@ -43,6 +36,8 @@ public class ObjectDetectionVision extends VirtualSubsystem {
   private final List<List<ObjectDetectionTrackedResult>> clusteredObjectDetectionResults =
       new ArrayList<>();
 
+  public final FuelTracker fuelTracker = new FuelTracker();
+
   @Getter private boolean intakeCanSeeFuel = false;
   @Getter private Rotation2d intakeRelativeYawToClosestCluster = Rotation2d.kZero;
   @Getter private Rotation2d intakeRelativePitchToClosestCluster = Rotation2d.kZero;
@@ -59,25 +54,25 @@ public class ObjectDetectionVision extends VirtualSubsystem {
             new ObjectDetectionIOPhoton(
                 VisionConstants.intakeFuelDetection.source(),
                 () -> BobotState.getGlobalPose(),
-                true);
+                VisionConstants.intakeFuelDetection.objectDetectionStrategies());
         hopperFuelDetectionIO =
             new ObjectDetectionIOPhoton(
                 VisionConstants.hopperFuelDetection.source(),
                 () -> BobotState.getGlobalPose(),
-                false);
+                VisionConstants.hopperFuelDetection.objectDetectionStrategies());
         break;
       case SIM:
         intakeFuelDetectionIO =
             new ObjectDetectionIOPhotonSim(
                 VisionConstants.intakeFuelDetection.source(),
                 () -> BobotState.getGlobalPose(),
-                true,
+                VisionConstants.intakeFuelDetection.objectDetectionStrategies(),
                 VisionConstants.intakeFuelDetection.simCameraConfig());
         hopperFuelDetectionIO =
             new ObjectDetectionIOPhotonSim(
                 VisionConstants.hopperFuelDetection.source(),
                 () -> BobotState.getGlobalPose(),
-                false,
+                VisionConstants.hopperFuelDetection.objectDetectionStrategies(),
                 VisionConstants.hopperFuelDetection.simCameraConfig());
         break;
       case REPLAY:
@@ -114,100 +109,115 @@ public class ObjectDetectionVision extends VirtualSubsystem {
   @Override
   public void periodic() {
     for (ObjectDetectionCamera cam : List.of(intakeFuelDetection, hopperFuelDetection)) {
+      // Process Inputs
       cam.io.updateInputs(cam.inputs);
       Logger.processInputs(objectDetectionLogRoot + "/" + cam.source.name(), cam.inputs);
       cam.disconnectedAlert.set(!cam.inputs.connected);
-    }
 
-    {
-      // Vision updates for Intake Camera
-      clusteredObjectDetectionResults.clear();
-
-      // Collect all yaws and compile them to a list sorted by yaw
-      List<ObjectDetectionTrackedResult> trackedResultsList =
-          Arrays.asList(intakeFuelDetection.inputs.relativeTargets);
-
-      trackedResultsList.sort(Comparator.comparingDouble(target -> target.yaw().getDegrees()));
-
-      this.intakeCanSeeFuel = !trackedResultsList.isEmpty();
-
-      if (this.intakeCanSeeFuel) {
-        // Cluster our objects by YAW with respect to threshold. This is a "simple"
-        // reverse-linked lookup comparison
-        List<ObjectDetectionTrackedResult> currentCluster = new ArrayList<>();
-
-        currentCluster.add(trackedResultsList.get(0));
-
-        for (int i = 1; i < trackedResultsList.size(); ++i) {
-          double previousYawDeg = trackedResultsList.get(i - 1).yaw().getDegrees();
-          double currentYawDeg = trackedResultsList.get(i).yaw().getDegrees();
-
-          if (Math.abs(currentYawDeg - previousYawDeg) > clusteringThresholdDegrees.get()) {
-            clusteredObjectDetectionResults.add(currentCluster);
-            currentCluster = new ArrayList<>();
-          }
-
-          currentCluster.add(trackedResultsList.get(i));
-        }
-        clusteredObjectDetectionResults.add(currentCluster);
-
-        clusteredObjectDetectionResults.sort((a, b) -> Integer.compare(b.size(), a.size()));
-
-        List<ObjectDetectionTrackedResult> largestCluster = clusteredObjectDetectionResults.get(0);
-
-        double totalArea =
-            largestCluster.stream().mapToDouble(ObjectDetectionTrackedResult::area).sum();
-
-        double avgYawDeg =
-            largestCluster.stream().mapToDouble(t -> t.yaw().getDegrees()).average().getAsDouble();
-
-        double avgPitchDeg =
-            largestCluster.stream()
-                .mapToDouble(t -> t.pitch().getDegrees())
-                .average()
-                .getAsDouble();
-
-        double distanceFromCenterOfClusterMeters =
-            PhotonUtils.calculateDistanceToTargetMeters(
-                intakeFuelDetection.source().robotToCamera().upPositive().in(Meters),
-                VisionConstants.fuelHeightMeters,
-                -intakeFuelDetection.source().robotToCamera().pitchCCWPositive().in(Radians),
-                Units.degreesToRadians(avgPitchDeg));
-
-        Translation2d estimatedCenterOfCluster =
-            PhotonUtils.estimateCameraToTargetTranslation(
-                distanceFromCenterOfClusterMeters, Rotation2d.fromDegrees(avgYawDeg));
-
-        this.intakeRelativePitchToClosestCluster = Rotation2d.fromDegrees(avgPitchDeg);
-        this.intakeRelativeYawToClosestCluster = Rotation2d.fromDegrees(avgYawDeg);
-
-        this.intakeLargestClusterSize =
-            clusteredObjectDetectionResults.isEmpty()
-                ? 0
-                : clusteredObjectDetectionResults.get(0).size();
-        this.estimatedCenterOfCluster =
-            Optional.of(new Pose2d(estimatedCenterOfCluster, Rotation2d.kZero));
-      } else {
-        this.intakeLargestClusterSize = 0;
-        this.estimatedCenterOfCluster = Optional.empty();
-      }
-
-      Logger.recordOutput(objectDetectionLogRoot + "/Intake/CanSeeFuel", this.intakeCanSeeFuel);
-      Logger.recordOutput(
-          objectDetectionLogRoot + "/Intake/AverageYawDegrees",
-          this.intakeRelativePitchToClosestCluster.getDegrees());
-      Logger.recordOutput(
-          objectDetectionLogRoot + "/Intake/AveragePitchDegrees",
-          this.intakeRelativeYawToClosestCluster.getDegrees());
-      Logger.recordOutput(
-          objectDetectionLogRoot + "/Intake/LargestClusterSize/", this.intakeLargestClusterSize);
-      for (int i = 0; i < clusteredObjectDetectionResults.size(); ++i) {
-        Logger.recordOutput(
-            objectDetectionLogRoot + "/Intake/ClusteredResults/" + i,
-            clusteredObjectDetectionResults.get(i).toArray(ObjectDetectionTrackedResult[]::new));
+      // Check if this camera is supposed to track poses for Fuel, then add to FuelTracker
+      if (cam.io.getStrategies().contains(ObjectDetectionStrategy.POSE_TRACKING)) {
+        fuelTracker.addMoreTrackedPoses(List.of(cam.inputs.validObjectPoses));
       }
     }
+
+    fuelTracker.update();
+
+    // if (intakeFuelDetection.)
+
+    // {
+    //   // Vision updates for Intake Camera
+    //   clusteredObjectDetectionResults.clear();
+
+    //   // Collect all yaws and compile them to a list sorted by yaw
+    //   List<ObjectDetectionTrackedResult> trackedResultsList =
+    //       Arrays.asList(intakeFuelDetection.inputs.relativeTargets);
+
+    //   trackedResultsList.sort(Comparator.comparingDouble(target -> target.yaw().getDegrees()));
+
+    //   this.intakeCanSeeFuel = !trackedResultsList.isEmpty();
+
+    //   if (this.intakeCanSeeFuel) {
+    //     // Cluster our objects by YAW with respect to threshold. This is a "simple"
+    //     // reverse-linked lookup comparison
+    //     List<ObjectDetectionTrackedResult> currentCluster = new ArrayList<>();
+
+    //     currentCluster.add(trackedResultsList.get(0));
+
+    //     for (int i = 1; i < trackedResultsList.size(); ++i) {
+    //       double previousYawDeg = trackedResultsList.get(i - 1).yaw().getDegrees();
+    //       double currentYawDeg = trackedResultsList.get(i).yaw().getDegrees();
+
+    //       if (Math.abs(currentYawDeg - previousYawDeg) > clusteringThresholdDegrees.get()) {
+    //         clusteredObjectDetectionResults.add(currentCluster);
+    //         currentCluster = new ArrayList<>();
+    //       }
+
+    //       currentCluster.add(trackedResultsList.get(i));
+    //     }
+    //     clusteredObjectDetectionResults.add(currentCluster);
+
+    //     clusteredObjectDetectionResults.sort((a, b) -> Integer.compare(b.size(), a.size()));
+
+    //     List<ObjectDetectionTrackedResult> largestCluster =
+    // clusteredObjectDetectionResults.get(0);
+
+    //     double totalArea =
+    //         largestCluster.stream().mapToDouble(ObjectDetectionTrackedResult::area).sum();
+
+    //     double avgYawDeg =
+    //         largestCluster.stream().mapToDouble(t ->
+    // t.yaw().getDegrees()).average().getAsDouble();
+
+    //     double avgPitchDeg =
+    //         largestCluster.stream()
+    //             .mapToDouble(t -> t.pitch().getDegrees())
+    //             .average()
+    //             .getAsDouble();
+
+    //     double distanceFromCenterOfClusterMeters =
+    //         PhotonUtils.calculateDistanceToTargetMeters(
+    //             intakeFuelDetection.source().robotToCamera().upPositive().in(Meters),
+    //             VisionConstants.fuelHeightMeters,
+    //             -intakeFuelDetection.source().robotToCamera().pitchCCWPositive().in(Radians),
+    //             Units.degreesToRadians(avgPitchDeg));
+
+    //     Translation2d estimatedCenterOfCluster =
+    //         PhotonUtils.estimateCameraToTargetTranslation(
+    //             distanceFromCenterOfClusterMeters, Rotation2d.fromDegrees(avgYawDeg));
+
+    //     this.intakeRelativePitchToClosestCluster = Rotation2d.fromDegrees(avgPitchDeg);
+    //     this.intakeRelativeYawToClosestCluster = Rotation2d.fromDegrees(avgYawDeg);
+
+    //     this.intakeLargestClusterSize =
+    //         clusteredObjectDetectionResults.isEmpty()
+    //             ? 0
+    //             : clusteredObjectDetectionResults.get(0).size();
+    //     this.estimatedCenterOfCluster =
+    //         Optional.of(new Pose2d(estimatedCenterOfCluster, Rotation2d.kZero));
+    //   } else {
+    //     this.intakeLargestClusterSize = 0;
+    //     this.estimatedCenterOfCluster = Optional.empty();
+    //   }
+
+    //   Logger.recordOutput(objectDetectionLogRoot + "/Intake/CanSeeFuel", this.intakeCanSeeFuel);
+    //   Logger.recordOutput(
+    //       objectDetectionLogRoot + "/Intake/AverageYawDegrees",
+    //       this.intakeRelativePitchToClosestCluster.getDegrees());
+    //   Logger.recordOutput(
+    //       objectDetectionLogRoot + "/Intake/AveragePitchDegrees",
+    //       this.intakeRelativeYawToClosestCluster.getDegrees());
+    //   Logger.recordOutput(
+    //       objectDetectionLogRoot + "/Intake/LargestClusterSize/", this.intakeLargestClusterSize);
+    //   for (int i = 0; i < clusteredObjectDetectionResults.size(); ++i) {
+    //     Logger.recordOutput(
+    //         objectDetectionLogRoot + "/Intake/ClusteredResults/" + i,
+    //         clusteredObjectDetectionResults.get(i).toArray(ObjectDetectionTrackedResult[]::new));
+    //   }
+    // }
+
   }
+
+  private void handleTrackedPoseEstimation() {}
 
   @Override
   public void simulationPeriodic() {

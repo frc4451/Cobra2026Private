@@ -16,6 +16,7 @@ import org.photonvision.PhotonPoseEstimator.ConstrainedSolvepnpParams;
 import org.photonvision.simulation.VisionSystemSim;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.AprilTagCameraConfig;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.ObjectDetectionCameraConfig;
+import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.ObjectDetectionStrategy;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.PoseEstimationMethod;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.RobotRelativeTransform;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.SimCameraConfig;
@@ -45,7 +46,8 @@ public class VisionConstants {
                   .pitchCCWPositive(Degrees.of(15.0))
                   .yawCCWPositive(Degrees.of(180))
                   .build()),
-          SimCameraConfig.ARDUCAM_OV9782_100);
+          SimCameraConfig.ARDUCAM_OV9782_100,
+          List.of(ObjectDetectionStrategy.QUANTITY, ObjectDetectionStrategy.POSE_TRACKING));
 
   public static final ObjectDetectionCameraConfig hopperFuelDetection =
       new ObjectDetectionCameraConfig(
@@ -59,7 +61,8 @@ public class VisionConstants {
                   .pitchCCWPositive(Degrees.of(15.0))
                   .yawCCWPositive(Degrees.of(180))
                   .build()),
-          SimCameraConfig.ARDUCAM_OV9782_100);
+          SimCameraConfig.ARDUCAM_OV9782_100,
+          List.of(ObjectDetectionStrategy.QUANTITY));
 
   public static final List<AprilTagCameraConfig> aprilTagCamerasConfigs =
       List.of(
@@ -169,4 +172,5 @@ public class VisionConstants {
 
   public static final double fuelHeightMeters = 0.150;
   public static final double fuelRadiusMeters = fuelHeightMeters / 2.0;
+  public static final double trackingMemorySeconds = 5;
 }

@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.field.FieldUtils;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +21,8 @@ import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 import org.robotzgarage.frc2026.math.distance_calc.PoseUtils;
-import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.ObjectDetectionTrackedResult;
+import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.ObjectDetectionStrategy;
+import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.ObjectDetectionTrackedPose;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.VisionSource;
 
 public class ObjectDetectionIOPhoton implements ObjectDetectionIO {
@@ -28,18 +30,16 @@ public class ObjectDetectionIOPhoton implements ObjectDetectionIO {
 
   private final Transform3d robotToCamera;
   private final Supplier<Pose2d> robotPoseSupplier;
-  private final boolean calculatePoses;
-
-  public ObjectDetectionIOPhoton(VisionSource source, Supplier<Pose2d> robotPoseSupplier) {
-    this(source, robotPoseSupplier, false);
-  }
+  private final List<ObjectDetectionStrategy> objectDetectionStrategies;
 
   public ObjectDetectionIOPhoton(
-      VisionSource source, Supplier<Pose2d> robotPoseSupplier, boolean calculatePoses) {
+      VisionSource source,
+      Supplier<Pose2d> robotPoseSupplier,
+      List<ObjectDetectionStrategy> objectDetectionStrategies) {
     this.camera = new PhotonCamera(source.name());
     this.robotToCamera = source.robotToCamera().getTransform();
     this.robotPoseSupplier = robotPoseSupplier;
-    this.calculatePoses = calculatePoses;
+    this.objectDetectionStrategies = objectDetectionStrategies;
   }
 
   public void updateInputs(ObjectDetectionIOInputs inputs) {
@@ -47,8 +47,8 @@ public class ObjectDetectionIOPhoton implements ObjectDetectionIO {
 
     List<PhotonTrackedTarget> objectsDetected = new ArrayList<>();
 
-    List<Pose3d> validObjectPoses = new ArrayList<>();
-    List<Pose3d> invalidObjectPoses = new ArrayList<>();
+    List<ObjectDetectionTrackedPose> validObjectPoses = new ArrayList<>();
+    List<ObjectDetectionTrackedPose> invalidObjectPoses = new ArrayList<>();
 
     double totalTargetArea = 0.0; // area occupied in frame
     double maxTargetArea = 0.0; // maximum target area occupied by fuel
@@ -64,7 +64,7 @@ public class ObjectDetectionIOPhoton implements ObjectDetectionIO {
         maxTargetArea = Math.max(target.area, maxTargetArea);
         minTargetArea = Math.min(target.area, minTargetArea);
 
-        if (this.calculatePoses) {
+        if (this.objectDetectionStrategies.contains(ObjectDetectionStrategy.POSE_TRACKING)) {
           double xDistanceMeters =
               PhotonUtils.calculateDistanceToTargetMeters(
                   this.robotToCamera.getMeasureZ().in(Meters),
@@ -87,31 +87,34 @@ public class ObjectDetectionIOPhoton implements ObjectDetectionIO {
                           .plus(new Transform2d(cameraToObject, Rotation2d.kZero)))
                   .plus(new Transform3d(0, 0, VisionConstants.fuelRadiusMeters, Rotation3d.kZero));
 
-          if (FieldUtils.isPoseInsideField(objectPose)) {
-            validObjectPoses.add(objectPose);
+          ObjectDetectionTrackedPose trackedObjectPose =
+              new ObjectDetectionTrackedPose(objectPose, Timer.getFPGATimestamp());
+
+          if (FieldUtils.isPoseInsideField(trackedObjectPose.pose())) {
+            validObjectPoses.add(trackedObjectPose);
           } else {
-            invalidObjectPoses.add(objectPose);
+            invalidObjectPoses.add(trackedObjectPose);
           }
         }
       }
     }
 
-    List<ObjectDetectionTrackedResult> relativeYaws =
-        objectsDetected.stream()
-            .map(
-                targetObject ->
-                    ObjectDetectionTrackedResult.builder()
-                        .pitch(Rotation2d.fromDegrees(targetObject.pitch))
-                        .yaw(Rotation2d.fromDegrees(targetObject.yaw))
-                        .area(targetObject.area)
-                        .build())
-            .toList();
+    // List<ObjectDetectionTrackedResult> relativeYaws =
+    //     objectsDetected.stream()
+    //         .map(
+    //             targetObject ->
+    //                 ObjectDetectionTrackedResult.builder()
+    //                     .pitch(Rotation2d.fromDegrees(targetObject.pitch))
+    //                     .yaw(Rotation2d.fromDegrees(targetObject.yaw))
+    //                     .area(targetObject.area)
+    //                     .build())
+    //         .toList();
 
     // Update all inputs at the end
     inputs.connected = this.camera.isConnected();
-    inputs.numObjectsInView = relativeYaws.size();
-    inputs.validObjectPoses = validObjectPoses.toArray(Pose3d[]::new);
-    inputs.invalidObjectPoses = invalidObjectPoses.toArray(Pose3d[]::new);
+    inputs.numObjectsInView = objectsDetected.size();
+    inputs.validObjectPoses = validObjectPoses.toArray(ObjectDetectionTrackedPose[]::new);
+    inputs.invalidObjectPoses = invalidObjectPoses.toArray(ObjectDetectionTrackedPose[]::new);
 
     if (!objectsDetected.isEmpty()) {
       inputs.avgTargetArea = totalTargetArea / objectsDetected.size();
@@ -120,5 +123,10 @@ public class ObjectDetectionIOPhoton implements ObjectDetectionIO {
     }
     inputs.minTargetArea = minTargetArea;
     inputs.maxTargetArea = maxTargetArea;
+  }
+
+  @Override
+  public List<ObjectDetectionStrategy> getStrategies() {
+    return this.objectDetectionStrategies;
   }
 }
