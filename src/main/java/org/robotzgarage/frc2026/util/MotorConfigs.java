@@ -137,11 +137,19 @@ public class MotorConfigs {
 
   /** Shorthand Feed Back config for any generic PID controller */
   @Builder
-  public record GenericFeedbackConfig(double p, double i, double d) {}
+  public record GenericFeedbackConfig(double p, double i, double d) {
+    public static GenericFeedbackConfig getEmptyConfig() {
+      return GenericFeedbackConfig.builder().p(0.0).i(0.0).d(0.0).build();
+    }
+  }
 
   /** Shorthand Feed Forward config for any generic SGVA controller */
   @Builder
-  public record GenericFeedForwardConfig(double s, double g, double v, double a) {}
+  public record GenericFeedForwardConfig(double s, double g, double v, double a) {
+    public static GenericFeedForwardConfig getEmptyConfig() {
+      return GenericFeedForwardConfig.builder().s(0.0).g(0.0).v(0.0).a(0.0).build();
+    }
+  }
 
   @Builder
   public record ThriftyNovaConfig(

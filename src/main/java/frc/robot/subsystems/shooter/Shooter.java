@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.LoggedTunableNumber;
 import org.robotzgarage.frc2026.subsystems.flywheel.FlywheelFollower;
 import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIO;
+import org.robotzgarage.frc2026.util.TuningUtils.TuningUnit;
 
 public class Shooter extends SubsystemBase {
   private static final String name = "/Shooter";
@@ -87,5 +88,9 @@ public class Shooter extends SubsystemBase {
         () -> {
           shooter.stop();
         });
+  }
+
+  public Command feedforwardCharacterization(TuningUnit unit) {
+    return this.shooter.feedForwardCharacterization(unit);
   }
 }
