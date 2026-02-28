@@ -113,6 +113,6 @@ public class Feeder extends SubsystemBase {
   }
 
   public Command kickerFeedForwardCharacterization(TuningUnit unit) {
-    return this.kicker.feedForwardRollerCharacterization(unit);
+    return this.spindexer.feedForwardRollerCharacterization(unit);
   }
 }
