@@ -305,6 +305,8 @@ public class RobotContainer {
 
     controller.rightTrigger().onTrue(shooter.runShooterToHub());
     controller.rightTrigger().onFalse(shooter.stop());
+    controller.leftTrigger().onTrue(shooter.runShooterVelocityTorqueCurrent());
+    controller.leftTrigger().onFalse(shooter.stop());
   }
 
   /**
