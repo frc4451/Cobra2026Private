@@ -132,6 +132,10 @@ public class Intake extends SubsystemBase {
     return runOnce(() -> rollers.stop());
   }
 
+  public Command stopPivot() {
+    return runOnce(() -> endeffector.stop());
+  }
+
   public Command rollersFeedForwardCharacterization(TuningUnit unit) {
     return this.rollers.feedForwardRollerCharacterization(unit);
   }

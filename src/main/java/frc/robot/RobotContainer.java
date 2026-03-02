@@ -301,10 +301,12 @@ public class RobotContainer {
                 () -> -controller.getLeftX(),
                 () -> BobotState.getOutpostVARC().getRotationTarget()));
 
-    controller.rightTrigger().onTrue(shooter.runShooterToHub());
-    controller.rightTrigger().onFalse(shooter.stop());
-    controller.leftTrigger().onTrue(shooter.runShooterVelocityTorqueCurrent());
-    controller.leftTrigger().onFalse(shooter.stop());
+    // controller.rightTrigger().onTrue(shooter.runShooterToHub());
+    // controller.rightTrigger().onFalse(shooter.stop());
+    controller.rightBumper().onTrue(shooter.runShooterVelocityTorqueCurrent());
+    controller.rightBumper().onFalse(shooter.stop());
+    controller.leftBumper().onTrue(intake.runRollersVoltageOut());
+    controller.leftBumper().onFalse(intake.stop());
   }
 
   /**
@@ -315,13 +317,14 @@ public class RobotContainer {
    */
   private void configureOperatorBindings(GarageCommandXboxController controller) {
     // intake roller controlls
-    controller.leftTrigger().onTrue(intake.runRollersVoltageOut());
-    controller.leftTrigger().onFalse(intake.stop());
+    // controller.leftTrigger().whileTrue(intake.runRollersVoltageOut());
+    // controller.leftTrigger().onFalse(intake.stop());
     // intake endeffector controlls
     controller.povLeft().onTrue(intake.endeffectorStart());
     controller.povUp().onTrue(intake.endeffectorSqueeze());
     controller.povRight().onTrue(intake.endeffectorLift());
     controller.povDown().onTrue(intake.endeffectorDeploy());
+    controller.x().onTrue(intake.stopPivot());
     // shooter controlls
     controller.rightTrigger().onTrue(shooter.runShooterVelocityTorqueCurrent());
     controller.rightTrigger().onFalse(shooter.stop());

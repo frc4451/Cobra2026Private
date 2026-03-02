@@ -87,7 +87,7 @@ public class IntakeConstants {
           .phoenixUpdateFreqHz(50)
           .reduction(endeffectorReduction)
           .currentLimitAmps(40)
-          .invert(true)
+          .invert(false)
           .isBrakeMode(true)
           .foc(true)
           .slot0Config(
@@ -95,14 +95,14 @@ public class IntakeConstants {
               // https://v6.docs.ctr-electronics.com/en/latest/docs/api-reference/device-specific/talonfx/motion-magic.html
               new Slot0Configs()
                   // feedforward
-                  .withKS(5.933969)
+                  .withKS(0.05)
                   .withGravityType(GravityTypeValue.Arm_Cosine)
                   // .withKG(0.04)
-                  .withKV(0.267117)
+                  .withKV(0.05)
                   //   .withKV(MotionMagicHelpers.getRotationsVelocity(0.5))
                   // .withKA(MotionMagicHelpers.getRotationsAcceleration(0.12))
                   // feedback
-                  .withKP(15.0)
+                  .withKP(1.0)
                   // .withKI(MotionMagicHelpers.getRotationsVelocity(3.0))
                   .withKD(0.25))
           .mmConfig(
