@@ -327,6 +327,7 @@ public class RobotContainer {
     controller.povUp().onTrue(intake.endeffectorSqueeze());
     controller.povRight().onTrue(intake.endeffectorLift());
     controller.povDown().onTrue(intake.endeffectorDeploy());
+    controller.x().onTrue(intake.stopPivot());
     // shooter controlls
     controller.rightBumper().whileTrue(shooter.runShooterToHub()).onFalse(shooter.stop());
     // controller.rightTrigger().onFalse(shooter.stop());
