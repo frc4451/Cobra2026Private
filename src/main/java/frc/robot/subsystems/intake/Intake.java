@@ -133,10 +133,10 @@ public class Intake extends SubsystemBase {
   }
 
   public Command rollersFeedForwardCharacterization(TuningUnit unit) {
-    return this.rollers.feedForwardRollerCharacterization(unit);
+    return this.rollers.quasistaticCharacterization(unit);
   }
 
   public Command endeffectorFeedForwardCharacterization(TuningUnit unit) {
-    return this.endeffector.feedForwardRollerCharacterization(unit);
+    return this.endeffector.quasistaticCharacterization(unit);
   }
 }

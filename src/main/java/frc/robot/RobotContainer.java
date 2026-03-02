@@ -207,10 +207,10 @@ public class RobotContainer {
 
       autoChooser.addOption(
           "Tune Shooter Flywheels (Volts)",
-          this.shooter.feedforwardCharacterization(TuningUnit.VOLTS));
+          this.shooter.steadyStateCharacterization(TuningUnit.VOLTS));
       autoChooser.addOption(
           "Tune Shooter Flywheels (Amps)",
-          this.shooter.feedforwardCharacterization(TuningUnit.AMPS));
+          this.shooter.steadyStateCharacterization(TuningUnit.AMPS));
 
       autoChooser.addOption(
           "Tune Spindexer Flywheels (Volts)",
