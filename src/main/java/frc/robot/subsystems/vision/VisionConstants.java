@@ -33,14 +33,28 @@ public class VisionConstants {
           new VisionSource(
               "ColemanCam",
               RobotRelativeTransform.builder()
-                  .forwardPositive(Inches.of(6.691))
-                  .leftPositive(Inches.of(2.625))
-                  .upPositive(Inches.of(19.256))
+                  .forwardPositive(Inches.of(4.388))
+                  .leftPositive(Inches.of(9.936))
+                  .upPositive(Inches.of(18.938))
                   .rollCCWPositive(Degrees.zero())
-                  .pitchCCWPositive(Degrees.of(-22.5))
-                  .yawCCWPositive(Degrees.of(180))
+                  .pitchCCWPositive(Degrees.of(30.0))
+                  .yawCCWPositive(Degrees.of(-135.0))
                   .build()),
           SimCameraConfig.ARDUCAM_OV9281_65);
+
+  public static final ObjectDetectionCameraConfig intakeFuelDetection =
+      new ObjectDetectionCameraConfig(
+          new VisionSource(
+              "DangerCam",
+              RobotRelativeTransform.builder()
+                  .forwardPositive(Inches.of(-24.908))
+                  .leftPositive(Inches.of(0.692))
+                  .upPositive(Inches.of(10.764))
+                  .rollCCWPositive(Degrees.zero())
+                  .pitchCCWPositive(Degrees.of(15.0))
+                  .yawCCWPositive(Degrees.of(180))
+                  .build()),
+          SimCameraConfig.ARDUCAM_OV9281_95);
 
   public static final List<AprilTagCameraConfig> aprilTagCamerasConfigs =
       List.of(
@@ -57,39 +71,13 @@ public class VisionConstants {
                       .build()),
               SimCameraConfig.THRIFTY_CAM_95_720p,
               List.of(PoseEstimationMethod.MULTI_TAG)),
-          //   new AprilTagCameraConfig(
-          //       new VisionSource(
-          //           "FrontRightModuleCCW",
-          //           RobotRelativeTransform.builder()
-          //               .forwardPositive(Inches.of(10.974))
-          //               .leftPositive(Inches.of(-11.056))
-          //               .upPositive(Inches.of(9.536))
-          //               .rollCCWPositive(Degrees.zero())
-          //               .pitchCCWPositive(Degrees.of(-17.5))
-          //               .yawCCWPositive(Degrees.of(45))
-          //               .build()),
-          //       SimCameraConfig.THRIFTY_CAM_95_720p,
-          //       List.of(PoseEstimationMethod.MULTI_TAG)),
-          //   new AprilTagCameraConfig(
-          //       new VisionSource(
-          //           "FrontRightModuleCW",
-          //           RobotRelativeTransform.builder()
-          //               .forwardPositive(Inches.of(10.974))
-          //               .leftPositive(Inches.of(-11.056))
-          //               .upPositive(Inches.of(9.536))
-          //               .rollCCWPositive(Degrees.zero())
-          //               .pitchCCWPositive(Degrees.of(-17.5))
-          //               .yawCCWPositive(Degrees.of(-45))
-          //               .build()),
-          //       SimCameraConfig.THRIFTY_CAM_95_720p,
-          //       List.of(PoseEstimationMethod.MULTI_TAG)),
           new AprilTagCameraConfig(
               new VisionSource(
                   "FrontRightModule",
                   RobotRelativeTransform.builder()
                       .forwardPositive(Inches.of(11.198))
                       .leftPositive(Inches.of(-10.802))
-                      .upPositive(Inches.of(10.581))
+                      .upPositive(Inches.of(9.581))
                       .rollCCWPositive(Degrees.zero())
                       .pitchCCWPositive(Degrees.of(-17.5))
                       .yawCCWPositive(Degrees.of(45))
@@ -113,14 +101,14 @@ public class VisionConstants {
               new VisionSource(
                   "ShooterForward",
                   RobotRelativeTransform.builder()
-                      .forwardPositive(Inches.of(6.691))
-                      .leftPositive(Inches.of(2.625))
-                      .upPositive(Inches.of(19.256))
+                      .forwardPositive(Inches.of(6.456))
+                      .leftPositive(Inches.of(3.625))
+                      .upPositive(Inches.of(19.185))
                       .rollCCWPositive(Degrees.zero())
                       .pitchCCWPositive(Degrees.of(-22.5))
                       .yawCCWPositive(Degrees.zero())
                       .build()),
-              SimCameraConfig.THRIFTY_CAM_95_MAX,
+              SimCameraConfig.THRIFTY_CAM_80,
               List.of(
                   PoseEstimationMethod.MULTI_TAG,
                   PoseEstimationMethod.TRIG,
