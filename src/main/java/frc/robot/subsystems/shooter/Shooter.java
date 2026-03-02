@@ -107,7 +107,11 @@ public class Shooter extends SubsystemBase {
         });
   }
 
-  public Command feedforwardCharacterization(TuningUnit unit) {
-    return this.shooter.feedForwardCharacterization(unit);
+  public Command quasistaticCharacterization(TuningUnit unit) {
+    return this.shooter.quasistaticCharacterization(unit);
+  }
+
+  public Command steadyStateCharacterization(TuningUnit unit) {
+    return this.shooter.steadyStateCharacterization(unit);
   }
 }

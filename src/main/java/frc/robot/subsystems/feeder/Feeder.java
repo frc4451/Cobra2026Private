@@ -109,10 +109,10 @@ public class Feeder extends SubsystemBase {
   }
 
   public Command towerFeedForwardCharacterization(TuningUnit unit) {
-    return this.tower.feedForwardRollerCharacterization(unit);
+    return this.tower.quasistaticCharacterization(unit);
   }
 
   public Command kickerFeedForwardCharacterization(TuningUnit unit) {
-    return this.spindexer.feedForwardRollerCharacterization(unit);
+    return this.spindexer.quasistaticCharacterization(unit);
   }
 }
