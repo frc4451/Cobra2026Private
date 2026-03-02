@@ -100,7 +100,7 @@ public class PoseUtils {
     return Meters.of(distanceToTarget);
   }
 
-  public static Translation2d averageOfProvidedPoses(Translation2d... translations) {
+  public static Translation2d averageOfProvidedTranslations(Translation2d... translations) {
     Translation2d average = Translation2d.kZero;
 
     for (Translation2d pose : translations) {
@@ -109,7 +109,7 @@ public class PoseUtils {
     return average.div(translations.length);
   }
 
-  public static Translation3d averageOfProvidedPoses(Translation3d... translations) {
+  public static Translation3d averageOfProvidedTranslations(Translation3d... translations) {
     Translation3d average = Translation3d.kZero;
 
     for (Translation3d pose : translations) {

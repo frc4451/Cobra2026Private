@@ -277,11 +277,11 @@ public class RobotContainer {
 
     controller.start().onTrue(AutonomousHelpers.driveToInitialPose("01 - Cross the Bump"));
 
-    controller
-        .rightBumper()
-        .whileTrue(
-            DriveCommands.joystickDrive(
-                drive, () -> -controller.getLeftY(), () -> 0.0, () -> controller.getRightX()));
+    // controller
+    //     .rightBumper()
+    //     .whileTrue(
+    //         DriveCommands.joystickDrive(
+    //             drive, () -> -controller.getLeftY(), () -> 0.0, () -> controller.getRightX()));
 
     controller
         .x()
@@ -301,8 +301,10 @@ public class RobotContainer {
                 () -> -controller.getLeftX(),
                 () -> BobotState.getOutpostVARC().getRotationTarget()));
 
-    controller.rightTrigger().onTrue(shooter.runShooterToHub());
-    controller.rightTrigger().onFalse(shooter.stop());
+    // controller.rightTrigger().onTrue(shooter.runShooterToHub());
+    // controller.rightTrigger().onFalse(shooter.stop());
+    controller.rightBumper().whileTrue(shooter.runShooterToHub()).onFalse(shooter.stop());
+
     controller.leftTrigger().onTrue(shooter.runShooterVelocityTorqueCurrent());
     controller.leftTrigger().onFalse(shooter.stop());
   }
@@ -323,8 +325,8 @@ public class RobotContainer {
     controller.povRight().onTrue(intake.endeffectorLift());
     controller.povDown().onTrue(intake.endeffectorDeploy());
     // shooter controlls
-    controller.rightTrigger().onTrue(shooter.runShooterVelocityTorqueCurrent());
-    controller.rightTrigger().onFalse(shooter.stop());
+    controller.rightBumper().whileTrue(shooter.runShooterToHub()).onFalse(shooter.stop());
+    // controller.rightTrigger().onFalse(shooter.stop());
     // feeder controlls
     controller.a().onTrue(feeder.runFeederVoltage());
     controller.a().onFalse(feeder.stop());
