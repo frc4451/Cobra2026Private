@@ -307,6 +307,9 @@ public class RobotContainer {
 
     controller.leftTrigger().onTrue(shooter.runShooterVelocityTorqueCurrent());
     controller.leftTrigger().onFalse(shooter.stop());
+
+    controller.leftBumper().onTrue(intake.runRollersVoltageOut());
+    controller.leftBumper().onFalse(intake.stop());
   }
 
   /**
@@ -317,8 +320,8 @@ public class RobotContainer {
    */
   private void configureOperatorBindings(GarageCommandXboxController controller) {
     // intake roller controlls
-    controller.leftTrigger().onTrue(intake.runRollersVoltageOut());
-    controller.leftTrigger().onFalse(intake.stop());
+    // controller.leftTrigger().onTrue(intake.runRollersVoltageOut());
+    // controller.leftTrigger().onFalse(intake.stop());
     // intake endeffector controlls
     controller.povLeft().onTrue(intake.endeffectorStart());
     controller.povUp().onTrue(intake.endeffectorSqueeze());
