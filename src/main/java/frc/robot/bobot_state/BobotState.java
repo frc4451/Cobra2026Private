@@ -84,7 +84,7 @@ public class BobotState extends VirtualSubsystem {
     outpostVARC.update();
     depotVARC.update();
     // getClosestDropoffVARC();
-    BobotState.hubInterpolator.update(BobotState.globalPose);
+    BobotState.hubInterpolator.update();
 
     BobotState.closestDropoff =
         outpostVARC.getDistance().lt(depotVARC.getDistance()) ? outpostVARC : depotVARC;

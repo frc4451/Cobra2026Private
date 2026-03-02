@@ -92,8 +92,8 @@ public class FieldConstants {
             fieldWidth / 2.0,
             innerHeight);
 
-    public static final Translation3d ehmaybelmao =
-        PoseUtils.averageOfProvidedPoses(
+    public static final Translation3d centerOfHub =
+        PoseUtils.averageOfProvidedTranslations(
             aprilTagFieldLayout.getTagPose(27).get().getTranslation(),
             aprilTagFieldLayout.getTagPose(26).get().getTranslation(),
             aprilTagFieldLayout.getTagPose(25).get().getTranslation(),
@@ -102,6 +102,13 @@ public class FieldConstants {
             aprilTagFieldLayout.getTagPose(20).get().getTranslation(),
             aprilTagFieldLayout.getTagPose(19).get().getTranslation(),
             aprilTagFieldLayout.getTagPose(18).get().getTranslation());
+
+    // Have this face relative to the Driver Station, you're shooting directly
+    // forward from the Driver Station.
+    public static final Pose2d hubInterpolationTarget =
+        new Pose2d(
+            FieldConstants.Hub.centerOfHub.toTranslation2d(),
+            FieldConstants.Hub.nearFace.getRotation());
 
     public static final Translation2d nearLeftCorner =
         new Translation2d(topCenterPoint.getX() - width / 2.0, fieldWidth / 2.0 + width / 2.0);
