@@ -37,11 +37,11 @@ public class ShooterConstants {
           .slot0Config(
               new Slot0Configs()
                   // feedforward
-                  .withKS(0.05)
-                  .withKV(0.0)
-                  .withKA(0.05)
+                  .withKS(20.0)
+                  .withKV(0.2)
+                  .withKA(0.0)
                   // feedback
-                  .withKP(16.0)
+                  .withKP(85.0)
                   .withKI(0.0)
                   .withKD(0.0))
           .mmConfig(

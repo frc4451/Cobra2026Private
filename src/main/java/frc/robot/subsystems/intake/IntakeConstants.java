@@ -46,8 +46,8 @@ public class IntakeConstants {
           .slot0Config(
               new Slot0Configs()
                   // feedforward
-                  .withKS(0.117786)
-                  .withKV(0.008341)
+                  .withKS(0.138729)
+                  .withKV(0.112423)
                   .withKA(0.0)
                   // feedback
                   .withKP(3.0)
