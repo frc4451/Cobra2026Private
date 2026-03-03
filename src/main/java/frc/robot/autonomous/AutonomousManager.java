@@ -18,17 +18,17 @@ import frc.robot.subsystems.shooter.Shooter;
 
 public class AutonomousManager {
   private final Drive drive;
-  private final Intake intake;
   private final Shooter shooter;
+  private final Intake intake;
   private final Feeder feeder;
 
   private static final double rotationToleranceDegrees = 1.0;
   private static final Time MAX_TIMEOUT = Seconds.of(20);
 
-  public AutonomousManager(Drive drive, Intake intake, Shooter shooter, Feeder feeder) {
+  public AutonomousManager(Drive drive, Shooter shooter, Intake intake, Feeder feeder) {
     this.drive = drive;
-    this.intake = intake;
     this.shooter = shooter;
+    this.intake = intake;
     this.feeder = feeder;
   }
 
@@ -48,11 +48,23 @@ public class AutonomousManager {
         drive, () -> BobotState.getHubVARC().getRotationTarget(), rotationToleranceDegrees);
   }
 
+  /**
+   * Full method to use to handle the shooting for the shooter
+   *
+   * <p>
+   *
+   * @param prefix uses a {@code String} to tie the steps of {@code handleShot} for easier reading
+   *     of the console in {@code AdvantageScope}
+   * @param velocity uses a {@code double} that goes into an {@code AngularVelocity(RPS)} for
+   *     shooter controll
+   * @param tolerance uses a {@code double} that goes into an {@code AngularVelocity(RPS)} to tell
+   *     the shooter to start shooting
+   * @param emptyTime uses a {@code double} that goes into a {@code TimeUnit(Seconds)} for the
+   *     estimated hopper empty time / when it stops the shooter
+   */
   private Command handleShot(String prefix, double velocity, double tolerance, double emptyTime) {
     String formattedPrefix = prefix + ": ";
     AngularVelocity shooterVelocity = RotationsPerSecond.of(velocity);
-    AngularVelocity shooterTolerance = RotationsPerSecond.of(tolerance);
-    Time estimatedShooterEmptyTime = Seconds.of(emptyTime);
 
     return Commands.sequence(
             Commands.print(formattedPrefix + "Starting Shooter Flywheel"),
@@ -61,12 +73,52 @@ public class AutonomousManager {
                 .runShooterVelocityTorqueCurrent(shooterVelocity)
                 .until(
                     // wait to start tower, until shooter is at velocity
-                    shooter.isShooterFlywheelNearRPS(shooterVelocity, shooterTolerance)),
+                    shooter.isShooterFlywheelNearRPS(
+                        shooterVelocity, RotationsPerSecond.of(tolerance))),
+            // shoots shooter for the estimated empty time
+            Commands.print(formattedPrefix + "start feeder"),
+            feeder.runFeederVoltage(),
+            Commands.print(formattedPrefix + "start shooter"),
+            shooter
+                .runShooterVelocityTorqueCurrent(shooterVelocity)
+                .withTimeout(Seconds.of(emptyTime)),
+            shooter.stop(),
+            feeder.stop())
+        .beforeStarting(Commands.print(formattedPrefix + "start"))
+        .andThen(Commands.print(formattedPrefix + "end"));
+  }
+
+  /**
+   * Full method to use to handle the shooting for the shooter
+   *
+   * <p>
+   *
+   * @param prefix Uses a {@code String} to tie the steps of {@code handleShot} for easier reading
+   *     of the console in {@code AdvantageScope}
+   * @param velocity Uses a {@code double} that goes into an {@code AngularVelocity(RPS)} for
+   *     shooter controll
+   * @param emptyTime Uses a {@code double} that goes into a {@code TimeUnit(Seconds)} for the
+   *     estimated hopper empty time / when it stops the shooter @DefaultParameter Default Tolerance
+   *     of 1 RPS. Tolerance uses a {@code double} that goes into an {@code AngularVelocity(RPS)} to
+   *     tell the shooter to start shooting
+   */
+  private Command handleShot(String prefix, double velocity, double emptyTime) {
+    String formattedPrefix = prefix + ": ";
+    AngularVelocity shooterVelocity = RotationsPerSecond.of(velocity);
+
+    return Commands.sequence(
+            Commands.print(formattedPrefix + "Starting Shooter Flywheel"),
+            shooter
+                // set velocity to shooter at with torque current
+                .runShooterVelocityTorqueCurrent(shooterVelocity)
+                .until(
+                    // wait to start tower, until shooter is at velocity
+                    shooter.isShooterFlywheelNearRPS(shooterVelocity, RotationsPerSecond.of(1.0))),
             // shoots shooter for the estimated empty time
             Commands.print(formattedPrefix + "start shooter"),
             shooter
                 .runShooterVelocityTorqueCurrent(shooterVelocity)
-                .withTimeout(estimatedShooterEmptyTime),
+                .withTimeout(Seconds.of(emptyTime)),
             shooter.stop())
         .beforeStarting(Commands.print(formattedPrefix + "start"))
         .andThen(Commands.print(formattedPrefix + "end"));
@@ -83,7 +135,7 @@ public class AutonomousManager {
   private Command retrackIntake() {
     return Commands.sequence(intake.endeffectorStart().until(intake.isNearGoal(Degrees.of(5))))
         .beforeStarting(Commands.print("retrack: start"))
-        .andThen(Commands.print("deploy: end"));
+        .andThen(Commands.print("retrack: end"));
   }
 
   /** lifts intake to an offset position for bump transversal */
@@ -94,6 +146,24 @@ public class AutonomousManager {
         .andThen(Commands.print("lift: end"));
   }
 
+  /** Sqeeze intake for shooting */
+  private Command sqeezeIntake() {
+    return Commands.sequence(intake.endeffectorSqueeze())
+        .until(intake.isNearGoal(Degrees.of(5)))
+        .beforeStarting(Commands.print("Sqeeze: start"))
+        .andThen(Commands.print("Sqeeze: end"));
+  }
+
+  private Command runIntake() {
+    return Commands.runOnce(() -> intake.runRollersVoltageOut())
+    .beforeStarting(Commands.print("Intake rollers: start"));
+  }
+
+  private Command stopIntake() {
+    return Commands.runOnce(() -> intake.stop())
+    .beforeStarting(Commands.print("Intake rollers: stop"));
+  }
+
   private Command BLineTrajectory(String name) {
     return Commands.sequence(drive.getBLineBuilder().build(new Path(name)))
         .beforeStarting(Commands.print(name + ": start"))
@@ -102,13 +172,15 @@ public class AutonomousManager {
 
   public Command himithy() {
     return Commands.sequence(
-            BLineTrajectory("SnG-LT-1"),
             this.deployIntake(),
+            BLineTrajectory("SnG-LT-1"),
+            this.runIntake(),
             BLineTrajectory("LT-SimpleIntake-1"),
-            BLineTrajectory("SimpleIntake-CrossField"),
-            BLineTrajectory("CrossField-Shoot"),
+            this.stopIntake(),
+            this.liftIntake(),
+            BLineTrajectory("SimpleIntake-Shoot"),
             this.rotateToHub(),
-            this.handleShot("shot 1", 70.0, 1.0, 5.0))
+            this.handleShot("shot 1", 70.0, 5.0))
         .beforeStarting(Commands.print("Path start"))
         .andThen(Commands.print("Path end"));
   }

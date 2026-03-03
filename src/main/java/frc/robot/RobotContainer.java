@@ -184,7 +184,7 @@ public class RobotContainer {
   //   }
 
   private void configureAutonomousRoutines() {
-    AutonomousManager autonomousManager = new AutonomousManager(drive, intake, shooter, feeder);
+    AutonomousManager autonomousManager = new AutonomousManager(drive, shooter, intake, feeder);
 
     autoChooser.addOption("Himithy", autonomousManager.himithy());
   }
