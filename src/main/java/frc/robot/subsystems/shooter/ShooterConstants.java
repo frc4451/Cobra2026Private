@@ -51,7 +51,7 @@ public class ShooterConstants {
                   .withMotionMagicJerk(20.0 * shooterReduction))
           .currentLimitConfig(
               new CurrentLimitsConfigs()
-                  .withStatorCurrentLimit(100.0)
+                  .withStatorCurrentLimit(120.0)
                   .withStatorCurrentLimitEnable(true)
               // .withSupplyCurrentLimit(null)
               )
