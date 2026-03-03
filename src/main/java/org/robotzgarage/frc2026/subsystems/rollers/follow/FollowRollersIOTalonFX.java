@@ -9,6 +9,7 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
@@ -57,6 +58,7 @@ public class FollowRollersIOTalonFX implements FollowRollersIO {
   private final NeutralOut neutralOut = new NeutralOut();
   private final TorqueCurrentFOC torqueCurrentFOC;
   protected final VelocityTorqueCurrentFOC velocityTorqueCurrentFOC;
+  protected final MotionMagicVelocityTorqueCurrentFOC mmVelocityTorqueCurrentFOC;
   private final DutyCycleOut dutyCycleOut;
 
   private final Follower followOut;
@@ -72,6 +74,7 @@ public class FollowRollersIOTalonFX implements FollowRollersIO {
     dutyCycleOut = new DutyCycleOut(0.0).withEnableFOC(config.leader().foc());
     torqueCurrentFOC = new TorqueCurrentFOC(Amps.of(0.0));
     velocityTorqueCurrentFOC = new VelocityTorqueCurrentFOC(0.0);
+    mmVelocityTorqueCurrentFOC = new MotionMagicVelocityTorqueCurrentFOC(0.0);
 
     leader = new TalonFX(config.leader().canId(), config.leader().canBus());
     follower = new TalonFX(config.followerCanId(), config.leader().canBus());
@@ -198,7 +201,10 @@ public class FollowRollersIOTalonFX implements FollowRollersIO {
 
   @Override
   public void setVelocityTorqueCurrent(AngularVelocity velocity) {
-    leader.setControl(velocityTorqueCurrentFOC.withVelocity(velocity));
+    // leader.setControl(velocityTorqueCurrentFOC.withVelocity(velocity));
+
+    // use this to see if Motion Magic helps?
+    leader.setControl(mmVelocityTorqueCurrentFOC.withVelocity(velocity));
   }
 
   @Override

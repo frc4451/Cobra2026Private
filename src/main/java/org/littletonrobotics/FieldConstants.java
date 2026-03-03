@@ -7,12 +7,9 @@
 
 package org.littletonrobotics;
 
-import static edu.wpi.first.units.Units.Degrees;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
@@ -95,23 +92,6 @@ public class FieldConstants {
             fieldWidth / 2.0,
             innerHeight);
 
-    public static final Translation3d centerOfHub =
-        PoseUtils.averageOfProvidedTranslations(
-            aprilTagFieldLayout.getTagPose(27).get().getTranslation(),
-            aprilTagFieldLayout.getTagPose(26).get().getTranslation(),
-            aprilTagFieldLayout.getTagPose(25).get().getTranslation(),
-            aprilTagFieldLayout.getTagPose(24).get().getTranslation(),
-            aprilTagFieldLayout.getTagPose(21).get().getTranslation(),
-            aprilTagFieldLayout.getTagPose(20).get().getTranslation(),
-            aprilTagFieldLayout.getTagPose(19).get().getTranslation(),
-            aprilTagFieldLayout.getTagPose(18).get().getTranslation());
-
-    // Have this face relative to the Driver Station, you're shooting directly
-    // forward from the Driver Station.
-    public static final Pose2d hubInterpolationTarget =
-        new Pose2d(
-            FieldConstants.Hub.centerOfHub.toTranslation2d(), new Rotation2d(Degrees.of(180.0)));
-
     public static final Translation2d nearLeftCorner =
         new Translation2d(topCenterPoint.getX() - width / 2.0, fieldWidth / 2.0 + width / 2.0);
     public static final Translation2d nearRightCorner =
@@ -140,6 +120,22 @@ public class FieldConstants {
     public static final Pose2d farFace = aprilTagFieldLayout.getTagPose(20).get().toPose2d();
     public static final Pose2d rightFace = aprilTagFieldLayout.getTagPose(18).get().toPose2d();
     public static final Pose2d leftFace = aprilTagFieldLayout.getTagPose(21).get().toPose2d();
+
+    public static final Translation3d centerOfHub =
+        PoseUtils.averageOfProvidedTranslations(
+            aprilTagFieldLayout.getTagPose(27).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(26).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(25).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(24).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(21).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(20).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(19).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(18).get().getTranslation());
+
+    // Have this face relative to the Driver Station, you're shooting directly
+    // forward from the Driver Station.
+    public static final Pose2d hubInterpolationTarget =
+        new Pose2d(FieldConstants.Hub.centerOfHub.toTranslation2d(), nearFace.getRotation());
   }
 
   /** Left Bump related constants */
