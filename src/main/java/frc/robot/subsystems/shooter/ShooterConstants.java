@@ -24,7 +24,7 @@ public class ShooterConstants {
 
   public static final AngularVelocity maximumShooterVelocity = RotationsPerSecond.of(80);
   public static final AngularAcceleration maximumShooterAcceleration =
-      RotationsPerSecondPerSecond.of(160);
+      RotationsPerSecondPerSecond.of(400);
   public static final Current supplyCurrentLimit = Amps.of(40.0);
   public static final Current statorCurrentLimit = Amps.of(100.0);
 
@@ -49,11 +49,11 @@ public class ShooterConstants {
           .slot0Config(
               new Slot0Configs()
                   // feedforward
-                  .withKS(3.175) // Windham uses 4.0
-                  .withKV(0.0063) // Windham uses 0.0
-                  .withKA(0.0)
+                  .withKS(27.0) // Windham uses 4.0
+                  .withKV(0.75) // Windham uses 0.0
+                  .withKA(0.5)
                   // feedback
-                  .withKP(3.0) // Windham uses 12.0
+                  .withKP(6.0) // Windham uses 12.0
                   .withKI(0.0)
                   .withKD(0.0))
           .mmConfig(
