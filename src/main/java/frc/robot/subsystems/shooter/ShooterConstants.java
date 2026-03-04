@@ -49,11 +49,11 @@ public class ShooterConstants {
           .slot0Config(
               new Slot0Configs()
                   // feedforward
-                  .withKS(27.0) // Windham uses 4.0
-                  .withKV(0.75) // Windham uses 0.0
-                  .withKA(0.5)
+                  .withKS(5.0)
+                  .withKV(0.0625)
+                  .withKA(0.0)
                   // feedback
-                  .withKP(6.0) // Windham uses 12.0
+                  .withKP(5.0)
                   .withKI(0.0)
                   .withKD(0.0))
           .mmConfig(

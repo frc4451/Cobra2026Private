@@ -25,9 +25,9 @@ public class Intake extends SubsystemBase {
       new LoggedTunableNumber(name + "/RollersVoltage", 10.0);
 
   private static final LoggedTunableNumber endeffectorStart =
-      new LoggedTunableNumber(name + "/EndeffectorStart", 90.0);
+      new LoggedTunableNumber(name + "/EndeffectorStart", 0.0);
   private static final LoggedTunableNumber endeffectorDeploy =
-      new LoggedTunableNumber(name + "/EndeffectorDeploy", 0.0);
+      new LoggedTunableNumber(name + "/EndeffectorDeploy", -90.0);
   private static final LoggedTunableNumber endeffectorLift =
       new LoggedTunableNumber(name + "/EndeffectorLift", 10.0);
 
@@ -57,25 +57,27 @@ public class Intake extends SubsystemBase {
   }
 
   public void periodic() {
-    switch (currentState) {
-      case STARTING:
-        endeffectorStart();
-        break;
-      case DEPLOYED:
-        endeffectorDeploy();
-        break;
-      case LIFTED:
-        endeffectorLift();
-        break;
-      case SQUEEZE:
-        endeffectorSqueeze();
-        break;
-      default:
-        break;
-    }
+    // switch (currentState) {
+    //   case STARTING:
+    //     endeffectorStart();
+    //     break;
+    //   case DEPLOYED:
+    //     endeffectorDeploy();
+    //     break;
+    //   case LIFTED:
+    //     endeffectorLift();
+    //     break;
+    //   case SQUEEZE:
+    //     endeffectorSqueeze();
+    //     break;
+    //   default:
+    //     break;
+    // }
     // Periodic modes
     rollers.periodic();
     endeffector.periodic();
+
+    endeffector.setGoal(endeffector.getGoalPosition());
   }
 
   public Command runRollersPercentOut() {
@@ -103,23 +105,24 @@ public class Intake extends SubsystemBase {
   }
 
   public Command endeffectorStart() {
-    return run(() -> endeffector.setGoalPosition(Degrees.of(endeffectorStart.get())));
+    return run(() -> endeffector.setGoal(Degrees.of(endeffectorStart.get())));
   }
 
   public Command endeffectorDeploy() {
-    return run(() -> endeffector.setGoalPosition(Degrees.of(endeffectorDeploy.get())));
+    return run(() -> endeffector.setGoal(Degrees.of(endeffectorDeploy.get())));
   }
 
   public Command endeffectorLift() {
-    return run(() -> endeffector.setGoalPosition(Degrees.of(endeffectorLift.get())));
+    return run(() -> endeffector.setGoal(Degrees.of(endeffectorLift.get())));
   }
 
   public Command endeffectorSqueeze() {
-    return run(() -> endeffector.setGoalPosition(Degrees.of(80)));
+    return run(() -> endeffector.setGoal(Degrees.of(80)));
   }
 
   public Trigger isNearGoal(Angle tolerance) {
-    return new Trigger(() -> this.endeffector.isNear(endeffector.getGoalPosition(), tolerance));
+    return new Trigger(
+        () -> this.endeffector.isNear(this.endeffector.getGoalPosition(), tolerance));
   }
 
   public void setCurrentState(EndeffectorState state) {
