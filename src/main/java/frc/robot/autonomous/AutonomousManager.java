@@ -133,12 +133,10 @@ public class AutonomousManager {
    * @param prefix Uses a {@code String} to tie the steps of {@code handleShot} for easier reading
    *     of the console in {@code AdvantageScope}
    * @param emptyTime Uses a {@code double} that goes into a {@code TimeUnit(Seconds)} for the
-   *     estimated hopper empty time / when it stops the shooter 
-   * @DefaultParameter Default Tolerance
+   *     estimated hopper empty time / when it stops the shooter @DefaultParameter Default Tolerance
    *     of 1 RPS. Tolerance uses a {@code double} that goes into an {@code AngularVelocity(RPS)} to
-   *     tell the shooter to start shooting
-   * @DefaultParameter Default Velocity
-   *     uses the Hub Interpoltion table to get the velocity to shoot
+   *     tell the shooter to start shooting @DefaultParameter Default Velocity uses the Hub
+   *     Interpoltion table to get the velocity to shoot
    */
   private Command handleShotInterpolation(String prefix, double emptyTime) {
     String formattedPrefix = prefix + ": ";
@@ -146,7 +144,7 @@ public class AutonomousManager {
     AngularVelocity velocity = calculation.primaryVelocity();
 
     return Commands.sequence(
-            Commands.print(formattedPrefix + "Starting Shooter Flywheel"),
+            Commands.print(formattedPrefix + "Starting Shooter Flywheel. Velocity: " + velocity),
             shooter
                 // set velocity to shooter at with torque current
                 .runShooterVelocityTorqueCurrent(velocity)
@@ -192,7 +190,7 @@ public class AutonomousManager {
   }
 
   private Command runIntake() {
-    return Commands.runOnce(() -> intake.runRollersVoltageOut())
+    return Commands.run(() -> intake.runRollersVoltageOut())
         .beforeStarting(Commands.print("Intake rollers: start"));
   }
 
@@ -207,13 +205,18 @@ public class AutonomousManager {
         .andThen(Commands.print(name + ": end"));
   }
 
+  private Command BLineTrajectorywithIntake(String name) {
+    return Commands.deadline(
+            drive.getBLineBuilder().build(new Path(name)), intake.runRollersVoltageOut())
+        .beforeStarting(Commands.print(name + ": start"))
+        .andThen(Commands.sequence(Commands.print(name + ": end")), intake.stop());
+  }
+
   public Command himithy() {
     return Commands.sequence(
             this.deployIntake(),
             BLineTrajectory("SnG-LT-1"),
-            this.runIntake(),
-            BLineTrajectory("LT-SimpleIntake-1"),
-            this.stopIntake(),
+            BLineTrajectorywithIntake("LT-SimpleIntake-1"),
             this.liftIntake(),
             BLineTrajectory("SimpleIntake-Shoot"),
             this.rotateToHub(),
