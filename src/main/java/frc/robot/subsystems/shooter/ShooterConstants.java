@@ -78,7 +78,7 @@ public class ShooterConstants {
       TalonFXConfigFollower.builder()
           .leader(leaderShooterConfig)
           .followerCanId(22)
-          .invertFollower(false)
+          .invertFollower(true)
           .build();
 
   public static final TalonFXConfigFollowerSim flywheelFollowersConfigSim =

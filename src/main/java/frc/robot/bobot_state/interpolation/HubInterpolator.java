@@ -23,30 +23,30 @@ public class HubInterpolator extends TargetInterpolator {
     interpolator.addEntries(
         // Start of entries
         DistanceAngleSpeedEntry.builder()
-            .distanceToTarget(Feet.of(4))
-            .primaryVelocity(RotationsPerSecond.of(63))
-            .pitch(interpolatorDefaultPitch)
-            .build(),
-        DistanceAngleSpeedEntry.builder()
-            .distanceToTarget(Feet.of(6))
-            .primaryVelocity(RotationsPerSecond.of(69))
-            .pitch(interpolatorDefaultPitch)
-            .build(),
-        DistanceAngleSpeedEntry.builder()
-            .distanceToTarget(Feet.of(8))
-            .primaryVelocity(RotationsPerSecond.of(75))
-            .pitch(interpolatorDefaultPitch)
-            .build(),
-        DistanceAngleSpeedEntry.builder()
-            .distanceToTarget(Feet.of(10))
-            .primaryVelocity(RotationsPerSecond.of(79))
-            .pitch(interpolatorDefaultPitch)
-            .build(),
-        DistanceAngleSpeedEntry.builder()
-            .distanceToTarget(Feet.of(12))
-            .primaryVelocity(RotationsPerSecond.of(85))
+            .distanceToTarget(Feet.of(9))
+            .primaryVelocity(RotationsPerSecond.of(50))
             .pitch(interpolatorDefaultPitch)
             .build()
+        // DistanceAngleSpeedEntry.builder()
+        //     .distanceToTarget(Feet.of(6))
+        //     .primaryVelocity(RotationsPerSecond.of(69))
+        //     .pitch(interpolatorDefaultPitch)
+        //     .build(),
+        // DistanceAngleSpeedEntry.builder()
+        //     .distanceToTarget(Feet.of(8))
+        //     .primaryVelocity(RotationsPerSecond.of(75))
+        //     .pitch(interpolatorDefaultPitch)
+        //     .build(),
+        // DistanceAngleSpeedEntry.builder()
+        //     .distanceToTarget(Feet.of(10))
+        //     .primaryVelocity(RotationsPerSecond.of(79))
+        //     .pitch(interpolatorDefaultPitch)
+        //     .build(),
+        // DistanceAngleSpeedEntry.builder()
+        //     .distanceToTarget(Feet.of(12))
+        //     .primaryVelocity(RotationsPerSecond.of(85))
+        //     .pitch(interpolatorDefaultPitch)
+        //     .build()
         // End of entries
         );
   }

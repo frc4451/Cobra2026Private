@@ -55,9 +55,9 @@ public class IntakeConstants {
                   .withKD(0.0))
           .mmConfig(
               new MotionMagicConfigs()
-                  .withMotionMagicCruiseVelocity(5.0 * intakeReduction)
-                  .withMotionMagicAcceleration(4.5 * intakeReduction)
-                  .withMotionMagicJerk(20.0 * intakeReduction))
+                  .withMotionMagicCruiseVelocity(5.0)
+                  .withMotionMagicAcceleration(20)
+                  .withMotionMagicJerk(80.0))
           .build();
 
   public static final TalonFXConfigSim intakeConfigSim =
