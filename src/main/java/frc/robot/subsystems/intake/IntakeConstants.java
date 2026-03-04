@@ -3,6 +3,7 @@ package frc.robot.subsystems.intake;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Rotations;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -18,12 +19,18 @@ import org.robotzgarage.frc2026.subsystems.flywheel.Flywheel.FlywheelConfig;
 import org.robotzgarage.frc2026.subsystems.pivot.Pivot.PivotConfig;
 import org.robotzgarage.frc2026.subsystems.pivot.PivotMechanism.PivotMechanismConfig;
 import org.robotzgarage.frc2026.util.MechanismConfigs.RootMechanismConfig;
+import org.robotzgarage.frc2026.util.MotorConfigs.CANCoderConfig;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfig;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfigSim;
 
 public class IntakeConstants {
   public static final double intakeReduction = 1.0;
-  public static final double endeffectorReduction = 75.0;
+
+  public static final double endeffectorReductionRotorToSensor = (5.0 * 5.0);
+  public static final double endeffectorReductionSensorToMechanism = 3.0;
+
+  public static final double endeffectorReduction =
+      endeffectorReductionRotorToSensor * endeffectorReductionSensorToMechanism;
 
   public static final FlywheelConfig flywheelConfig =
       FlywheelConfig.builder()
@@ -78,6 +85,16 @@ public class IntakeConstants {
           .tolerance(Degrees.of(1))
           .simulateGravity(false)
           .moi(0.00002)
+          .build();
+
+  public static final CANCoderConfig cancoderConfig =
+      CANCoderConfig.builder()
+          .canId(33)
+          .canBus(Constants.susBus)
+          .rotorToSensorReduction(endeffectorReductionRotorToSensor)
+          .sensorToMechanismReduction(endeffectorReductionSensorToMechanism)
+          .isClockwisePositive(true)
+          .magnetOffset(Rotations.of(0.0))
           .build();
 
   public static final TalonFXConfig endeffectorConfig =

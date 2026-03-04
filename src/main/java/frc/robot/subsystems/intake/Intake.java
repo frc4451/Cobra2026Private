@@ -30,6 +30,8 @@ public class Intake extends SubsystemBase {
       new LoggedTunableNumber(name + "/EndeffectorDeploy", -90.0);
   private static final LoggedTunableNumber endeffectorLift =
       new LoggedTunableNumber(name + "/EndeffectorLift", 10.0);
+  private static final LoggedTunableNumber endeffectorSqueeze =
+      new LoggedTunableNumber(name + "/EndeffectorLift", 80.0);
 
   // Subsystems
   private final Flywheel rollers;
@@ -39,7 +41,7 @@ public class Intake extends SubsystemBase {
     STARTING(Degrees.of(endeffectorStart.get())),
     DEPLOYED(Degrees.of(endeffectorDeploy.get())),
     LIFTED(Degrees.of(endeffectorLift.get())),
-    SQUEEZE(null);
+    SQUEEZE(Degrees.of(endeffectorSqueeze.get()));
 
     private Angle angle;
 
@@ -105,19 +107,19 @@ public class Intake extends SubsystemBase {
   }
 
   public Command endeffectorStart() {
-    return run(() -> endeffector.setGoal(Degrees.of(endeffectorStart.get())));
+    return runOnce(() -> endeffector.setGoal(Degrees.of(endeffectorStart.get())));
   }
 
   public Command endeffectorDeploy() {
-    return run(() -> endeffector.setGoal(Degrees.of(endeffectorDeploy.get())));
+    return runOnce(() -> endeffector.setGoal(Degrees.of(endeffectorDeploy.get())));
   }
 
   public Command endeffectorLift() {
-    return run(() -> endeffector.setGoal(Degrees.of(endeffectorLift.get())));
+    return runOnce(() -> endeffector.setGoal(Degrees.of(endeffectorLift.get())));
   }
 
   public Command endeffectorSqueeze() {
-    return run(() -> endeffector.setGoal(Degrees.of(80)));
+    return runOnce(() -> endeffector.setGoal(Degrees.of(endeffectorSqueeze.get())));
   }
 
   public Trigger isNearGoal(Angle tolerance) {

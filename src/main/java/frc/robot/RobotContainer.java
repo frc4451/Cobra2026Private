@@ -37,7 +37,9 @@ import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOSimTalo
 import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOTalonFX;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFX;
+import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFXWithCANCoder;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFX;
+import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFXWithCANCoder;
 import org.robotzgarage.frc2026.subsystems.vision.AprilTagVision;
 import org.robotzgarage.frc2026.util.GarageCommandXboxController;
 import org.robotzgarage.frc2026.util.TuningUtils.TuningUnit;
@@ -85,7 +87,10 @@ public class RobotContainer {
         // Real robot, it's ALIVE!!! ALIIIIIIVVVE!!!!!
         // EX. exampleIO = new SingleRollerIOTalonFX(exampleConstants.exampleConfig);
         intakeIO = new SingleRollerIOTalonFX(IntakeConstants.intakeConfig);
-        endeffectorIO = new SingleRollerIOTalonFX(IntakeConstants.endeffectorConfig);
+        endeffectorIO =
+            new SingleRollerIOTalonFXWithCANCoder(
+                IntakeConstants.endeffectorConfig, IntakeConstants.cancoderConfig);
+        // endeffectorIO = new SingleRollerIOTalonFX(IntakeConstants.endeffectorConfig);
 
         shooterIO = new FollowRollersIOTalonFX(ShooterConstants.flywheelFollowersConfig);
 
@@ -105,7 +110,10 @@ public class RobotContainer {
         // Sim robot, instantiate physics sim IO implementations
         // EX. exampleIO = new SingleRollerIOSimTalonFX(exampleConstants.exampleConfigSim);
         intakeIO = new SingleRollerIOSimTalonFX(IntakeConstants.intakeConfigSim);
-        endeffectorIO = new SingleRollerIOSimTalonFX(IntakeConstants.endeffectorConfigSim);
+        endeffectorIO =
+            new SingleRollerIOSimTalonFXWithCANCoder(
+                IntakeConstants.endeffectorConfigSim, IntakeConstants.cancoderConfig);
+        // endeffectorIO = new SingleRollerIOSimTalonFX(IntakeConstants.endeffectorConfigSim);
 
         shooterIO = new FollowRollersIOSimTalonFX(ShooterConstants.flywheelFollowersConfigSim);
 
