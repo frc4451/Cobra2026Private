@@ -23,6 +23,16 @@ public class HubInterpolator extends TargetInterpolator {
     interpolator.addEntries(
         // Start of entries
         DistanceAngleSpeedEntry.builder()
+            .distanceToTarget(Feet.of(7))
+            .primaryVelocity(RotationsPerSecond.of(47))
+            .pitch(interpolatorDefaultPitch)
+            .build(),
+        DistanceAngleSpeedEntry.builder()
+            .distanceToTarget(Feet.of(8))
+            .primaryVelocity(RotationsPerSecond.of(48))
+            .pitch(interpolatorDefaultPitch)
+            .build(),
+        DistanceAngleSpeedEntry.builder()
             .distanceToTarget(Feet.of(9))
             .primaryVelocity(RotationsPerSecond.of(50))
             .pitch(interpolatorDefaultPitch)
