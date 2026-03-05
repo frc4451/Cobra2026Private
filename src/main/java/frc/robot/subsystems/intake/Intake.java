@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.LoggedTunableNumber;
 import org.robotzgarage.frc2026.subsystems.flywheel.Flywheel;
 import org.robotzgarage.frc2026.subsystems.pivot.Pivot;
+import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRoller;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
 import org.robotzgarage.frc2026.util.TuningUtils.TuningUnit;
 
@@ -25,17 +26,17 @@ public class Intake extends SubsystemBase {
       new LoggedTunableNumber(name + "/RollersVoltage", 10.0);
 
   private static final LoggedTunableNumber endeffectorStart =
-      new LoggedTunableNumber(name + "/EndeffectorStart", 0.0);
+      new LoggedTunableNumber(name + "/EndeffectorStart", -205.0);
   private static final LoggedTunableNumber endeffectorDeploy =
-      new LoggedTunableNumber(name + "/EndeffectorDeploy", -90.0);
+      new LoggedTunableNumber(name + "/EndeffectorDeploy", -120.0);
   private static final LoggedTunableNumber endeffectorLift =
-      new LoggedTunableNumber(name + "/EndeffectorLift", 10.0);
+      new LoggedTunableNumber(name + "/EndeffectorLift", -160.0);
   private static final LoggedTunableNumber endeffectorSqueeze =
-      new LoggedTunableNumber(name + "/EndeffectorLift", 80.0);
+      new LoggedTunableNumber(name + "/EndeffectorSqueeze", -160.0);
 
   // Subsystems
   private final Flywheel rollers;
-  private final Pivot endeffector;
+  private final SingleRoller endeffector;
 
   public enum EndeffectorState {
     STARTING(Degrees.of(endeffectorStart.get())),
@@ -79,7 +80,7 @@ public class Intake extends SubsystemBase {
     rollers.periodic();
     endeffector.periodic();
 
-    endeffector.setGoal(endeffector.getGoalPosition());
+    // endeffector.setGoal(endeffector.getGoalPosition());
   }
 
   public Command runRollersPercentOut() {

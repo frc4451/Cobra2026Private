@@ -7,11 +7,11 @@ import static edu.wpi.first.units.Units.Rotations;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.Constants;
@@ -25,6 +25,8 @@ import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfigSim;
 
 public class IntakeConstants {
   public static final double intakeReduction = 1.0;
+
+  public static final Angle zeroOffset = Degrees.of(120);
 
   public static final double endeffectorReductionRotorToSensor = (5.0 * 5.0);
   public static final double endeffectorReductionSensorToMechanism = 3.0;
@@ -93,8 +95,12 @@ public class IntakeConstants {
           .canBus(Constants.susBus)
           .rotorToSensorReduction(endeffectorReductionRotorToSensor)
           .sensorToMechanismReduction(endeffectorReductionSensorToMechanism)
-          .isClockwisePositive(true)
-          .magnetOffset(Rotations.of(0.0))
+          .isClockwisePositive(false)
+          .magnetOffset(Rotations.of(0.175537109375))
+          .disparity(0.3333333)
+          //   .magnetOffset(Rotations.of(0.1728515625).plus(Rotations.of(0.668945)))
+          //   .minAngle(Degrees.of(0.0))
+          //   .maxAngle(Degrees.of(90.0))
           .build();
 
   public static final TalonFXConfig endeffectorConfig =
@@ -112,29 +118,29 @@ public class IntakeConstants {
               // https://v6.docs.ctr-electronics.com/en/latest/docs/api-reference/device-specific/talonfx/motion-magic.html
               new Slot0Configs()
                   // feedforward
-                  .withKS(5.933969)
+                  .withKS(0.75)
                   .withGravityType(GravityTypeValue.Arm_Cosine)
-                  // .withKG(0.04)
-                  .withKV(0.267117)
+                  .withKG(0.3)
+                  .withKV(0.0)
                   //   .withKV(MotionMagicHelpers.getRotationsVelocity(0.5))
                   // .withKA(MotionMagicHelpers.getRotationsAcceleration(0.12))
                   // feedback
-                  .withKP(15.0)
+                  .withKP(10.0)
                   // .withKI(MotionMagicHelpers.getRotationsVelocity(3.0))
-                  .withKD(0.25))
+                  .withKD(0.1))
           .mmConfig(
               new MotionMagicConfigs()
-                  .withMotionMagicCruiseVelocity(20.0 * endeffectorReduction)
-                  .withMotionMagicAcceleration(80.0 * endeffectorReduction)
-                  .withMotionMagicJerk(320.0 * endeffectorReduction))
-          .softwareLimitSwitch(
-              new SoftwareLimitSwitchConfigs()
-                  .withForwardSoftLimitEnable(true)
-                  .withForwardSoftLimitThreshold(
-                      pivotConfig.maxAngle().minus(pivotConfig.tolerance()))
-                  .withReverseSoftLimitEnable(true)
-                  .withReverseSoftLimitThreshold(
-                      pivotConfig.minAngle().plus(pivotConfig.tolerance())))
+                  .withMotionMagicCruiseVelocity(100.0 * endeffectorReduction)
+                  .withMotionMagicAcceleration(300.0 * endeffectorReduction)
+                  .withMotionMagicJerk(900.0 * endeffectorReduction))
+          //   .softwareLimitSwitch(
+          //       new SoftwareLimitSwitchConfigs()
+          //           .withForwardSoftLimitEnable(true)
+          //           .withForwardSoftLimitThreshold(
+          //               pivotConfig.maxAngle().minus(pivotConfig.tolerance()))
+          //           .withReverseSoftLimitEnable(true)
+          //           .withReverseSoftLimitThreshold(
+          //               pivotConfig.minAngle().plus(pivotConfig.tolerance())))
           .build();
 
   public static final TalonFXConfigSim endeffectorConfigSim =

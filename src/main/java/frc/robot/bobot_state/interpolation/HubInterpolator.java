@@ -36,6 +36,31 @@ public class HubInterpolator extends TargetInterpolator {
             .distanceToTarget(Feet.of(9))
             .primaryVelocity(RotationsPerSecond.of(50))
             .pitch(interpolatorDefaultPitch)
+            .build(),
+        DistanceAngleSpeedEntry.builder()
+            .distanceToTarget(Feet.of(10))
+            .primaryVelocity(RotationsPerSecond.of(51))
+            .pitch(interpolatorDefaultPitch)
+            .build(),
+        DistanceAngleSpeedEntry.builder()
+            .distanceToTarget(Feet.of(11))
+            .primaryVelocity(RotationsPerSecond.of(53))
+            .pitch(interpolatorDefaultPitch)
+            .build(),
+        DistanceAngleSpeedEntry.builder()
+            .distanceToTarget(Feet.of(12))
+            .primaryVelocity(RotationsPerSecond.of(55))
+            .pitch(interpolatorDefaultPitch)
+            .build(),
+        DistanceAngleSpeedEntry.builder()
+            .distanceToTarget(Feet.of(13))
+            .primaryVelocity(RotationsPerSecond.of(56.5))
+            .pitch(interpolatorDefaultPitch)
+            .build(),
+        DistanceAngleSpeedEntry.builder()
+            .distanceToTarget(Feet.of(17))
+            .primaryVelocity(RotationsPerSecond.of(63.5))
+            .pitch(interpolatorDefaultPitch)
             .build()
         // DistanceAngleSpeedEntry.builder()
         //     .distanceToTarget(Feet.of(6))

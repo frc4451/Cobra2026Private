@@ -94,13 +94,17 @@ public class SingleRollerIOTalonFXWithCANCoder implements SingleRollerIO {
         canCoderConfig.isClockwisePositive()
             ? SensorDirectionValue.Clockwise_Positive
             : SensorDirectionValue.CounterClockwise_Positive;
+
+    if (canCoderConfig.disparity() != null) {
+      encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = canCoderConfig.disparity();
+    }
+
     // encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint =
     //     MathUtil.inputModulus(
-    //             canCoderConfig.maxAngle().in(Rotations) +
-    // canCoderConfig.minAngle().in(Rotations),
-    //             0,
-    //             1)
-    //         / 2.0;
+    //         canCoderConfig.maxAngle().in(Rotations) + canCoderConfig.minAngle().in(Rotations), 0,
+    // 1)
+    // / 2.0
+    ;
     PhoenixUtil.tryUntilOk(5, () -> cancoder.getConfigurator().apply(encoderConfig, 0.25));
 
     cfg = new TalonFXConfiguration();
@@ -114,7 +118,7 @@ public class SingleRollerIOTalonFXWithCANCoder implements SingleRollerIO {
     cfg.MotionMagic = config.mmConfig();
     cfg.SoftwareLimitSwitch = config.softwareLimitSwitch();
     cfg.Feedback = new FeedbackConfigs()
-      .withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder)
+      .withFeedbackSensorSource(FeedbackSensorSourceValue.SyncCANcoder)
       .withFeedbackRemoteSensorID(canCoderConfig.canId())
       .withRotorToSensorRatio(canCoderConfig.rotorToSensorReduction())
       .withSensorToMechanismRatio(canCoderConfig.sensorToMechanismReduction());

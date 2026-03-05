@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.autonomous.AutonomousHelpers;
 import frc.robot.autonomous.AutonomousManager;
 import frc.robot.bobot_state.BobotState;
 import frc.robot.commands.DriveCommands;
@@ -254,7 +253,7 @@ public class RobotContainer {
             drive,
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
-            () -> controller.getRightX()));
+            () -> -controller.getRightX()));
 
     // controller
     //     .a()
@@ -267,14 +266,14 @@ public class RobotContainer {
     //             feetFromCenterOfHubX,
     //             feetFromCenterOfHubY));
 
-    controller
-        .a()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> BobotState.getClosestDropoff().getRotationTarget()));
+    // controller
+    //     .a()
+    //     .whileTrue(
+    //         DriveCommands.joystickDriveAtAngle(
+    //             drive,
+    //             () -> -controller.getLeftY(),
+    //             () -> -controller.getLeftX(),
+    //             () -> BobotState.getClosestDropoff().getRotationTarget()));
 
     controller
         .b()
@@ -285,7 +284,7 @@ public class RobotContainer {
                 () -> -controller.getLeftX(),
                 () -> BobotState.getHubVARC().getRotationTarget()));
 
-    controller.start().onTrue(AutonomousHelpers.driveToInitialPose("01 - Cross the Bump"));
+    // controller.start().onTrue(AutonomousHelpers.driveToInitialPose("01 - Cross the Bump"));
 
     // controller
     //     .rightBumper()
@@ -302,21 +301,21 @@ public class RobotContainer {
                 () -> -controller.getLeftX(),
                 () -> BobotState.getClosestTraversal().getRotationTarget()));
 
-    controller
-        .y()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> BobotState.getOutpostVARC().getRotationTarget()));
+    // controller
+    //     .y()
+    //     .whileTrue(
+    //         DriveCommands.joystickDriveAtAngle(
+    //             drive,
+    //             () -> -controller.getLeftY(),
+    //             () -> -controller.getLeftX(),
+    //             () -> BobotState.getOutpostVARC().getRotationTarget()));
 
     // controller.rightTrigger().onTrue(shooter.runShooterToHub());
     // controller.rightTrigger().onFalse(shooter.stop());
-    controller.rightBumper().whileTrue(shooter.runShooterToHub()).onFalse(shooter.stop());
+    // controller.rightBumper().whileTrue(shooter.runShooterToHub()).onFalse(shooter.stop());
 
-    controller.leftTrigger().onTrue(shooter.runShooterVelocityTorqueCurrent());
-    controller.leftTrigger().onFalse(shooter.stop());
+    // controller.leftTrigger().onTrue(shooter.runShooterVelocityTorqueCurrent());
+    // controller.leftTrigger().onFalse(shooter.stop());
 
     controller.leftBumper().onTrue(intake.runRollersVoltageOut());
     controller.leftBumper().onFalse(intake.stop());
