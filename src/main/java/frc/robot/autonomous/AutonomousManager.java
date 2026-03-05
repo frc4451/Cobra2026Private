@@ -144,7 +144,9 @@ public class AutonomousManager {
     AngularVelocity velocity = calculation.primaryVelocity();
 
     return Commands.sequence(
-            Commands.print(formattedPrefix + "Starting Shooter Flywheel. Velocity: " + velocity.baseUnitMagnitude()),
+            // Commands.print(formattedPrefix + "Starting Shooter Flywheel. Velocity: " +
+            // velocity.baseUnitMagnitude()),
+            Commands.print(formattedPrefix + "Starting Shooter Flywheel"),
             shooter
                 // set velocity to shooter at with torque current
                 .runShooterVelocityTorqueCurrent(velocity)
@@ -152,11 +154,10 @@ public class AutonomousManager {
                     // wait to start tower, until shooter is at velocity
                     shooter.isShooterFlywheelNearRPS(velocity, RotationsPerSecond.of(1.0))),
             // shoots shooter for the estimated empty time
-            Commands.print(formattedPrefix + "start feeder"),
-            feeder.runFeederVoltage(),
             Commands.print(formattedPrefix + "start shooter"),
-            // Commands.dealline
-            shooter.runShooterVelocityTorqueCurrent(velocity).withTimeout(Seconds.of(emptyTime)),
+            Commands.deadline(
+                shooter.runShooterToHub().withTimeout(Seconds.of(emptyTime)),
+                feeder.runFeederVoltage()),
             shooter.stop(),
             feeder.stop())
         .beforeStarting(Commands.print(formattedPrefix + "start"))
