@@ -40,6 +40,7 @@ public class MotorConfigs {
       Angle magnetOffset,
       Angle minAngle,
       Angle maxAngle,
+      Double disparity,
       double rotorToSensorReduction,
       double sensorToMechanismReduction,
       boolean isClockwisePositive) {}
