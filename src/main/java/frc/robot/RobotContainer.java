@@ -336,6 +336,7 @@ public class RobotContainer {
     controller.povDown().onTrue(intake.endeffectorDeploy());
     // shooter controlls
     controller.rightBumper().whileTrue(shooter.runShooterToHub()).onFalse(shooter.stop());
+    controller.start().whileTrue(shooter.runShooterToPoop()).onFalse(shooter.stop());
     controller
         .leftBumper()
         .whileTrue(shooter.runShooterVelocityTorqueCurrent())
