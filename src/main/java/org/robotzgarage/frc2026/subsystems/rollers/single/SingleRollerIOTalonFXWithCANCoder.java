@@ -118,7 +118,7 @@ public class SingleRollerIOTalonFXWithCANCoder implements SingleRollerIO {
     cfg.MotionMagic = config.mmConfig();
     cfg.SoftwareLimitSwitch = config.softwareLimitSwitch();
     cfg.Feedback = new FeedbackConfigs()
-      .withFeedbackSensorSource(FeedbackSensorSourceValue.SyncCANcoder)
+      .withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder)
       .withFeedbackRemoteSensorID(canCoderConfig.canId())
       .withRotorToSensorRatio(canCoderConfig.rotorToSensorReduction())
       .withSensorToMechanismRatio(canCoderConfig.sensorToMechanismReduction());
