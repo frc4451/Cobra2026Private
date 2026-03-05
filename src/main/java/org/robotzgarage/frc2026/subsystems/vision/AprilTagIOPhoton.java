@@ -120,10 +120,12 @@ public class AprilTagIOPhoton implements AprilTagIO {
 
         EstimatedRobotPose estimatedGlobalPose = null;
 
-        if (result.getMultiTagResult().isPresent()) {
+        if (maybeEstimatedMultiTagPose.isPresent()) {
           estimatedGlobalPose = maybeEstimatedMultiTagPose.get();
-        } else {
+        } else if (maybeEstimatedLowestAmbiguity.isPresent()) {
           estimatedGlobalPose = maybeEstimatedLowestAmbiguity.get();
+        } else {
+          continue;
         }
 
         // Assume that if we made it here, that we have at least lowest ambiguity
