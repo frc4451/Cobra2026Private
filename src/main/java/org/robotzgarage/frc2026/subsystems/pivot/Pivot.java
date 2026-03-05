@@ -6,7 +6,6 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Angle;
@@ -58,7 +57,7 @@ public class Pivot extends SingleRoller {
     this.name = name;
     this.config = config;
 
-    this.io.resetPosition(config.initialAngle());
+    // this.io.resetPosition(config.initialAngle());
 
     if (RobotBase.isSimulation()) {
       pivotSim =
@@ -107,12 +106,13 @@ public class Pivot extends SingleRoller {
    * @param targetPosition - desired `Angle` to profile
    */
   public void setGoalPosition(Angle targetPosition) {
-    io.setGoal(
-        Rotations.of(
-            MathUtil.clamp(
-                targetPosition.in(Rotations),
-                config.minAngle().in(Rotations),
-                config.maxAngle().in(Rotations))));
+    io.setGoal(targetPosition);
+    // io.setGoal(
+    //     Rotations.of(
+    //         MathUtil.clamp(
+    //             targetPosition.in(Rotations),
+    //             config.minAngle().in(Rotations),
+    //             config.maxAngle().in(Rotations))));
   }
 
   public Angle getPosition() {

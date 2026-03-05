@@ -12,6 +12,7 @@ import com.thethriftybot.util.Conversion.PositionUnit;
 import com.thethriftybot.util.Conversion.VelocityUnit;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.measure.Angle;
 import lombok.Builder;
 import lombok.NonNull;
 import org.robotzgarage.frc2026.subsystems.rollers.feedforward_controller.FeedforwardController;
@@ -31,6 +32,18 @@ public class MotorConfigs {
 
   @Builder
   public record SimMotorConfigFollower(@NonNull SimMotorConfig leader, boolean invertFollower) {}
+
+  @Builder
+  public record CANCoderConfig(
+      @NonNull Integer canId,
+      @NonNull CANBus canBus,
+      Angle magnetOffset,
+      Angle minAngle,
+      Angle maxAngle,
+      Double disparity,
+      double rotorToSensorReduction,
+      double sensorToMechanismReduction,
+      boolean isClockwisePositive) {}
 
   @Builder
   public record TalonFXConfig(
