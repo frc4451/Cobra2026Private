@@ -282,9 +282,7 @@ public class RobotContainer {
                 drive,
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX(),
-                () -> BobotState.getHubVARC().getRotationTarget()));
-
-    // controller.start().onTrue(AutonomousHelpers.driveToInitialPose("01 - Cross the Bump"));
+                () -> BobotState.getShooterAlignmentVARC().getRotationTarget()));
 
     // controller
     //     .rightBumper()

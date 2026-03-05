@@ -8,10 +8,16 @@ import edu.wpi.first.units.measure.Distance;
 import frc.robot.bobot_state.BobotState;
 import org.littletonrobotics.AllianceFlipUtil;
 import org.littletonrobotics.FieldConstants.Outpost;
+import org.littletonrobotics.LoggedTunableNumber;
 import org.robotzgarage.frc2026.math.distance_calc.PoseUtils;
 import org.robotzgarage.frc2026.math.varc.TargetAngleTracker;
 
 public class OutpostDropoffVARC extends TargetAngleTracker {
+  public static final LoggedTunableNumber parallelOffsetFeet =
+      new LoggedTunableNumber("OutpostDropoffParallelOffsetFeet", 3.0);
+  public static final LoggedTunableNumber perpendicularOffsetFeet =
+      new LoggedTunableNumber("OutpostDropoffPerpendicularOffsetFeet", 6.0);
+
   public void update() {
 
     /*is in fact
@@ -21,7 +27,10 @@ public class OutpostDropoffVARC extends TargetAngleTracker {
     Pose2d robotPose = BobotState.getGlobalPose();
     Pose2d dropoffPose =
         AllianceFlipUtil.apply(
-            PoseUtils.getOffsetPose(Outpost.outpostPose2d, Feet.of(3), Feet.of(3)));
+            PoseUtils.getOffsetPose(
+                Outpost.outpostPose2d,
+                Feet.of(parallelOffsetFeet.get()),
+                Feet.of(perpendicularOffsetFeet.get())));
 
     Distance outpostDistance =
         distance = Meters.of(dropoffPose.getTranslation().getDistance(robotPose.getTranslation()));

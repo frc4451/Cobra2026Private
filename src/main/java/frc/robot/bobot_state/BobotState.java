@@ -1,7 +1,6 @@
 package frc.robot.bobot_state;
 
 import static edu.wpi.first.units.Units.Feet;
-import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -15,7 +14,8 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import lombok.Getter;
 import lombok.Setter;
-import org.littletonrobotics.FieldConstants.Hub;
+import org.littletonrobotics.AllianceFlipUtil;
+import org.littletonrobotics.FieldConstants;
 import org.littletonrobotics.junction.Logger;
 import org.robotzgarage.frc2026.math.varc.TargetAngleTracker;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.PoseObservation;
@@ -23,6 +23,13 @@ import org.robotzgarage.frc2026.util.VirtualSubsystem;
 
 public class BobotState extends VirtualSubsystem {
   private static final String logRoot = "BobotState/";
+
+  public enum FieldZone {
+    NEAR_ALLIANCE,
+    NEUTRAL,
+    FAR_ALLIANCE,
+    OUTSIDE
+  }
 
   @Getter private static final HubVARC hubVARC = new HubVARC();
   @Getter private static final TrenchVARC trenchVARC = new TrenchVARC();
@@ -65,17 +72,38 @@ public class BobotState extends VirtualSubsystem {
     return BobotState.constrainedPoseObservations;
   }
 
-  // public static TargetAngleTracker getClosestTraversalVARC() {
-  //   boolean isBumpCloser = bumpVARC.getDistance().lt(trenchVARC.getDistance());
-  //   BobotState.closestTraversal = isBumpCloser ? bumpVARC : trenchVARC;
-  //   return closestTraversal;
-  // }
+  public static FieldZone getCurrentFieldZone() {
+    double currentXDistance = BobotState.getGlobalPose().getX();
 
-  // public static TargetAngleTracker getClosestDropoffVARC() {
-  //   boolean isOutpostCloser = outpostVARC.getDistance().lt(depotVARC.getDistance());
-  //   BobotState.closestDropoff = isOutpostCloser ? outpostVARC : depotVARC;
-  //   return closestDropoff;
-  // }
+    double nearHubX = AllianceFlipUtil.applyX(FieldConstants.Hub.centerOfHub.getX());
+    double farHubX = AllianceFlipUtil.applyX(FieldConstants.Hub.oppCenterOfHub.getX());
+
+    // For Red alliance, applyX flips the coordinates so nearHubX > farHubX.
+    // Sort them so comparisons work correctly for both alliances.
+    double minX = Math.min(nearHubX, farHubX);
+    double maxX = Math.max(nearHubX, farHubX);
+
+    if (currentXDistance <= minX) {
+      return AllianceFlipUtil.shouldFlip() ? FieldZone.FAR_ALLIANCE : FieldZone.NEAR_ALLIANCE;
+    } else if (currentXDistance <= maxX) {
+      return FieldZone.NEUTRAL;
+    } else {
+      return AllianceFlipUtil.shouldFlip() ? FieldZone.NEAR_ALLIANCE : FieldZone.FAR_ALLIANCE;
+    }
+  }
+
+  /**
+   * Return the VARC needed for the drive base, controlled by the driver, for where the shooter
+   * should face at any time. This should be read by
+   *
+   * @return
+   */
+  public static TargetAngleTracker getShooterAlignmentVARC() {
+    return switch (BobotState.getCurrentFieldZone()) {
+      case NEAR_ALLIANCE -> BobotState.getHubVARC();
+      default -> BobotState.getClosestDropoff();
+    };
+  }
 
   public void periodic() {
     hubVARC.update();
@@ -92,6 +120,16 @@ public class BobotState extends VirtualSubsystem {
     BobotState.closestTraversal =
         bumpVARC.getDistance().lt(trenchVARC.getDistance()) ? bumpVARC : trenchVARC;
 
+    {
+      String subLogTitle = logRoot + "Zoning/";
+      Logger.recordOutput(subLogTitle + "CurrentZone", BobotState.getCurrentFieldZone());
+      Logger.recordOutput(
+          subLogTitle + "CurrentVARCTarget",
+          BobotState.getCurrentFieldZone() == FieldZone.NEAR_ALLIANCE
+              ? "HUB"
+              : BobotState.getClosestDropoff() instanceof DepotDropoffVARC ? "DEPOT" : "OUTPOST");
+    }
+
     // {
     //   String subLogTitle = logRoot + "Vision/";
     //   Logger.recordOutput(subLogTitle + "NumGlobalPoses",
@@ -101,12 +139,14 @@ public class BobotState extends VirtualSubsystem {
     {
       String subLogTitle = logRoot + "Interpolation/";
       Logger.recordOutput(
-          subLogTitle + "DistanceFromCenterOfHub",
-          Meters.of(
-                  Hub.innerCenterPoint
-                      .toTranslation2d()
-                      .getDistance(BobotState.globalPose.getTranslation()))
-              .in(Feet));
+          subLogTitle + "DistanceFromCenterOfHubFeet",
+          BobotState.getHubVARC().getDistance().in(Feet));
+      Logger.recordOutput(
+          subLogTitle + "DistanceFromOutpostDropoffFeet",
+          BobotState.getOutpostVARC().getDistance().in(Feet));
+      Logger.recordOutput(
+          subLogTitle + "DistanceFromDepotDropoffFeet",
+          BobotState.getDepotVARC().getDistance().in(Feet));
     }
 
     {

@@ -132,6 +132,17 @@ public class FieldConstants {
             aprilTagFieldLayout.getTagPose(19).get().getTranslation(),
             aprilTagFieldLayout.getTagPose(18).get().getTranslation());
 
+    public static final Translation3d oppCenterOfHub =
+        PoseUtils.averageOfProvidedTranslations(
+            aprilTagFieldLayout.getTagPose(2).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(3).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(4).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(5).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(8).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(9).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(10).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(11).get().getTranslation());
+
     // Have this face relative to the Driver Station, you're shooting directly
     // forward from the Driver Station.
     public static final Pose2d hubInterpolationTarget =

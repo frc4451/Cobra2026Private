@@ -96,8 +96,10 @@ public class IntakeConstants {
           .rotorToSensorReduction(endeffectorReductionRotorToSensor)
           .sensorToMechanismReduction(endeffectorReductionSensorToMechanism)
           .isClockwisePositive(false)
-          .magnetOffset(Rotations.of(0.175537109375))
-          .disparity(0.3333333)
+          // Set the Pivot to "DEPLOYED", keep this as Zero, then assign
+          // the Absolute Position of the CANCoder to this magnetOffset
+          .magnetOffset(Rotations.of(0.0))
+        //   .disparity(0.3333333)
           //   .magnetOffset(Rotations.of(0.1728515625).plus(Rotations.of(0.668945)))
           //   .minAngle(Degrees.of(0.0))
           //   .maxAngle(Degrees.of(90.0))
