@@ -91,8 +91,8 @@ public class RobotContainer {
         // EX. exampleIO = new SingleRollerIOTalonFX(exampleConstants.exampleConfig);
         intakeIO = new SingleRollerIOTalonFX(IntakeConstants.intakeConfig);
         endeffectorIO =
-            new SingleRollerIOTalonFXWithCANCoder(
-                IntakeConstants.endeffectorConfig, IntakeConstants.cancoderConfig);
+            new SingleRollerIOTalonFX(
+                IntakeConstants.endeffectorConfig);
         // endeffectorIO = new SingleRollerIOTalonFX(IntakeConstants.endeffectorConfig);
 
         shooterIO = new FollowRollersIOTalonFX(ShooterConstants.flywheelFollowersConfig);
