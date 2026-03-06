@@ -133,10 +133,7 @@ public class AutonomousManager {
    * @param prefix Uses a {@code String} to tie the steps of {@code handleShot} for easier reading
    *     of the console in {@code AdvantageScope}
    * @param emptyTime Uses a {@code double} that goes into a {@code TimeUnit(Seconds)} for the
-   *     estimated hopper empty time / when it stops the shooter @DefaultParameter Default Tolerance
-   *     of 1 RPS. Tolerance uses a {@code double} that goes into an {@code AngularVelocity(RPS)} to
-   *     tell the shooter to start shooting @DefaultParameter Default Velocity uses the Hub
-   *     Interpoltion table to get the velocity to shoot
+   *     estimated hopper empty time / when it stops the shooter 
    */
   private Command handleShotInterpolation(String prefix, double emptyTime) {
     String formattedPrefix = prefix + ": ";
@@ -158,8 +155,8 @@ public class AutonomousManager {
             Commands.deadline(
                 shooter.runShooterToHub().withTimeout(Seconds.of(emptyTime)),
                 feeder.runFeederVoltage()),
-            shooter.stop(),
-            feeder.stop())
+                feeder.stop(),
+            shooter.stop())
         .beforeStarting(Commands.print(formattedPrefix + "start"))
         .andThen(Commands.print(formattedPrefix + "end"));
   }
