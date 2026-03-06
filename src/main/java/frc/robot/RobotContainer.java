@@ -197,6 +197,8 @@ public class RobotContainer {
     AutonomousManager autonomousManager = new AutonomousManager(drive, shooter, intake, feeder);
 
     autoChooser.addOption("Himithy", autonomousManager.himithy());
+    autoChooser.addOption("1ft BLine test", autonomousManager.bline1ft());
+    autoChooser.addOption("2ft BLine test", autonomousManager.bline2ft());
   }
 
   private void configureTuningRoutines() {
@@ -327,9 +329,6 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureOperatorBindings(GarageCommandXboxController controller) {
-    // intake roller controlls
-    // controller.leftTrigger().onTrue(intake.runRollersVoltageOut());
-    // controller.leftTrigger().onFalse(intake.stop());
     // intake endeffector controlls
     controller.povLeft().onTrue(intake.endeffectorStart());
     controller.povUp().onTrue(intake.endeffectorSqueeze());
@@ -339,8 +338,6 @@ public class RobotContainer {
     // shooter controlls
     controller.rightBumper().whileTrue(shooter.runShooterToHub()).onFalse(shooter.stop());
     controller.start().whileTrue(shooter.runShooterToPoop()).onFalse(shooter.stop());
-
-    // controller.rightTrigger().onFalse(shooter.stop());
     // feeder controlls
     controller.a().onTrue(feeder.runFeederVoltage());
     controller.a().onFalse(feeder.stop());

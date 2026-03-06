@@ -226,4 +226,12 @@ public class AutonomousManager {
         .beforeStarting(Commands.print("Path start"))
         .andThen(Commands.print("Path end"));
   }
+
+  public Command bline1ft() {
+    return Commands.sequence(BLineTrajectory("1ft-bline"));
+  }
+
+  public Command bline2ft() {
+    return Commands.sequence(BLineTrajectory("2ft-bline"));
+  }
 }
