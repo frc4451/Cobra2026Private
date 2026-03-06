@@ -129,7 +129,7 @@ public class IntakeConstants {
                   // feedback
                   .withKP(15.0)
                   // .withKI(MotionMagicHelpers.getRotationsVelocity(3.0))
-                  .withKD(0.0))
+                  .withKD(0.05))
           .mmConfig(
               new MotionMagicConfigs()
                   .withMotionMagicCruiseVelocity(100.0 * endeffectorReduction)
