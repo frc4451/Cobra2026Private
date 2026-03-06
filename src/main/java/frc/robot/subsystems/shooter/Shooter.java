@@ -1,16 +1,22 @@
 package frc.robot.subsystems.shooter;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.bobot_state.BobotState;
 import org.littletonrobotics.LoggedTunableNumber;
+import org.littletonrobotics.junction.Logger;
+import org.robotzgarage.frc2026.math.interpolation.ShootingInterpolator.InterpolatedCalculation;
 import org.robotzgarage.frc2026.subsystems.flywheel.FlywheelFollower;
 import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIO;
+import org.robotzgarage.frc2026.util.TuningUtils.TuningUnit;
 
 public class Shooter extends SubsystemBase {
   private static final String name = "/Shooter";
@@ -23,6 +29,9 @@ public class Shooter extends SubsystemBase {
       new LoggedTunableNumber(name + "/ShooterPercent", 0.78);
   private static final LoggedTunableNumber shooterVelocity =
       new LoggedTunableNumber(name + "/ShooterVelocity", 67.0);
+
+  private static final LoggedTunableNumber shooterPoopVelocity =
+      new LoggedTunableNumber(name + "/ShooterPoopVelocityRPS", 10.0);
 
   // Subsystems
   private final FlywheelFollower shooter;
@@ -75,6 +84,29 @@ public class Shooter extends SubsystemBase {
     return run(() -> shooter.setVelocityTorqueCurrent(velocity));
   }
 
+  public Command runShooterToHub() {
+    return run(
+        () -> {
+          InterpolatedCalculation calculation = BobotState.getHubInterpolator().getCalculation();
+          AngularVelocity velocity = calculation.primaryVelocity();
+          Distance distance = BobotState.getHubInterpolator().getDistanceFromTarget();
+          Logger.recordOutput(name + "/ShootAtHub/VelocityRPS", velocity.in(RotationsPerSecond));
+          Logger.recordOutput(name + "/ShootAtHub/DistanceFeet", distance.in(Feet));
+          shooter.setVelocityTorqueCurrent(velocity);
+        });
+  }
+
+  /**
+   * Run the shooter just enough to poop out residual fuel
+   */
+  public Command runShooterToPoop() {
+    return run (
+      () -> {
+        shooter.setVelocityTorqueCurrent(RotationsPerSecond.of(shooterPoopVelocity.get()));
+      }
+    );
+  }
+
   /** You need to know when the Flywheel is at the velocity target we want */
   public Trigger isShooterFlywheelNearRPS(
       AngularVelocity taretVelocity, AngularVelocity tolerance) {
@@ -87,5 +119,13 @@ public class Shooter extends SubsystemBase {
         () -> {
           shooter.stop();
         });
+  }
+
+  public Command quasistaticCharacterization(TuningUnit unit) {
+    return this.shooter.quasistaticCharacterization(unit);
+  }
+
+  public Command steadyStateCharacterization(TuningUnit unit) {
+    return this.shooter.steadyStateCharacterization(unit);
   }
 }

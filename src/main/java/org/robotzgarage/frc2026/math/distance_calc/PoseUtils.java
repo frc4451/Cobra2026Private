@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Distance;
 
 // We kept these because we could not part with them, it was too sad
@@ -104,5 +105,23 @@ public class PoseUtils {
   public static Transform2d transform3dTo2d(Transform3d other) {
     return new Transform2d(
         other.getTranslation().toTranslation2d(), other.getRotation().toRotation2d());
+  }
+
+  public static Translation2d averageOfProvidedTranslations(Translation2d... translations) {
+    Translation2d average = Translation2d.kZero;
+
+    for (Translation2d pose : translations) {
+      average = average.plus(pose);
+    }
+    return average.div(translations.length);
+  }
+
+  public static Translation3d averageOfProvidedTranslations(Translation3d... translations) {
+    Translation3d average = Translation3d.kZero;
+
+    for (Translation3d pose : translations) {
+      average = average.plus(pose);
+    }
+    return average.div(translations.length);
   }
 }

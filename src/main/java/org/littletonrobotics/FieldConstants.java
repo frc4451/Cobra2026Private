@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import org.robotzgarage.frc2026.math.distance_calc.PoseUtils;
 
 /**
  * Contains information for location of field element and other useful reference points.
@@ -114,10 +115,38 @@ public class FieldConstants {
         new Translation2d(oppTopCenterPoint.getX() + width / 2.0, fieldWidth / 2.0 - width / 2.0);
 
     // Hub faces
+    // public static final Pose2d nearFace = aprilTagFieldLayout.getTagPose(26).get().toPose2d();
     public static final Pose2d nearFace = aprilTagFieldLayout.getTagPose(26).get().toPose2d();
     public static final Pose2d farFace = aprilTagFieldLayout.getTagPose(20).get().toPose2d();
     public static final Pose2d rightFace = aprilTagFieldLayout.getTagPose(18).get().toPose2d();
     public static final Pose2d leftFace = aprilTagFieldLayout.getTagPose(21).get().toPose2d();
+
+    public static final Translation3d centerOfHub =
+        PoseUtils.averageOfProvidedTranslations(
+            aprilTagFieldLayout.getTagPose(27).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(26).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(25).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(24).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(21).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(20).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(19).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(18).get().getTranslation());
+
+    public static final Translation3d oppCenterOfHub =
+        PoseUtils.averageOfProvidedTranslations(
+            aprilTagFieldLayout.getTagPose(2).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(3).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(4).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(5).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(8).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(9).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(10).get().getTranslation(),
+            aprilTagFieldLayout.getTagPose(11).get().getTranslation());
+
+    // Have this face relative to the Driver Station, you're shooting directly
+    // forward from the Driver Station.
+    public static final Pose2d hubInterpolationTarget =
+        new Pose2d(FieldConstants.Hub.centerOfHub.toTranslation2d(), nearFace.getRotation());
   }
 
   /** Left Bump related constants */

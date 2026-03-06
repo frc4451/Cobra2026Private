@@ -3,28 +3,36 @@ package frc.robot.subsystems.intake;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Rotations;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.Constants;
 import org.robotzgarage.frc2026.subsystems.flywheel.Flywheel.FlywheelConfig;
 import org.robotzgarage.frc2026.subsystems.pivot.Pivot.PivotConfig;
 import org.robotzgarage.frc2026.subsystems.pivot.PivotMechanism.PivotMechanismConfig;
-import org.robotzgarage.frc2026.util.CTREUtils.MotionMagicHelpers;
 import org.robotzgarage.frc2026.util.MechanismConfigs.RootMechanismConfig;
+import org.robotzgarage.frc2026.util.MotorConfigs.CANCoderConfig;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfig;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfigSim;
 
 public class IntakeConstants {
   public static final double intakeReduction = 1.0;
-  public static final double endeffectorReduction = 75.0;
+
+  public static final Angle zeroOffset = Degrees.of(120);
+
+  public static final double endeffectorReductionRotorToSensor = (5.0 * 5.0);
+  public static final double endeffectorReductionSensorToMechanism = 3.0;
+
+  public static final double endeffectorReduction =
+      endeffectorReductionRotorToSensor * endeffectorReductionSensorToMechanism;
 
   public static final FlywheelConfig flywheelConfig =
       FlywheelConfig.builder()
@@ -47,8 +55,8 @@ public class IntakeConstants {
           .slot0Config(
               new Slot0Configs()
                   // feedforward
-                  .withKS(0.05)
-                  .withKV(0.05)
+                  .withKS(0.138729)
+                  .withKV(0.112423)
                   .withKA(0.0)
                   // feedback
                   .withKP(3.0)
@@ -56,9 +64,9 @@ public class IntakeConstants {
                   .withKD(0.0))
           .mmConfig(
               new MotionMagicConfigs()
-                  .withMotionMagicCruiseVelocity(5.0 * intakeReduction)
-                  .withMotionMagicAcceleration(4.5 * intakeReduction)
-                  .withMotionMagicJerk(20.0 * intakeReduction))
+                  .withMotionMagicCruiseVelocity(5.0)
+                  .withMotionMagicAcceleration(20)
+                  .withMotionMagicJerk(80.0))
           .build();
 
   public static final TalonFXConfigSim intakeConfigSim =
@@ -81,6 +89,22 @@ public class IntakeConstants {
           .moi(0.00002)
           .build();
 
+  public static final CANCoderConfig cancoderConfig =
+      CANCoderConfig.builder()
+          .canId(33)
+          .canBus(Constants.susBus)
+          .rotorToSensorReduction(endeffectorReductionRotorToSensor)
+          .sensorToMechanismReduction(endeffectorReductionSensorToMechanism)
+          .isClockwisePositive(false)
+          // Set the Pivot to "DEPLOYED", keep this as Zero, then assign
+          // the Absolute Position of the CANCoder to this magnetOffset
+          .magnetOffset(Rotations.of(0.0))
+        //   .disparity(0.3333333)
+          //   .magnetOffset(Rotations.of(0.1728515625).plus(Rotations.of(0.668945)))
+          //   .minAngle(Degrees.of(0.0))
+          //   .maxAngle(Degrees.of(90.0))
+          .build();
+
   public static final TalonFXConfig endeffectorConfig =
       TalonFXConfig.builder()
           .canId(32)
@@ -90,34 +114,35 @@ public class IntakeConstants {
           .currentLimitAmps(40)
           .invert(true)
           .isBrakeMode(true)
-          .foc(false)
+          .foc(true)
           .slot0Config(
               // When in doubt, refer to CTRE
               // https://v6.docs.ctr-electronics.com/en/latest/docs/api-reference/device-specific/talonfx/motion-magic.html
               new Slot0Configs()
                   // feedforward
-                  .withKS(MotionMagicHelpers.getVoltage(0.0))
+                  .withKS(0.75)
                   .withGravityType(GravityTypeValue.Arm_Cosine)
-                  // .withKG(0.04)
-                  .withKV(MotionMagicHelpers.getRotationsVelocity(0.5))
+                  .withKG(0.3)
+                  .withKV(0.0)
+                  //   .withKV(MotionMagicHelpers.getRotationsVelocity(0.5))
                   // .withKA(MotionMagicHelpers.getRotationsAcceleration(0.12))
                   // feedback
-                  .withKP(MotionMagicHelpers.getRotations(6.0))
+                  .withKP(10.0)
                   // .withKI(MotionMagicHelpers.getRotationsVelocity(3.0))
-                  .withKD(MotionMagicHelpers.getRotationsVelocity(0.25)))
+                  .withKD(0.1))
           .mmConfig(
               new MotionMagicConfigs()
-                  .withMotionMagicCruiseVelocity(MotionMagicHelpers.getRotationsVelocity(2))
-                  .withMotionMagicAcceleration(MotionMagicHelpers.getRotationsAcceleration(1.0))
-                  .withMotionMagicJerk(MotionMagicHelpers.getRotationsJerk(1.0)))
-          .softwareLimitSwitch(
-              new SoftwareLimitSwitchConfigs()
-                  .withForwardSoftLimitEnable(true)
-                  .withForwardSoftLimitThreshold(
-                      pivotConfig.maxAngle().minus(pivotConfig.tolerance()))
-                  .withReverseSoftLimitEnable(true)
-                  .withReverseSoftLimitThreshold(
-                      pivotConfig.minAngle().plus(pivotConfig.tolerance())))
+                  .withMotionMagicCruiseVelocity(100.0 * endeffectorReduction)
+                  .withMotionMagicAcceleration(300.0 * endeffectorReduction)
+                  .withMotionMagicJerk(900.0 * endeffectorReduction))
+          //   .softwareLimitSwitch(
+          //       new SoftwareLimitSwitchConfigs()
+          //           .withForwardSoftLimitEnable(true)
+          //           .withForwardSoftLimitThreshold(
+          //               pivotConfig.maxAngle().minus(pivotConfig.tolerance()))
+          //           .withReverseSoftLimitEnable(true)
+          //           .withReverseSoftLimitThreshold(
+          //               pivotConfig.minAngle().plus(pivotConfig.tolerance())))
           .build();
 
   public static final TalonFXConfigSim endeffectorConfigSim =

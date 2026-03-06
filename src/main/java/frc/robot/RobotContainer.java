@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.autonomous.AutonomousHelpers;
 import frc.robot.autonomous.AutonomousManager;
 import frc.robot.bobot_state.BobotState;
 import frc.robot.bobot_state.dashboard.TeleopShiftManager;
@@ -39,9 +38,12 @@ import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOSimTalo
 import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOTalonFX;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFX;
+import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFXWithCANCoder;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFX;
+import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFXWithCANCoder;
 import org.robotzgarage.frc2026.subsystems.vision.AprilTagVision;
 import org.robotzgarage.frc2026.util.GarageCommandXboxController;
+import org.robotzgarage.frc2026.util.TuningUtils.TuningUnit;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -88,7 +90,10 @@ public class RobotContainer {
         // Real robot, it's ALIVE!!! ALIIIIIIVVVE!!!!!
         // EX. exampleIO = new SingleRollerIOTalonFX(exampleConstants.exampleConfig);
         intakeIO = new SingleRollerIOTalonFX(IntakeConstants.intakeConfig);
-        endeffectorIO = new SingleRollerIOTalonFX(IntakeConstants.endeffectorConfig);
+        endeffectorIO =
+            new SingleRollerIOTalonFXWithCANCoder(
+                IntakeConstants.endeffectorConfig, IntakeConstants.cancoderConfig);
+        // endeffectorIO = new SingleRollerIOTalonFX(IntakeConstants.endeffectorConfig);
 
         shooterIO = new FollowRollersIOTalonFX(ShooterConstants.flywheelFollowersConfig);
 
@@ -108,7 +113,10 @@ public class RobotContainer {
         // Sim robot, instantiate physics sim IO implementations
         // EX. exampleIO = new SingleRollerIOSimTalonFX(exampleConstants.exampleConfigSim);
         intakeIO = new SingleRollerIOSimTalonFX(IntakeConstants.intakeConfigSim);
-        endeffectorIO = new SingleRollerIOSimTalonFX(IntakeConstants.endeffectorConfigSim);
+        endeffectorIO =
+            new SingleRollerIOSimTalonFXWithCANCoder(
+                IntakeConstants.endeffectorConfigSim, IntakeConstants.cancoderConfig);
+        // endeffectorIO = new SingleRollerIOSimTalonFX(IntakeConstants.endeffectorConfigSim);
 
         shooterIO = new FollowRollersIOSimTalonFX(ShooterConstants.flywheelFollowersConfigSim);
 
@@ -180,6 +188,8 @@ public class RobotContainer {
     // configureBLineRoutines();
     configureAutonomousRoutines();
 
+    configureTuningRoutines();
+
     DriverStation.silenceJoystickConnectionWarning(true);
   }
 
@@ -187,6 +197,45 @@ public class RobotContainer {
     AutonomousManager autonomousManager = new AutonomousManager(drive, intake, shooter, feeder);
 
     autoChooser.addOption("Himithy", autonomousManager.himithy());
+  }
+
+  private void configureTuningRoutines() {
+    if (Constants.tuningMode) {
+      autoChooser.addOption(
+          "Tune Intake Roller (Volts)",
+          this.intake.rollersFeedForwardCharacterization(TuningUnit.VOLTS));
+      autoChooser.addOption(
+          "Tune Intake Roller (Amps)",
+          this.intake.rollersFeedForwardCharacterization(TuningUnit.AMPS));
+
+      autoChooser.addOption(
+          "Tune Intake Endeffector (Volts)",
+          this.intake.endeffectorFeedForwardCharacterization(TuningUnit.VOLTS));
+      autoChooser.addOption(
+          "Tune Intake Endeffector (Amps)",
+          this.intake.endeffectorFeedForwardCharacterization(TuningUnit.AMPS));
+
+      autoChooser.addOption(
+          "Tune Shooter Flywheels (Volts)",
+          this.shooter.steadyStateCharacterization(TuningUnit.VOLTS));
+      autoChooser.addOption(
+          "Tune Shooter Flywheels (Amps)",
+          this.shooter.steadyStateCharacterization(TuningUnit.AMPS));
+
+      autoChooser.addOption(
+          "Tune Spindexer Flywheels (Volts)",
+          this.feeder.kickerFeedForwardCharacterization(TuningUnit.VOLTS));
+      autoChooser.addOption(
+          "Tune Spindexer Flywheels (Amps)",
+          this.feeder.kickerFeedForwardCharacterization(TuningUnit.AMPS));
+
+      autoChooser.addOption(
+          "Tune Tower Flywheels (Volts)",
+          this.feeder.towerFeedForwardCharacterization(TuningUnit.VOLTS));
+      autoChooser.addOption(
+          "Tune Tower Flywheels (Amps)",
+          this.feeder.towerFeedForwardCharacterization(TuningUnit.AMPS));
+    }
   }
 
   /**
@@ -205,7 +254,7 @@ public class RobotContainer {
             drive,
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
-            () -> controller.getRightX()));
+            () -> -controller.getRightX()));
 
     // controller
     //     .a()
@@ -218,14 +267,14 @@ public class RobotContainer {
     //             feetFromCenterOfHubX,
     //             feetFromCenterOfHubY));
 
-    controller
-        .a()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> BobotState.getClosestDropoff().getRotationTarget()));
+    // controller
+    //     .a()
+    //     .whileTrue(
+    //         DriveCommands.joystickDriveAtAngle(
+    //             drive,
+    //             () -> -controller.getLeftY(),
+    //             () -> -controller.getLeftX(),
+    //             () -> BobotState.getClosestDropoff().getRotationTarget()));
 
     controller
         .b()
@@ -234,15 +283,13 @@ public class RobotContainer {
                 drive,
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX(),
-                () -> BobotState.getHubVARC().getRotationTarget()));
+                () -> BobotState.getShooterAlignmentVARC().getRotationTarget()));
 
-    controller.start().onTrue(AutonomousHelpers.driveToInitialPose("01 - Cross the Bump"));
-
-    controller
-        .rightBumper()
-        .whileTrue(
-            DriveCommands.joystickDrive(
-                drive, () -> -controller.getLeftY(), () -> 0.0, () -> controller.getRightX()));
+    // controller
+    //     .rightBumper()
+    //     .whileTrue(
+    //         DriveCommands.joystickDrive(
+    //             drive, () -> -controller.getLeftY(), () -> 0.0, () -> controller.getRightX()));
 
     controller
         .x()
@@ -253,14 +300,24 @@ public class RobotContainer {
                 () -> -controller.getLeftX(),
                 () -> BobotState.getClosestTraversal().getRotationTarget()));
 
-    controller
-        .y()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> BobotState.getOutpostVARC().getRotationTarget()));
+    // controller
+    //     .y()
+    //     .whileTrue(
+    //         DriveCommands.joystickDriveAtAngle(
+    //             drive,
+    //             () -> -controller.getLeftY(),
+    //             () -> -controller.getLeftX(),
+    //             () -> BobotState.getOutpostVARC().getRotationTarget()));
+
+    // controller.rightTrigger().onTrue(shooter.runShooterToHub());
+    // controller.rightTrigger().onFalse(shooter.stop());
+    // controller.rightBumper().whileTrue(shooter.runShooterToHub()).onFalse(shooter.stop());
+
+    // controller.leftTrigger().onTrue(shooter.runShooterVelocityTorqueCurrent());
+    // controller.leftTrigger().onFalse(shooter.stop());
+
+    controller.leftBumper().onTrue(intake.runRollersVoltageOut());
+    controller.leftBumper().onFalse(intake.stop());
   }
 
   /**
@@ -271,16 +328,21 @@ public class RobotContainer {
    */
   private void configureOperatorBindings(GarageCommandXboxController controller) {
     // intake roller controlls
-    controller.leftTrigger().onTrue(intake.runRollersVoltageOut());
-    controller.leftTrigger().onFalse(intake.stop());
+    // controller.leftTrigger().onTrue(intake.runRollersVoltageOut());
+    // controller.leftTrigger().onFalse(intake.stop());
     // intake endeffector controlls
     controller.povLeft().onTrue(intake.endeffectorStart());
     controller.povUp().onTrue(intake.endeffectorSqueeze());
     controller.povRight().onTrue(intake.endeffectorLift());
     controller.povDown().onTrue(intake.endeffectorDeploy());
     // shooter controlls
-    controller.rightTrigger().onTrue(shooter.runShooterVelocityTorqueCurrent());
-    controller.rightTrigger().onFalse(shooter.stop());
+    controller.rightBumper().whileTrue(shooter.runShooterToHub()).onFalse(shooter.stop());
+    controller.start().whileTrue(shooter.runShooterToPoop()).onFalse(shooter.stop());
+    controller
+        .leftBumper()
+        .whileTrue(shooter.runShooterVelocityTorqueCurrent())
+        .onFalse(shooter.stop());
+    // controller.rightTrigger().onFalse(shooter.stop());
     // feeder controlls
     controller.a().onTrue(feeder.runFeederVoltage());
     controller.a().onFalse(feeder.stop());

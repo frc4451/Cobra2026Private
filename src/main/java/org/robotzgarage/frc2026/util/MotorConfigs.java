@@ -12,6 +12,7 @@ import com.thethriftybot.util.Conversion.PositionUnit;
 import com.thethriftybot.util.Conversion.VelocityUnit;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.measure.Angle;
 import lombok.Builder;
 import lombok.NonNull;
 import org.robotzgarage.frc2026.subsystems.rollers.feedforward_controller.FeedforwardController;
@@ -31,6 +32,18 @@ public class MotorConfigs {
 
   @Builder
   public record SimMotorConfigFollower(@NonNull SimMotorConfig leader, boolean invertFollower) {}
+
+  @Builder
+  public record CANCoderConfig(
+      @NonNull Integer canId,
+      @NonNull CANBus canBus,
+      Angle magnetOffset,
+      Angle minAngle,
+      Angle maxAngle,
+      Double disparity,
+      double rotorToSensorReduction,
+      double sensorToMechanismReduction,
+      boolean isClockwisePositive) {}
 
   @Builder
   public record TalonFXConfig(
@@ -137,11 +150,19 @@ public class MotorConfigs {
 
   /** Shorthand Feed Back config for any generic PID controller */
   @Builder
-  public record GenericFeedbackConfig(double p, double i, double d) {}
+  public record GenericFeedbackConfig(double p, double i, double d) {
+    public static GenericFeedbackConfig getEmptyConfig() {
+      return GenericFeedbackConfig.builder().p(0.0).i(0.0).d(0.0).build();
+    }
+  }
 
   /** Shorthand Feed Forward config for any generic SGVA controller */
   @Builder
-  public record GenericFeedForwardConfig(double s, double g, double v, double a) {}
+  public record GenericFeedForwardConfig(double s, double g, double v, double a) {
+    public static GenericFeedForwardConfig getEmptyConfig() {
+      return GenericFeedForwardConfig.builder().s(0.0).g(0.0).v(0.0).a(0.0).build();
+    }
+  }
 
   @Builder
   public record ThriftyNovaConfig(
