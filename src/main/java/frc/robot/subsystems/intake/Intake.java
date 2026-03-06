@@ -124,7 +124,7 @@ public class Intake extends SubsystemBase {
   }
 
   public Command endeffectorpush() {
-    return runOnce(() -> endeffector.runVolts(-2));
+    return runEnd(() -> endeffector.runVolts(-2), () -> endeffector.stop());
   }
 
   public Trigger isNearGoal(Angle tolerance) {
