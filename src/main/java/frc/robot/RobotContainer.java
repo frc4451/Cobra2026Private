@@ -339,14 +339,18 @@ public class RobotContainer {
     // shooter controlls
     controller.rightBumper().whileTrue(shooter.runShooterToHub()).onFalse(shooter.stop());
     controller.start().whileTrue(shooter.runShooterToPoop()).onFalse(shooter.stop());
-    controller
-        .leftBumper()
-        .whileTrue(shooter.runShooterVelocityTorqueCurrent())
-        .onFalse(shooter.stop());
+
     // controller.rightTrigger().onFalse(shooter.stop());
     // feeder controlls
     controller.a().onTrue(feeder.runFeederVoltage());
     controller.a().onFalse(feeder.stop());
+
+    if (Constants.tuningMode) {
+      controller
+          .leftBumper()
+          .whileTrue(shooter.runShooterVelocityTorqueCurrent())
+          .onFalse(shooter.stop());
+    }
   }
 
   /**

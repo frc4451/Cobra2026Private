@@ -133,7 +133,7 @@ public class AutonomousManager {
    * @param prefix Uses a {@code String} to tie the steps of {@code handleShot} for easier reading
    *     of the console in {@code AdvantageScope}
    * @param emptyTime Uses a {@code double} that goes into a {@code TimeUnit(Seconds)} for the
-   *     estimated hopper empty time / when it stops the shooter 
+   *     estimated hopper empty time / when it stops the shooter
    */
   private Command handleShotInterpolation(String prefix, double emptyTime) {
     String formattedPrefix = prefix + ": ";
@@ -155,7 +155,7 @@ public class AutonomousManager {
             Commands.deadline(
                 shooter.runShooterToHub().withTimeout(Seconds.of(emptyTime)),
                 feeder.runFeederVoltage()),
-                feeder.stop(),
+            feeder.stop(),
             shooter.stop())
         .beforeStarting(Commands.print(formattedPrefix + "start"))
         .andThen(Commands.print(formattedPrefix + "end"));
