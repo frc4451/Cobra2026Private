@@ -40,7 +40,6 @@ import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFX;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFXWithCANCoder;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFX;
-import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFXWithCANCoder;
 import org.robotzgarage.frc2026.subsystems.vision.AprilTagVision;
 import org.robotzgarage.frc2026.util.GarageCommandXboxController;
 import org.robotzgarage.frc2026.util.TuningUtils.TuningUnit;
@@ -90,9 +89,7 @@ public class RobotContainer {
         // Real robot, it's ALIVE!!! ALIIIIIIVVVE!!!!!
         // EX. exampleIO = new SingleRollerIOTalonFX(exampleConstants.exampleConfig);
         intakeIO = new SingleRollerIOTalonFX(IntakeConstants.intakeConfig);
-        endeffectorIO =
-            new SingleRollerIOTalonFX(
-                IntakeConstants.endeffectorConfig);
+        endeffectorIO = new SingleRollerIOTalonFX(IntakeConstants.endeffectorConfig);
         // endeffectorIO = new SingleRollerIOTalonFX(IntakeConstants.endeffectorConfig);
 
         shooterIO = new FollowRollersIOTalonFX(ShooterConstants.flywheelFollowersConfig);
