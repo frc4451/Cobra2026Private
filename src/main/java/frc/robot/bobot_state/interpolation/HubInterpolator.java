@@ -86,6 +86,9 @@ public class HubInterpolator extends TargetInterpolator {
   }
 
   public HubInterpolator() {
-    super(BobotState.getHubVARC().getTargetPose(), BobotState::getGlobalPose, interpolator);
+    super(
+        BobotState.getHubVARC().getTargetPose(),
+        BobotState::getGlobalPose,
+        interpolator);
   }
-}
+}\]
