@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.autonomous.AutonomousManager;
 import frc.robot.bobot_state.BobotState;
+import frc.robot.bobot_state.dashboard.TeleopShiftManager;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -29,6 +30,7 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterConstants;
+import frc.robot.subsystems.vision.ObjectDetectionVision;
 import frc.robot.subsystems.vision.VisionConstants;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIO;
@@ -59,6 +61,7 @@ public class RobotContainer {
 
   // Vision testing
   private final AprilTagVision aprilTagVision;
+  private final ObjectDetectionVision objectDetectionVision;
 
   // Controller
   private final GarageCommandXboxController drivercontroller = new GarageCommandXboxController(0);
@@ -68,6 +71,7 @@ public class RobotContainer {
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
+  private final TeleopShiftManager teleopShiftManager;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -153,6 +157,8 @@ public class RobotContainer {
     intake = new Intake(intakeIO, endeffectorIO);
     shooter = new Shooter(shooterIO);
     aprilTagVision = new AprilTagVision(VisionConstants.visionSubsystemConfig);
+    objectDetectionVision = new ObjectDetectionVision();
+    teleopShiftManager = new TeleopShiftManager();
 
     // Autonomous choices
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -177,20 +183,15 @@ public class RobotContainer {
     configureDriverBindings(drivercontroller);
     configureOperatorBindings(operatorcontroller);
 
+    configureDriverBindings(drivercontroller);
+    // configureOperatorBindings(operatorcontroller);
     // configureBLineRoutines();
     configureAutonomousRoutines();
 
     configureTuningRoutines();
 
     DriverStation.silenceJoystickConnectionWarning(true);
-    // configureVisionDebugControls(visionDebugController);
   }
-
-  //   private void configureBLineRoutines() {
-  //     BLineManager bLineManager = new BLineManager(drive);
-
-  //     autoChooser.addOption("BLine Auto Example", bLineManager.getSampleBLineAutoRoutine());
-  //   }
 
   private void configureAutonomousRoutines() {
     AutonomousManager autonomousManager = new AutonomousManager(drive, shooter, intake, feeder);
@@ -266,14 +267,14 @@ public class RobotContainer {
     //             feetFromCenterOfHubX,
     //             feetFromCenterOfHubY));
 
-    // controller
-    //     .a()
-    //     .whileTrue(
-    //         DriveCommands.joystickDriveAtAngle(
-    //             drive,
-    //             () -> -controller.getLeftY(),
-    //             () -> -controller.getLeftX(),
-    //             () -> BobotState.getClosestDropoff().getRotationTarget()));
+    controller
+        .a()
+        .whileTrue(
+            DriveCommands.joystickDriveAtAngle(
+                drive,
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX(),
+                () -> BobotState.getFuelClusterVARC().getRotationTarget()));
 
     controller
         .b()
@@ -282,9 +283,7 @@ public class RobotContainer {
                 drive,
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX(),
-                () -> BobotState.getHubVARC().getRotationTarget()));
-
-    // controller.start().onTrue(AutonomousHelpers.driveToInitialPose("01 - Cross the Bump"));
+                () -> BobotState.getShooterAlignmentVARC().getRotationTarget()));
 
     // controller
     //     .rightBumper()
@@ -339,6 +338,7 @@ public class RobotContainer {
     controller.x().onTrue(intake.stopPivot());
     // shooter controlls
     controller.rightBumper().whileTrue(shooter.runShooterToHub()).onFalse(shooter.stop());
+    controller.start().whileTrue(shooter.runShooterToPoop()).onFalse(shooter.stop());
     controller
         .leftBumper()
         .whileTrue(shooter.runShooterVelocityTorqueCurrent())

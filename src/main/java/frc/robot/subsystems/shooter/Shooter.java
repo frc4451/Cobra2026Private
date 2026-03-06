@@ -30,6 +30,9 @@ public class Shooter extends SubsystemBase {
   private static final LoggedTunableNumber shooterVelocity =
       new LoggedTunableNumber(name + "/ShooterVelocity", 67.0);
 
+  private static final LoggedTunableNumber shooterPoopVelocity =
+      new LoggedTunableNumber(name + "/ShooterPoopVelocityRPS", 10.0);
+
   // Subsystems
   private final FlywheelFollower shooter;
 
@@ -90,6 +93,14 @@ public class Shooter extends SubsystemBase {
           Logger.recordOutput(name + "/ShootAtHub/VelocityRPS", velocity.in(RotationsPerSecond));
           Logger.recordOutput(name + "/ShootAtHub/DistanceFeet", distance.in(Feet));
           shooter.setVelocityTorqueCurrent(velocity);
+        });
+  }
+
+  /** Run the shooter just enough to poop out residual fuel */
+  public Command runShooterToPoop() {
+    return run(
+        () -> {
+          shooter.setVelocityTorqueCurrent(RotationsPerSecond.of(shooterPoopVelocity.get()));
         });
   }
 
