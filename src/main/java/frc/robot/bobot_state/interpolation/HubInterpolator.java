@@ -89,7 +89,7 @@ public class HubInterpolator extends TargetInterpolator {
 
   public HubInterpolator() {
     super(
-        AllianceFlipUtil.apply(FieldConstants.Hub.hubInterpolationTarget),
+        BobotState.getHubVARC().getTargetPose(),
         BobotState::getGlobalPose,
         interpolator);
   }
