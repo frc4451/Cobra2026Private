@@ -6,8 +6,6 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import edu.wpi.first.units.measure.Angle;
 import frc.robot.bobot_state.BobotState;
-import org.littletonrobotics.AllianceFlipUtil;
-import org.littletonrobotics.FieldConstants;
 import org.robotzgarage.frc2026.math.interpolation.ShootingInterpolator;
 import org.robotzgarage.frc2026.math.interpolation.ShootingInterpolator.DistanceAngleSpeedEntry;
 import org.robotzgarage.frc2026.math.interpolation.TargetInterpolator;
@@ -88,9 +86,6 @@ public class HubInterpolator extends TargetInterpolator {
   }
 
   public HubInterpolator() {
-    super(
-        BobotState.getHubVARC().getTargetPose(),
-        BobotState::getGlobalPose,
-        interpolator);
+    super(BobotState.getHubVARC().getTargetPose(), BobotState::getGlobalPose, interpolator);
   }
 }
