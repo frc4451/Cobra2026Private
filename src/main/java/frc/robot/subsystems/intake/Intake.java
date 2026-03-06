@@ -123,6 +123,10 @@ public class Intake extends SubsystemBase {
     return runOnce(() -> endeffector.setGoal(Degrees.of(endeffectorSqueeze.get())));
   }
 
+  public Command endeffectorpush() {
+    return runOnce(() -> endeffector.runVolts(6));
+  }
+
   public Trigger isNearGoal(Angle tolerance) {
     return new Trigger(
         () -> this.endeffector.isNear(this.endeffector.getGoalPosition(), tolerance));
