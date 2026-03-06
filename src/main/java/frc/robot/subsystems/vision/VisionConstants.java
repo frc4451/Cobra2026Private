@@ -37,14 +37,14 @@ public class VisionConstants {
   public static final ObjectDetectionCameraConfig intakeFuelDetection =
       new ObjectDetectionCameraConfig(
           new VisionSource(
-              "ColemanCam",
+              "DangerCam",
               RobotRelativeTransform.builder()
-                  .forwardPositive(Inches.of(4.388))
-                  .leftPositive(Inches.of(9.936))
-                  .upPositive(Inches.of(18.938))
+                  .forwardPositive(Inches.of(-24.908))
+                  .leftPositive(Inches.of(0.692))
+                  .upPositive(Inches.of(10.764))
                   .rollCCWPositive(Degrees.zero())
-                  .pitchCCWPositive(Degrees.of(30.0))
-                  .yawCCWPositive(Degrees.of(-135.0))
+                  .pitchCCWPositive(Degrees.of(15.0))
+                  .yawCCWPositive(Degrees.of(180))
                   .build()),
           SimCameraConfig.ARDUCAM_OV9782_100,
           List.of(ObjectDetectionStrategy.QUANTITY, ObjectDetectionStrategy.POSE_TRACKING));

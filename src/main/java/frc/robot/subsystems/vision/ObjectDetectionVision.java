@@ -7,11 +7,9 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.robot.Constants;
 import frc.robot.bobot_state.BobotState;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.Getter;
-import org.littletonrobotics.LoggedTunableNumber;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.ObjectDetectionStrategy;
@@ -30,14 +28,17 @@ public class ObjectDetectionVision extends VirtualSubsystem {
 
   private final String objectDetectionLogRoot = "ObjectDetection";
 
-  private static final LoggedTunableNumber clusteringThresholdDegrees =
-      new LoggedTunableNumber("ObjectDetection/Intake/ClusteringThresholdDegrees", 5.0);
+  private final FuelTracker fuelTracker = new FuelTracker();
 
-  private final List<List<Pose3d>> clusteredObjectDetectionResults = new ArrayList<>();
-
-  public final FuelTracker fuelTracker = new FuelTracker();
-
+  /** True only when the intake camera has fuel in frame this loop. */
   @Getter private boolean intakeCanSeeFuel = false;
+
+  /**
+   * True when any fuel is held in the tracker's memory window (up to {@code trackingMemorySeconds}
+   * stale).
+   */
+  @Getter private boolean fuelIsTracked = false;
+
   @Getter private Rotation2d intakeRelativeYawToClosestCluster = Rotation2d.kZero;
   @Getter private Rotation2d intakeRelativePitchToClosestCluster = Rotation2d.kZero;
   @Getter private int intakeLargestClusterSize = 0;
@@ -123,104 +124,17 @@ public class ObjectDetectionVision extends VirtualSubsystem {
 
     fuelTracker.update();
     List<Pose3d> knownFuelPoses = fuelTracker.getObjectPoses();
-    intakeCanSeeFuel = !fuelTracker.getObjectPoses().isEmpty();
+    intakeCanSeeFuel = intakeFuelDetection.inputs.numObjectsInView > 0;
+    fuelIsTracked = !knownFuelPoses.isEmpty();
 
-    // if (intakeFuelDetection.)
+    Logger.recordOutput(objectDetectionLogRoot + "/IntakeCanSeeFuel", intakeCanSeeFuel);
+    Logger.recordOutput(objectDetectionLogRoot + "/FuelIsTracked", fuelIsTracked);
+    Logger.recordOutput(
+        objectDetectionLogRoot + "/KnownFuelPoses", knownFuelPoses.toArray(Pose3d[]::new));
 
-    // {
-    //   // Vision updates for Intake Camera
-    //   clusteredObjectDetectionResults.clear();
-
-    //   // Collect all yaws and compile them to a list sorted by yaw
-    //   List<ObjectDetectionTrackedResult> trackedResultsList =
-    //       Arrays.asList(intakeFuelDetection.inputs.relativeTargets);
-
-    //   trackedResultsList.sort(Comparator.comparingDouble(target -> target.yaw().getDegrees()));
-
-    //   this.intakeCanSeeFuel = !trackedResultsList.isEmpty();
-
-    //   if (this.intakeCanSeeFuel) {
-    //     // Cluster our objects by YAW with respect to threshold. This is a "simple"
-    //     // reverse-linked lookup comparison
-    //     List<ObjectDetectionTrackedResult> currentCluster = new ArrayList<>();
-
-    //     currentCluster.add(trackedResultsList.get(0));
-
-    //     for (int i = 1; i < trackedResultsList.size(); ++i) {
-    //       double previousYawDeg = trackedResultsList.get(i - 1).yaw().getDegrees();
-    //       double currentYawDeg = trackedResultsList.get(i).yaw().getDegrees();
-
-    //       if (Math.abs(currentYawDeg - previousYawDeg) > clusteringThresholdDegrees.get()) {
-    //         clusteredObjectDetectionResults.add(currentCluster);
-    //         currentCluster = new ArrayList<>();
-    //       }
-
-    //       currentCluster.add(trackedResultsList.get(i));
-    //     }
-    //     clusteredObjectDetectionResults.add(currentCluster);
-
-    //     clusteredObjectDetectionResults.sort((a, b) -> Integer.compare(b.size(), a.size()));
-
-    //     List<ObjectDetectionTrackedResult> largestCluster =
-    // clusteredObjectDetectionResults.get(0);
-
-    //     double totalArea =
-    //         largestCluster.stream().mapToDouble(ObjectDetectionTrackedResult::area).sum();
-
-    //     double avgYawDeg =
-    //         largestCluster.stream().mapToDouble(t ->
-    // t.yaw().getDegrees()).average().getAsDouble();
-
-    //     double avgPitchDeg =
-    //         largestCluster.stream()
-    //             .mapToDouble(t -> t.pitch().getDegrees())
-    //             .average()
-    //             .getAsDouble();
-
-    //     double distanceFromCenterOfClusterMeters =
-    //         PhotonUtils.calculateDistanceToTargetMeters(
-    //             intakeFuelDetection.source().robotToCamera().upPositive().in(Meters),
-    //             VisionConstants.fuelHeightMeters,
-    //             -intakeFuelDetection.source().robotToCamera().pitchCCWPositive().in(Radians),
-    //             Units.degreesToRadians(avgPitchDeg));
-
-    //     Translation2d estimatedCenterOfCluster =
-    //         PhotonUtils.estimateCameraToTargetTranslation(
-    //             distanceFromCenterOfClusterMeters, Rotation2d.fromDegrees(avgYawDeg));
-
-    //     this.intakeRelativePitchToClosestCluster = Rotation2d.fromDegrees(avgPitchDeg);
-    //     this.intakeRelativeYawToClosestCluster = Rotation2d.fromDegrees(avgYawDeg);
-
-    //     this.intakeLargestClusterSize =
-    //         clusteredObjectDetectionResults.isEmpty()
-    //             ? 0
-    //             : clusteredObjectDetectionResults.get(0).size();
-    //     this.estimatedCenterOfCluster =
-    //         Optional.of(new Pose2d(estimatedCenterOfCluster, Rotation2d.kZero));
-    //   } else {
-    //     this.intakeLargestClusterSize = 0;
-    //     this.estimatedCenterOfCluster = Optional.empty();
-    //   }
-
-    //   Logger.recordOutput(objectDetectionLogRoot + "/Intake/CanSeeFuel", this.intakeCanSeeFuel);
-    //   Logger.recordOutput(
-    //       objectDetectionLogRoot + "/Intake/AverageYawDegrees",
-    //       this.intakeRelativePitchToClosestCluster.getDegrees());
-    //   Logger.recordOutput(
-    //       objectDetectionLogRoot + "/Intake/AveragePitchDegrees",
-    //       this.intakeRelativeYawToClosestCluster.getDegrees());
-    //   Logger.recordOutput(
-    //       objectDetectionLogRoot + "/Intake/LargestClusterSize/", this.intakeLargestClusterSize);
-    //   for (int i = 0; i < clusteredObjectDetectionResults.size(); ++i) {
-    //     Logger.recordOutput(
-    //         objectDetectionLogRoot + "/Intake/ClusteredResults/" + i,
-    //         clusteredObjectDetectionResults.get(i).toArray(ObjectDetectionTrackedResult[]::new));
-    //   }
-    // }
-
+    // Send results to BobotState
+    BobotState.setKnownFuelPoses(knownFuelPoses);
   }
-
-  private void handleTrackedPoseEstimation() {}
 
   @Override
   public void simulationPeriodic() {

@@ -30,13 +30,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+import org.littletonrobotics.LoggedTunableNumber;
 
 public class DriveCommands {
   private static final double DEADBAND = 0.1;
-  private static final double ANGLE_KP = 5.0;
-  private static final double ANGLE_KD = 0.4;
-  private static final double ANGLE_MAX_VELOCITY = 8.0;
-  private static final double ANGLE_MAX_ACCELERATION = 20.0;
+  private static final LoggedTunableNumber ANGLE_KP =
+      new LoggedTunableNumber("DriveCommands/kP", 5.0);
+  private static final LoggedTunableNumber ANGLE_KD =
+      new LoggedTunableNumber("DriveCommands/kD", 0.4);
+  private static final LoggedTunableNumber ANGLE_MAX_VELOCITY =
+      new LoggedTunableNumber("DriveCommands/AngleMaxVelocity", 8.0);
+  private static final LoggedTunableNumber ANGLE_MAX_ACCELERATION =
+      new LoggedTunableNumber("DriveCommands/AngleMaxAcceleration", 20.0);
   private static final double FF_START_DELAY = 2.0; // Secs
   private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
   private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
@@ -111,10 +116,11 @@ public class DriveCommands {
     // Create PID controller
     ProfiledPIDController angleController =
         new ProfiledPIDController(
-            ANGLE_KP,
+            ANGLE_KP.get(),
             0.0,
-            ANGLE_KD,
-            new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
+            ANGLE_KD.get(),
+            new TrapezoidProfile.Constraints(
+                ANGLE_MAX_VELOCITY.get(), ANGLE_MAX_ACCELERATION.get()));
     angleController.enableContinuousInput(-Math.PI, Math.PI);
 
     // Construct command
@@ -156,13 +162,14 @@ public class DriveCommands {
   public static Command snapToAngle(
       Drive drive, Supplier<Rotation2d> targetSupplier, double toleranceDegrees) {
 
+    // Create PID controller
     ProfiledPIDController angleController =
         new ProfiledPIDController(
-            ANGLE_KP,
+            ANGLE_KP.get(),
             0.0,
-            ANGLE_KD,
-            new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
-
+            ANGLE_KD.get(),
+            new TrapezoidProfile.Constraints(
+                ANGLE_MAX_VELOCITY.get(), ANGLE_MAX_ACCELERATION.get()));
     angleController.enableContinuousInput(-Math.PI, Math.PI);
 
     return Commands.run(

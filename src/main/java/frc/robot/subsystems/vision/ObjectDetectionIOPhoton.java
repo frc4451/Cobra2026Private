@@ -11,7 +11,6 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.Timer;
 import frc.robot.field.FieldUtils;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,14 +51,15 @@ public class ObjectDetectionIOPhoton implements ObjectDetectionIO {
 
     double totalTargetArea = 0.0; // area occupied in frame
     double maxTargetArea = 0.0; // maximum target area occupied by fuel
-    double minTargetArea = 100.0; // minimum target area cocupied by fuel
+    double minTargetArea = 0.0; // minimum target area occupied by fuel
 
     for (PhotonPipelineResult result : unreadResults) {
       for (PhotonTrackedTarget target : result.getTargets()) {
-        if (target.getFiducialId() == -1) {
-          objectsDetected.add(target);
+        if (target.getFiducialId() != -1) {
+          continue;
         }
 
+        objectsDetected.add(target);
         totalTargetArea += target.area;
         maxTargetArea = Math.max(target.area, maxTargetArea);
         minTargetArea = Math.min(target.area, minTargetArea);
@@ -88,7 +88,7 @@ public class ObjectDetectionIOPhoton implements ObjectDetectionIO {
                   .plus(new Transform3d(0, 0, VisionConstants.fuelRadiusMeters, Rotation3d.kZero));
 
           ObjectDetectionTrackedPose trackedObjectPose =
-              new ObjectDetectionTrackedPose(objectPose, Timer.getFPGATimestamp());
+              new ObjectDetectionTrackedPose(objectPose, result.getTimestampSeconds());
 
           if (FieldUtils.isPoseInsideField(trackedObjectPose.pose())) {
             validObjectPoses.add(trackedObjectPose);

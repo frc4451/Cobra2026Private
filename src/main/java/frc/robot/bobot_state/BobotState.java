@@ -3,13 +3,16 @@ package frc.robot.bobot_state;
 import static edu.wpi.first.units.Units.Feet;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.bobot_state.interpolation.HubInterpolator;
 import frc.robot.bobot_state.varc.BumpVARC;
 import frc.robot.bobot_state.varc.DepotDropoffVARC;
+import frc.robot.bobot_state.varc.FuelClusterVARC;
 import frc.robot.bobot_state.varc.HubVARC;
 import frc.robot.bobot_state.varc.OutpostDropoffVARC;
 import frc.robot.bobot_state.varc.TrenchVARC;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import lombok.Getter;
@@ -36,8 +39,11 @@ public class BobotState extends VirtualSubsystem {
   @Getter private static final BumpVARC bumpVARC = new BumpVARC();
   @Getter private static final OutpostDropoffVARC outpostVARC = new OutpostDropoffVARC();
   @Getter private static final DepotDropoffVARC depotVARC = new DepotDropoffVARC();
+  @Getter private static final FuelClusterVARC fuelClusterVARC = new FuelClusterVARC();
   @Getter private static TargetAngleTracker closestDropoff;
   @Getter private static TargetAngleTracker closestTraversal;
+
+  @Getter @Setter private static List<Pose3d> knownFuelPoses = List.of();
   @Getter private static HubInterpolator hubInterpolator = new HubInterpolator();
 
   @Getter
@@ -111,6 +117,7 @@ public class BobotState extends VirtualSubsystem {
     bumpVARC.update();
     outpostVARC.update();
     depotVARC.update();
+    fuelClusterVARC.update();
     // getClosestDropoffVARC();
     BobotState.hubInterpolator.update();
 
@@ -204,6 +211,9 @@ public class BobotState extends VirtualSubsystem {
         String closestSubTitle = subLogTitle + "Traversal/";
         Logger.recordOutput(closestSubTitle + "TargetPose", closestTraversal.getTargetPose());
         Logger.recordOutput(
+            closestSubTitle + "ClosestTraversal",
+            closestTraversal instanceof BumpVARC ? "BUMP" : "TRENCH");
+        Logger.recordOutput(
             closestSubTitle + "TargetRotationDeg",
             closestTraversal.getRotationTarget().getDegrees());
         Logger.recordOutput(
@@ -213,11 +223,24 @@ public class BobotState extends VirtualSubsystem {
       {
         // closest dropoff log
         String closestSubTitle = subLogTitle + "Dropoff/";
+        Logger.recordOutput(
+            closestSubTitle + "ClosestDropoff",
+            closestDropoff instanceof DepotDropoffVARC ? "DEPOT" : "OUTPOST");
         Logger.recordOutput(closestSubTitle + "TargetPose", closestDropoff.getTargetPose());
         Logger.recordOutput(
             closestSubTitle + "TargetRotationDeg", closestDropoff.getRotationTarget().getDegrees());
         Logger.recordOutput(
             closestSubTitle + "TargetDistabceFeet", closestDropoff.getDistance().in(Feet));
+      }
+
+      {
+        // fuel cluster log
+        String varcSubTitle = subLogTitle + "FuelCluster/";
+        Logger.recordOutput(varcSubTitle + "TargetPose", fuelClusterVARC.getTargetPose());
+        Logger.recordOutput(
+            varcSubTitle + "TargetRotationDeg", fuelClusterVARC.getRotationTarget().getDegrees());
+        Logger.recordOutput(
+            varcSubTitle + "TargetDistanceFeet", fuelClusterVARC.getDistance().in(Feet));
       }
     }
   }
