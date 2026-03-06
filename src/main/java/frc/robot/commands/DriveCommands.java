@@ -35,13 +35,13 @@ import org.littletonrobotics.LoggedTunableNumber;
 public class DriveCommands {
   private static final double DEADBAND = 0.1;
   private static final LoggedTunableNumber ANGLE_KP =
-      new LoggedTunableNumber("DriveCommands/kP", 5.0);
+      new LoggedTunableNumber("DriveCommands/kP", 10.0);
   private static final LoggedTunableNumber ANGLE_KD =
-      new LoggedTunableNumber("DriveCommands/kD", 0.4);
+      new LoggedTunableNumber("DriveCommands/kD", 0.2);
   private static final LoggedTunableNumber ANGLE_MAX_VELOCITY =
-      new LoggedTunableNumber("DriveCommands/AngleMaxVelocity", 8.0);
+      new LoggedTunableNumber("DriveCommands/AngleMaxVelocity", 16.0);
   private static final LoggedTunableNumber ANGLE_MAX_ACCELERATION =
-      new LoggedTunableNumber("DriveCommands/AngleMaxAcceleration", 20.0);
+      new LoggedTunableNumber("DriveCommands/AngleMaxAcceleration", 40.0);
   private static final double FF_START_DELAY = 2.0; // Secs
   private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
   private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
