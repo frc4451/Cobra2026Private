@@ -21,7 +21,6 @@ public class TeleopShiftManager extends VirtualSubsystem {
     Logger.recordOutput("TeleopShift/TimeLeft", getTimeLeft());
   }
 
-
   public boolean isYourShift() {
     return ShiftHelpers.currentShiftIsYours();
   }

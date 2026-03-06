@@ -96,15 +96,12 @@ public class Shooter extends SubsystemBase {
         });
   }
 
-  /**
-   * Run the shooter just enough to poop out residual fuel
-   */
+  /** Run the shooter just enough to poop out residual fuel */
   public Command runShooterToPoop() {
-    return run (
-      () -> {
-        shooter.setVelocityTorqueCurrent(RotationsPerSecond.of(shooterPoopVelocity.get()));
-      }
-    );
+    return run(
+        () -> {
+          shooter.setVelocityTorqueCurrent(RotationsPerSecond.of(shooterPoopVelocity.get()));
+        });
   }
 
   /** You need to know when the Flywheel is at the velocity target we want */
