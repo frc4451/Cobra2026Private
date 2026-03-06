@@ -92,6 +92,8 @@ public class Shooter extends SubsystemBase {
           Distance distance = BobotState.getHubInterpolator().getDistanceFromTarget();
           Logger.recordOutput(name + "/ShootAtHub/VelocityRPS", velocity.in(RotationsPerSecond));
           Logger.recordOutput(name + "/ShootAtHub/DistanceFeet", distance.in(Feet));
+          Logger.recordOutput(
+              name + "/ShootAtHub/TargetPose", BobotState.getHubInterpolator().getTargetPose());
           shooter.setVelocityTorqueCurrent(velocity);
         });
   }
