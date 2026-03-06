@@ -163,7 +163,7 @@ public class AutonomousManager {
 
   /** deploys intake to set position to intake at */
   private Command deployIntake() {
-    return Commands.sequence(intake.endeffectorDeploy().until(intake.isNearGoal(Degrees.of(5))))
+    return Commands.sequence(intake.endeffectorDeploy().until(intake.isNearGoal(Degrees.of(3))))
         .beforeStarting(Commands.print("deploy: start"))
         .andThen(Commands.print("deploy: end"));
   }
