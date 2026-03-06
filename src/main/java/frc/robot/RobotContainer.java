@@ -193,7 +193,7 @@ public class RobotContainer {
   //   }
 
   private void configureAutonomousRoutines() {
-    AutonomousManager autonomousManager = new AutonomousManager(drive, intake, shooter, feeder);
+    AutonomousManager autonomousManager = new AutonomousManager(drive, shooter, intake, feeder);
 
     autoChooser.addOption("Himithy", autonomousManager.himithy());
   }
@@ -336,6 +336,7 @@ public class RobotContainer {
     controller.povUp().onTrue(intake.endeffectorSqueeze());
     controller.povRight().onTrue(intake.endeffectorLift());
     controller.povDown().onTrue(intake.endeffectorDeploy());
+    controller.x().onTrue(intake.stopPivot());
     // shooter controlls
     controller.rightBumper().whileTrue(shooter.runShooterToHub()).onFalse(shooter.stop());
     controller

@@ -110,7 +110,7 @@ public class IntakeConstants {
           .phoenixUpdateFreqHz(50)
           .reduction(endeffectorReduction)
           .currentLimitAmps(40)
-          .invert(true)
+          .invert(false)
           .isBrakeMode(true)
           .foc(true)
           .slot0Config(
