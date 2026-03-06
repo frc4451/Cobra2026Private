@@ -83,7 +83,7 @@ public class IntakeConstants {
           .armLength(Feet.of(1))
           .initialAngle(Degrees.of(90))
           .minAngle(Degrees.of(-2.0))
-          .maxAngle(Degrees.of(85))
+          .maxAngle(Degrees.of(90))
           .tolerance(Degrees.of(1))
           .simulateGravity(false)
           .moi(0.00002)
