@@ -91,4 +91,4 @@ public class HubInterpolator extends TargetInterpolator {
         BobotState::getGlobalPose,
         interpolator);
   }
-}\]
+}
