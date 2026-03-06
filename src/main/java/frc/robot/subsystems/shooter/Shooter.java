@@ -98,7 +98,7 @@ public class Shooter extends SubsystemBase {
 
   /** Run the shooter just enough to poop out residual fuel */
   public Command runShooterToPoop() {
-    return run(
+    return run(      
         () -> {
           shooter.setVelocityTorqueCurrent(RotationsPerSecond.of(shooterPoopVelocity.get()));
         });
