@@ -12,7 +12,7 @@ import org.robotzgarage.frc2026.math.interpolation.ShootingInterpolator;
 import org.robotzgarage.frc2026.math.interpolation.ShootingInterpolator.DistanceAngleSpeedEntry;
 import org.robotzgarage.frc2026.math.interpolation.TargetInterpolator;
 
-public class HubInterpolator extends TargetInte c rpolator {
+public class HubInterpolator extends TargetInterpolator {
   /** NOTE fill this in with the actual maximum angle of the shooter */
   private static final ShootingInterpolator interpolator =
       new ShootingInterpolator(Degrees.of(28.0));

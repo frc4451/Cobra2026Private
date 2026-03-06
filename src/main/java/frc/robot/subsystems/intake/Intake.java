@@ -30,7 +30,7 @@ public class Intake extends SubsystemBase {
   private static final LoggedTunableNumber endeffectorDeploy =
       new LoggedTunableNumber(name + "/EndeffectorDeploy", -10.0);
   private static final LoggedTunableNumber endeffectorLift =
-      new LoggedTunableNumber(name + "/EndeffectorLift", 20.0);
+      new LoggedTunableNumber(name + "/EndeffectorLift", 10.0);
   private static final LoggedTunableNumber endeffectorSqueeze =
       new LoggedTunableNumber(name + "/EndeffectorSqueeze", 60.0);
 
