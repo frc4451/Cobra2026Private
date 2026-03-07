@@ -135,7 +135,7 @@ public class AutonomousManager {
    * @param emptyTime Uses a {@code double} that goes into a {@code TimeUnit(Seconds)} for the
    *     estimated hopper empty time / when it stops the shooter
    */
-  private Command handleShotInterpolation(String prefix, double emptyTime) {
+  private Command handleShotInterpolation(String prefix, double emptyTime, double squeezeTime) {
     String formattedPrefix = prefix + ": ";
     InterpolatedCalculation calculation = BobotState.getHubInterpolator().getCalculation();
     AngularVelocity velocity = calculation.primaryVelocity();
@@ -155,7 +155,7 @@ public class AutonomousManager {
             Commands.deadline(
                 shooter.runShooterToHub().withTimeout(Seconds.of(emptyTime)),
                 feeder.runFeederVoltage(),
-                Commands.waitSeconds(emptyTime / 2).andThen(intake.endeffectorSqueeze())),
+                Commands.waitSeconds(squeezeTime).andThen(intake.endeffectorSqueeze())),
             feeder.stop(),
             shooter.stop())
         .beforeStarting(Commands.print(formattedPrefix + "start"))
@@ -223,7 +223,20 @@ public class AutonomousManager {
             this.liftIntake(),
             BLineTrajectory("SimpleIntake-Shoot"),
             this.rotateToHub(),
-            this.handleShotInterpolation("shot 1", 5.0))
+            this.handleShotInterpolation("shot 1", 5.0, 2.0))
+        .beforeStarting(Commands.print("Path start"))
+        .andThen(Commands.print("Path end"));
+  }
+
+  public Command himithyy() {
+    return Commands.sequence(
+            this.deployIntake(),
+            BLineTrajectory("SnG-LT-1"),
+            BLineTrajectorywithIntake("LT-Intake-NeutralZone"),
+            this.liftIntake(),
+            BLineTrajectory("NeutralZonetoShoot"),
+            this.rotateToHub(),
+            this.handleShotInterpolation("shot 1", 10.0, 2.0))
         .beforeStarting(Commands.print("Path start"))
         .andThen(Commands.print("Path end"));
   }

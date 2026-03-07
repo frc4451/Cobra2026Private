@@ -122,7 +122,8 @@ public class Intake extends SubsystemBase {
   }
 
   public Command endeffectorSqueeze() {
-    return runOnce(() -> endeffector.setGoal(Degrees.of(endeffectorSqueeze.get())));
+    return runOnce(() -> endeffector.setGoal(Degrees.of(endeffectorSqueeze.get())))
+        .andThen(runRollersVoltageOut());
   }
 
   public Command endeffectorpush() {
