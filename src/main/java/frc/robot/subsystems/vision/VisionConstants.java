@@ -90,8 +90,8 @@ public class VisionConstants {
         //               .pitchCCWPositive(Degrees.of(-17.5))
         //               .yawCCWPositive(Degrees.of(45))
         //               .build()),
-              SimCameraConfig.THRIFTY_CAM_95_720p,
-              List.of(PoseEstimationMethod.MULTI_TAG)),
+            //   SimCameraConfig.THRIFTY_CAM_95_720p,
+            //   List.of(PoseEstimationMethod.MULTI_TAG)),
           new AprilTagCameraConfig(
               new VisionSource(
                   "RightRearView",
