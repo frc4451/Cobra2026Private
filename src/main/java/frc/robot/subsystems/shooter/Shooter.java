@@ -36,6 +36,9 @@ public class Shooter extends SubsystemBase {
   // Subsystems
   private final FlywheelFollower shooter;
 
+  // Logging State Variables
+  private InterpolatedCalculation hubShotCalculation;
+
   // Constructor to decide if it's real or sim
   public Shooter(FollowRollersIO shooterFlyWheelIO) {
     this.shooter =
@@ -46,6 +49,16 @@ public class Shooter extends SubsystemBase {
   public void periodic() {
     // Periodic modes
     shooter.periodic();
+
+    InterpolatedCalculation calculation = BobotState.getHubInterpolator().getCalculation();
+    AngularVelocity velocity = calculation.primaryVelocity();
+    Distance distance = BobotState.getHubInterpolator().getDistanceFromTarget();
+    
+    Logger.recordOutput(name + "/ShootAtHub/VelocityRPS", velocity.in(RotationsPerSecond));
+    Logger.recordOutput(name + "/ShootAtHub/DistanceFeet", distance.in(Feet));
+    Logger.recordOutput(
+        name + "/ShootAtHub/TargetPose",
+        BobotState.getHubInterpolator().getTargetPose().get());
   }
 
   public Command runShooterTorqueCurrent() {
@@ -87,15 +100,7 @@ public class Shooter extends SubsystemBase {
   public Command runShooterToHub() {
     return run(
         () -> {
-          InterpolatedCalculation calculation = BobotState.getHubInterpolator().getCalculation();
-          AngularVelocity velocity = calculation.primaryVelocity();
-          Distance distance = BobotState.getHubInterpolator().getDistanceFromTarget();
-          Logger.recordOutput(name + "/ShootAtHub/VelocityRPS", velocity.in(RotationsPerSecond));
-          Logger.recordOutput(name + "/ShootAtHub/DistanceFeet", distance.in(Feet));
-          Logger.recordOutput(
-              name + "/ShootAtHub/TargetPose",
-              BobotState.getHubInterpolator().getTargetPose().get());
-          shooter.setVelocityTorqueCurrent(velocity);
+          shooter.setVelocityTorqueCurrent(hubShotCalculation.primaryVelocity());
         });
   }
 
