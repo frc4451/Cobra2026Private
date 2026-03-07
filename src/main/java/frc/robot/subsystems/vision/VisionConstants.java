@@ -146,5 +146,5 @@ public class VisionConstants {
 
   public static final double fuelHeightMeters = 0.150;
   public static final double fuelRadiusMeters = fuelHeightMeters / 2.0;
-  public static final double trackingMemorySeconds = 5;
+  public static final double trackingMemorySeconds = 3.0;
 }

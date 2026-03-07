@@ -154,7 +154,8 @@ public class AutonomousManager {
             Commands.print(formattedPrefix + "start shooter"),
             Commands.deadline(
                 shooter.runShooterToHub().withTimeout(Seconds.of(emptyTime)),
-                feeder.runFeederVoltage()),
+                feeder.runFeederVoltage(),
+                Commands.waitSeconds(emptyTime / 2).andThen(intake.endeffectorSqueeze())),
             feeder.stop(),
             shooter.stop())
         .beforeStarting(Commands.print(formattedPrefix + "start"))
