@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.autonomous.AutonomousManager;
 import frc.robot.bobot_state.BobotState;
@@ -51,6 +52,9 @@ import org.robotzgarage.frc2026.util.TuningUtils.TuningUnit;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+  public static final Trigger teleopActive = new Trigger(DriverStation::isTeleopEnabled);
+  public static final Trigger autoActive = new Trigger(DriverStation::isAutonomousEnabled);
+
   // Subsystems
   // EX. private final Example example;
   private final Drive drive;
@@ -326,6 +330,9 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureOperatorBindings(GarageCommandXboxController controller) {
+    // Deploy the Intake as soon as Teleop starts
+    teleopActive.onTrue(intake.endeffectorDeploy());
+
     // intake endeffector controlls
     controller.povLeft().onTrue(intake.endeffectorStart());
     controller.povUp().onTrue(intake.endeffectorSqueeze());
