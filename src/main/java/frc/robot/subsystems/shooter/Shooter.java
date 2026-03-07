@@ -97,7 +97,8 @@ public class Shooter extends SubsystemBase {
           Logger.recordOutput(name + "/ShootAtHub/VelocityRPS", velocity.in(RotationsPerSecond));
           Logger.recordOutput(name + "/ShootAtHub/DistanceFeet", distance.in(Feet));
           Logger.recordOutput(
-              name + "/ShootAtHub/TargetPose", BobotState.getHubInterpolator().getTargetPose().get());
+              name + "/ShootAtHub/TargetPose",
+              BobotState.getHubInterpolator().getTargetPose().get());
           shooter.setVelocityTorqueCurrent(velocity);
         });
   }

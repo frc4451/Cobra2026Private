@@ -123,12 +123,12 @@ public class IntakeConstants {
                   // feedforward
                   .withKS(0.75)
                   .withGravityType(GravityTypeValue.Arm_Cosine)
-                  .withKG(0.3)
+                  .withKG(0.0)
                   .withKV(0.0)
                   //   .withKV(MotionMagicHelpers.getRotationsVelocity(0.5))
                   // .withKA(MotionMagicHelpers.getRotationsAcceleration(0.12))
                   // feedback
-                  .withKP(15.0)
+                  .withKP(30.0)
                   // .withKI(MotionMagicHelpers.getRotationsVelocity(3.0))
                   .withKD(0.05))
           .mmConfig(
