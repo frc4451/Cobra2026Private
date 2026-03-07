@@ -134,8 +134,8 @@ public class IntakeConstants {
           .mmConfig(
               new MotionMagicConfigs()
                   .withMotionMagicCruiseVelocity(400.0 * endeffectorReduction)
-                  .withMotionMagicAcceleration(600.0 * endeffectorReduction)
-                  .withMotionMagicJerk(1800.0 * endeffectorReduction))
+                  .withMotionMagicAcceleration(800.0 * endeffectorReduction)
+                  .withMotionMagicJerk(3200.0 * endeffectorReduction))
           //   .softwareLimitSwitch(
           //       new SoftwareLimitSwitchConfigs()
           //           .withForwardSoftLimitEnable(true)
