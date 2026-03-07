@@ -231,6 +231,7 @@ public class AutonomousManager {
   public Command himithyy() {
     return Commands.sequence(
             this.deployIntake(),
+            Commands.waitSeconds(2.0),
             BLineTrajectory("SnG-LT-1"),
             BLineTrajectorywithIntake("LT-Intake-NeutralZone"),
             this.liftIntake(),
