@@ -29,6 +29,10 @@ public class Intake extends SubsystemBase {
       new LoggedTunableNumber(name + "/EndeffectorStart", 90.0);
   private static final LoggedTunableNumber endeffectorDeploy =
       new LoggedTunableNumber(name + "/EndeffectorDeploy", -10.0);
+  private static final LoggedTunableNumber endeffectorDeployVolts =
+      new LoggedTunableNumber(name + "/EndeffectorDeployVolts", -2.0);
+  private static final LoggedTunableNumber endeffectorDeployThreshold =
+      new LoggedTunableNumber(name + "/EndeffectorDeployThresholdDeg", 5.0);
   private static final LoggedTunableNumber endeffectorLift =
       new LoggedTunableNumber(name + "/EndeffectorLift", 10.0);
   private static final LoggedTunableNumber endeffectorSqueeze =
@@ -112,7 +116,16 @@ public class Intake extends SubsystemBase {
   }
 
   public Command endeffectorDeploy() {
-    return runOnce(() -> endeffector.setGoal(Degrees.of(endeffectorDeploy.get())));
+    return runEnd(
+        () -> {
+          if (endeffector.isNear(
+              Degrees.of(endeffectorDeploy.get()), Degrees.of(endeffectorDeployThreshold.get()))) {
+            endeffector.runVolts(endeffectorDeployVolts.get());
+          } else {
+            endeffector.setGoal(Degrees.of(endeffectorDeploy.get()));
+          }
+        },
+        () -> endeffector.stop());
   }
 
   public Command endeffectorLift() {
