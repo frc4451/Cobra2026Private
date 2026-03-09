@@ -30,8 +30,14 @@ public class Shooter extends SubsystemBase {
   private static final LoggedTunableNumber shooterVelocity =
       new LoggedTunableNumber(name + "/ShooterVelocity", 67.0);
 
+  private static final LoggedTunableNumber shooterPoopVelocity =
+      new LoggedTunableNumber(name + "/ShooterPoopVelocityRPS", 10.0);
+
   // Subsystems
   private final FlywheelFollower shooter;
+
+  // Logging State Variables
+  private InterpolatedCalculation hubShotCalculation;
 
   // Constructor to decide if it's real or sim
   public Shooter(FollowRollersIO shooterFlyWheelIO) {
@@ -87,9 +93,21 @@ public class Shooter extends SubsystemBase {
           InterpolatedCalculation calculation = BobotState.getHubInterpolator().getCalculation();
           AngularVelocity velocity = calculation.primaryVelocity();
           Distance distance = BobotState.getHubInterpolator().getDistanceFromTarget();
+
           Logger.recordOutput(name + "/ShootAtHub/VelocityRPS", velocity.in(RotationsPerSecond));
           Logger.recordOutput(name + "/ShootAtHub/DistanceFeet", distance.in(Feet));
+          Logger.recordOutput(
+              name + "/ShootAtHub/TargetPose",
+              BobotState.getHubInterpolator().getTargetPose().get());
           shooter.setVelocityTorqueCurrent(velocity);
+        });
+  }
+
+  /** Run the shooter just enough to poop out residual fuel */
+  public Command runShooterToPoop() {
+    return run(
+        () -> {
+          shooter.setVelocityTorqueCurrent(RotationsPerSecond.of(shooterPoopVelocity.get()));
         });
   }
 

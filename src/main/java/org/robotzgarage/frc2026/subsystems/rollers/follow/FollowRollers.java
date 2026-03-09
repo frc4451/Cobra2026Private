@@ -152,7 +152,7 @@ public class FollowRollers {
     // --- Tuning parameters ---
     // Total sweep: INPUT_STEP * NUM_STEPS amps/volts at INPUT_STEP increments
     final double INPUT_STEP = 1.0; // amps or volts per step
-    final int NUM_STEPS = 20; // number of steps (1 → 20 A/V)
+    final int NUM_STEPS = 40; // number of steps (1 → 20 A/V)
     final double SETTLE_TIME_SECS = 1.5; // seconds to wait per step for velocity to stabilize
     final double MIN_VELOCITY_RPS = 0.1; // skip steps where the mechanism hasn't started moving
 

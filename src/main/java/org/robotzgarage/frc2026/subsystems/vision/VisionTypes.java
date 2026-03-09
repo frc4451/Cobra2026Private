@@ -59,11 +59,15 @@ public final class VisionTypes {
   }
 
   public static final record ObjectDetectionCameraConfig(
-      VisionSource source, SimCameraConfig simCameraConfig) {}
+      VisionSource source,
+      SimCameraConfig simCameraConfig,
+      List<ObjectDetectionStrategy> objectDetectionStrategies) {}
 
   @Builder
   public static final record ObjectDetectionTrackedResult(
       @NonNull Rotation2d pitch, @NonNull Rotation2d yaw, double area) {}
+
+  public static final record ObjectDetectionTrackedPose(Pose3d pose, double timestampSeconds) {}
 
   public static final record AprilTagCameraConfig(
       VisionSource source,
@@ -75,6 +79,11 @@ public final class VisionTypes {
     SINGLE_TAG,
     TRIG,
     CONSTRAINED
+  }
+
+  public static enum ObjectDetectionStrategy {
+    QUANTITY,
+    POSE_TRACKING
   }
 
   /**
@@ -262,6 +271,17 @@ public final class VisionTypes {
                 .widthPx(1280)
                 .heightPx(720)
                 .fov(Rotation2d.fromDegrees(95))
+                .fps(60)
+                .build(),
+            defaultCalibrationError,
+            stockLatency);
+
+    public static SimCameraConfig ARDUCAM_OV9782_100 =
+        new SimCameraConfig(
+            Calibration.builder()
+                .widthPx(640)
+                .heightPx(480)
+                .fov(Rotation2d.fromDegrees(100))
                 .fps(60)
                 .build(),
             defaultCalibrationError,

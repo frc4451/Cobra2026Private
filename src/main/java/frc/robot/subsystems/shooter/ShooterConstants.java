@@ -1,12 +1,18 @@
 package frc.robot.subsystems.shooter;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.measure.AngularAcceleration;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import frc.robot.Constants;
 import org.robotzgarage.frc2026.subsystems.flywheel.FlywheelFollower.FlywheelConfig;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfig;
@@ -16,11 +22,17 @@ import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfigFollowerSim;
 public class ShooterConstants {
   public static final double shooterReduction = 22.0 / 24.0;
 
+  public static final AngularVelocity maximumShooterVelocity = RotationsPerSecond.of(80);
+  public static final AngularAcceleration maximumShooterAcceleration =
+      RotationsPerSecondPerSecond.of(400);
+  public static final Current supplyCurrentLimit = Amps.of(40.0);
+  public static final Current statorCurrentLimit = Amps.of(100.0);
+
   public static final FlywheelConfig shooterFlywheelConfig =
       FlywheelConfig.builder()
-          .radius(Inches.of(3.0))
-          .gearbox(DCMotor.getKrakenX60Foc(1))
-          .moi(0.00002)
+          .radius(Inches.of(1.5))
+          .gearbox(DCMotor.getKrakenX60Foc(2))
+          .moi(0.002)
           .reduction(shooterReduction)
           .build();
 
@@ -30,42 +42,43 @@ public class ShooterConstants {
           .canBus(Constants.susBus)
           // .phoenixUpdateFreqHz(50)
           .reduction(shooterReduction)
-          .currentLimitAmps(40)
+          .currentLimitAmps(supplyCurrentLimit.in(Amps))
           .invert(false)
           .isBrakeMode(false)
           .foc(Constants.focEnabled)
           .slot0Config(
               new Slot0Configs()
                   // feedforward
-                  .withKS(13.641352)
-                  .withKV(0.0)
-                  .withKA(4.3122000)
+                  .withKS(5.0)
+                  .withKV(0.0625)
+                  .withKA(0.0)
                   // feedback
-                  .withKP(16.0)
+                  .withKP(5.0)
                   .withKI(0.0)
                   .withKD(0.0))
           .mmConfig(
               new MotionMagicConfigs()
-                  .withMotionMagicCruiseVelocity(5.0 * shooterReduction)
-                  .withMotionMagicAcceleration(4.5 * shooterReduction)
-                  .withMotionMagicJerk(20.0 * shooterReduction))
+                  .withMotionMagicCruiseVelocity(maximumShooterVelocity)
+                  .withMotionMagicAcceleration(maximumShooterAcceleration))
           .currentLimitConfig(
               new CurrentLimitsConfigs()
-                  .withStatorCurrentLimit(100.0)
-                  .withStatorCurrentLimitEnable(true)
-              // .withSupplyCurrentLimit(null)
-              )
+                  .withStatorCurrentLimit(statorCurrentLimit)
+                  .withStatorCurrentLimitEnable(false)
+                  .withSupplyCurrentLimit(supplyCurrentLimit)
+                  .withSupplyCurrentLowerLimit(supplyCurrentLimit)
+                  .withSupplyCurrentLowerTime(0.1)
+                  .withSupplyCurrentLimitEnable(false))
           .torqueCurrentConfigs(
               new TorqueCurrentConfigs()
-                  .withPeakForwardTorqueCurrent(100.0)
-                  .withPeakReverseTorqueCurrent(-100.0))
+                  .withPeakForwardTorqueCurrent(statorCurrentLimit)
+                  .withPeakReverseTorqueCurrent(statorCurrentLimit.unaryMinus()))
           .build();
 
   public static final TalonFXConfigFollower flywheelFollowersConfig =
       TalonFXConfigFollower.builder()
           .leader(leaderShooterConfig)
           .followerCanId(22)
-          .invertFollower(false)
+          .invertFollower(true)
           .build();
 
   public static final TalonFXConfigFollowerSim flywheelFollowersConfigSim =

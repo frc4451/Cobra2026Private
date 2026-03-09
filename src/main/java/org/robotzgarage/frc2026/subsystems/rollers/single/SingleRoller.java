@@ -16,6 +16,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.LinkedList;
 import java.util.List;
+import lombok.Getter;
 import org.littletonrobotics.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 import org.robotzgarage.frc2026.util.MotorConfigs.GenericFeedForwardConfig;
@@ -37,6 +38,8 @@ public class SingleRoller {
   protected final SingleRollerIOInputsAutoLogged inputs = new SingleRollerIOInputsAutoLogged();
 
   private final Alert disconnected;
+
+  @Getter private Angle goalPosition;
 
   public SingleRoller(String name, SingleRollerIO io) {
     this.name = name;
@@ -108,7 +111,12 @@ public class SingleRoller {
   }
 
   public void setGoal(Angle position) {
+    this.goalPosition = position;
     io.setGoal(position);
+  }
+
+  public boolean isNear(Angle angle, Angle tolerance) {
+    return inputs.position.isNear(angle, tolerance);
   }
 
   public GenericFeedbackConfig readFeedBack() {

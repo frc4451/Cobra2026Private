@@ -14,7 +14,7 @@ public class HubVARC extends TargetAngleTracker {
 
     this.targetPose =
         AllianceFlipUtil.apply(
-            new Pose2d(Hub.centerOfHub.toTranslation2d(), Hub.nearFace.getRotation()));
+            new Pose2d(Hub.innerCenterPoint.toTranslation2d(), Hub.nearFace.getRotation()));
 
     this.distance =
         Meters.of(this.targetPose.getTranslation().getDistance(robotPose.getTranslation()));

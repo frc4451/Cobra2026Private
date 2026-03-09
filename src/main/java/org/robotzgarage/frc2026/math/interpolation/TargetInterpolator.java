@@ -11,14 +11,14 @@ import org.robotzgarage.frc2026.math.distance_calc.PoseUtils;
 import org.robotzgarage.frc2026.math.interpolation.ShootingInterpolator.InterpolatedCalculation;
 
 public abstract class TargetInterpolator {
-  @Getter private final Pose2d targetPose;
   private final ShootingInterpolator interpolator;
 
   private final Supplier<Pose2d> robotPose;
+  @Getter private final Supplier<Pose2d> targetPose;
   @Getter private InterpolatedCalculation calculation;
 
   public TargetInterpolator(
-      Pose2d targetPose, Supplier<Pose2d> robotPose, ShootingInterpolator interpolator) {
+      Supplier<Pose2d> targetPose, Supplier<Pose2d> robotPose, ShootingInterpolator interpolator) {
     this.robotPose = robotPose;
     this.targetPose = targetPose;
     this.interpolator = interpolator;
@@ -37,6 +37,6 @@ public abstract class TargetInterpolator {
    * @return hypotenuse distance between the robot and the target
    */
   public Distance getDistanceFromTarget() {
-    return PoseUtils.getDistanceBetweenPoses(robotPose.get(), targetPose);
+    return PoseUtils.getDistanceBetweenPoses(robotPose.get(), targetPose.get());
   }
 }

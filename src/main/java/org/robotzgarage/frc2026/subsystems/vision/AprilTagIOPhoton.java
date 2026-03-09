@@ -108,19 +108,28 @@ public class AprilTagIOPhoton implements AprilTagIO {
        */
       if (supportedPoseEstimationMethods.contains(PoseEstimationMethod.MULTI_TAG)
           || supportedPoseEstimationMethods.contains(PoseEstimationMethod.CONSTRAINED)) {
+        // If both results are empty skip the robot loop
+        if (result.targets.isEmpty()) {
+          continue;
+        }
+
         Optional<EstimatedRobotPose> maybeEstimatedMultiTagPose =
             poseEstimator.estimateCoprocMultiTagPose(result);
         Optional<EstimatedRobotPose> maybeEstimatedLowestAmbiguity =
             poseEstimator.estimateLowestAmbiguityPose(result);
 
-        // If both results are empty skip the robot loop
-        if (maybeEstimatedMultiTagPose.isEmpty() && maybeEstimatedLowestAmbiguity.isEmpty()) {
+        EstimatedRobotPose estimatedGlobalPose = null;
+
+        if (maybeEstimatedMultiTagPose.isPresent()) {
+          estimatedGlobalPose = maybeEstimatedMultiTagPose.get();
+        } else if (maybeEstimatedLowestAmbiguity.isPresent()) {
+          estimatedGlobalPose = maybeEstimatedLowestAmbiguity.get();
+        } else {
           continue;
         }
 
         // Assume that if we made it here, that we have at least lowest ambiguity
-        EstimatedRobotPose estimatedGlobalPose =
-            maybeEstimatedMultiTagPose.orElse(maybeEstimatedLowestAmbiguity.get());
+        // maybeEstimatedMultiTagPose.orElse(maybeEstimatedLowestAmbiguity.get());
 
         if (result.getMultiTagResult().isPresent()) {
           MultiTargetPNPResult multiTagResult = result.getMultiTagResult().get();

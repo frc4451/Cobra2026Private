@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.LoggedTunableNumber;
 import org.robotzgarage.frc2026.subsystems.flywheel.Flywheel;
 import org.robotzgarage.frc2026.subsystems.pivot.Pivot;
+import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRoller;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
 import org.robotzgarage.frc2026.util.TuningUtils.TuningUnit;
 
@@ -27,19 +28,23 @@ public class Intake extends SubsystemBase {
   private static final LoggedTunableNumber endeffectorStart =
       new LoggedTunableNumber(name + "/EndeffectorStart", 90.0);
   private static final LoggedTunableNumber endeffectorDeploy =
-      new LoggedTunableNumber(name + "/EndeffectorDeploy", 0.0);
+      new LoggedTunableNumber(name + "/EndeffectorDeploy", -5.0);
+  private static final LoggedTunableNumber endeffectorDeployVolts =
+      new LoggedTunableNumber(name + "/EndeffectorDeployVolts", -2.0);
   private static final LoggedTunableNumber endeffectorLift =
-      new LoggedTunableNumber(name + "/EndeffectorLift", 10.0);
+      new LoggedTunableNumber(name + "/EndeffectorLift", 20.0);
+  private static final LoggedTunableNumber endeffectorSqueeze =
+      new LoggedTunableNumber(name + "/EndeffectorSqueeze", 60.0);
 
   // Subsystems
   private final Flywheel rollers;
-  private final Pivot endeffector;
+  private final SingleRoller endeffector;
 
   public enum EndeffectorState {
     STARTING(Degrees.of(endeffectorStart.get())),
     DEPLOYED(Degrees.of(endeffectorDeploy.get())),
     LIFTED(Degrees.of(endeffectorLift.get())),
-    SQUEEZE(null);
+    SQUEEZE(Degrees.of(endeffectorSqueeze.get()));
 
     private Angle angle;
 
@@ -57,25 +62,27 @@ public class Intake extends SubsystemBase {
   }
 
   public void periodic() {
-    switch (currentState) {
-      case STARTING:
-        endeffectorStart();
-        break;
-      case DEPLOYED:
-        endeffectorDeploy();
-        break;
-      case LIFTED:
-        endeffectorLift();
-        break;
-      case SQUEEZE:
-        endeffectorSqueeze();
-        break;
-      default:
-        break;
-    }
+    // switch (currentState) {
+    //   case STARTING:
+    //     endeffectorStart();
+    //     break;
+    //   case DEPLOYED:
+    //     endeffectorDeploy();
+    //     break;
+    //   case LIFTED:
+    //     endeffectorLift();
+    //     break;
+    //   case SQUEEZE:
+    //     endeffectorSqueeze();
+    //     break;
+    //   default:
+    //     break;
+    // }
     // Periodic modes
     rollers.periodic();
     endeffector.periodic();
+
+    // endeffector.setGoal(endeffector.getGoalPosition());
   }
 
   public Command runRollersPercentOut() {
@@ -103,23 +110,29 @@ public class Intake extends SubsystemBase {
   }
 
   public Command endeffectorStart() {
-    return run(() -> endeffector.setGoalPosition(Degrees.of(endeffectorStart.get())));
+    return runOnce(() -> endeffector.setGoal(Degrees.of(endeffectorStart.get())));
   }
 
   public Command endeffectorDeploy() {
-    return run(() -> endeffector.setGoalPosition(Degrees.of(endeffectorDeploy.get())));
+    return runOnce(() -> endeffector.setGoal(Degrees.of(endeffectorDeploy.get())));
   }
 
   public Command endeffectorLift() {
-    return run(() -> endeffector.setGoalPosition(Degrees.of(endeffectorLift.get())));
+    return runOnce(() -> endeffector.setGoal(Degrees.of(endeffectorLift.get())));
   }
 
   public Command endeffectorSqueeze() {
-    return run(() -> endeffector.setGoalPosition(Degrees.of(80)));
+    return runOnce(() -> endeffector.setGoal(Degrees.of(endeffectorSqueeze.get())))
+        .andThen(runRollersVoltageOut());
+  }
+
+  public Command endeffectorpush() {
+    return runEnd(() -> endeffector.runVolts(-0.5), () -> endeffector.stop());
   }
 
   public Trigger isNearGoal(Angle tolerance) {
-    return new Trigger(() -> this.endeffector.isNear(endeffector.getGoalPosition(), tolerance));
+    return new Trigger(
+        () -> this.endeffector.isNear(this.endeffector.getGoalPosition(), tolerance));
   }
 
   public void setCurrentState(EndeffectorState state) {
@@ -130,6 +143,10 @@ public class Intake extends SubsystemBase {
 
   public Command stop() {
     return runOnce(() -> rollers.stop());
+  }
+
+  public Command stopPivot() {
+    return runOnce(() -> endeffector.stop());
   }
 
   public Command rollersFeedForwardCharacterization(TuningUnit unit) {
