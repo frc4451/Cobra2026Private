@@ -46,7 +46,7 @@ public class ShootingInterpolator {
       AngularVelocity secondaryVelocity,
       Time timeOfFlight) {
 
-    public DistanceAngleSpeedEntry {      
+    public DistanceAngleSpeedEntry {
       if (secondaryVelocity == null) {
         secondaryVelocity = primaryVelocity;
       }

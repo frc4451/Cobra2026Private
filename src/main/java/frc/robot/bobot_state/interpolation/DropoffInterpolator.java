@@ -3,6 +3,7 @@ package frc.robot.bobot_state.interpolation;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.units.measure.Angle;
 import frc.robot.bobot_state.BobotState;
@@ -87,8 +88,14 @@ public class DropoffInterpolator extends TargetInterpolator {
 
   public DropoffInterpolator() {
     super(
-        () -> BobotState.getClosestDropoff().getTargetPose(),
-        BobotState::getGlobalPose,
-        interpolator);
+        TargetInterpolatorConfig.builder()
+            .logKey("BobotState/Interpolation/Dropoff")
+            .targetPose(() -> BobotState.getHubVARC().getTargetPose())
+            .robotPose(() -> BobotState.getGlobalPose())
+            .robotVelocity(() -> BobotState.getRobotVelocity())
+            .lookaheadIterations(20)
+            .interpolator(interpolator)
+            .phaseDelay(Seconds.zero())
+            .build());
   }
 }
