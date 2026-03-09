@@ -198,8 +198,10 @@ public class RobotContainer {
     AutonomousManager autonomousManager = new AutonomousManager(drive, shooter, intake, feeder);
 
     autoChooser.addOption("Himithy", autonomousManager.himithy());
-    autoChooser.addOption("1ft BLine test", autonomousManager.bline1ft());
-    autoChooser.addOption("2ft BLine test", autonomousManager.bline2ft());
+    autoChooser.addOption("Himithyy", autonomousManager.himithyy());
+
+    // autoChooser.addOption("1ft BLine test", autonomousManager.bline1ft());
+    // autoChooser.addOption("2ft BLine test", autonomousManager.bline2ft());
   }
 
   private void configureTuningRoutines() {
@@ -338,7 +340,6 @@ public class RobotContainer {
     controller.povUp().onTrue(intake.endeffectorSqueeze());
     controller.povRight().onTrue(intake.endeffectorLift());
     controller.povDown().onTrue(intake.endeffectorDeploy());
-    controller.x().onTrue(intake.endeffectorpush()).onFalse(intake.stop());
     // shooter controlls
     controller.rightBumper().whileTrue(shooter.runShooterToHub()).onFalse(shooter.stop());
     controller.start().whileTrue(shooter.runShooterToPoop()).onFalse(shooter.stop());
