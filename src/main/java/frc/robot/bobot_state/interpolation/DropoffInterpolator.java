@@ -86,6 +86,9 @@ public class DropoffInterpolator extends TargetInterpolator {
   }
 
   public DropoffInterpolator() {
-    super(() -> BobotState.getClosestDropoff().getTargetPose(), BobotState::getGlobalPose, interpolator);
+    super(
+        () -> BobotState.getClosestDropoff().getTargetPose(),
+        BobotState::getGlobalPose,
+        interpolator);
   }
 }
