@@ -287,6 +287,8 @@ public class Drive extends SubsystemBase {
     BobotState.setRawGyroHeading(rawGyroRotation);
     BobotState.setConstrainedPose(getConstrainedPose());
     BobotState.setTrigPose(getTrigPose());
+    BobotState.setRobotVelocity(
+        ChassisSpeeds.fromRobotRelativeSpeeds(getChassisSpeeds(), getGlobalPose().getRotation()));
   }
 
   /**

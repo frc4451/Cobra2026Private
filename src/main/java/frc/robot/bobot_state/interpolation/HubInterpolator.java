@@ -3,6 +3,7 @@ package frc.robot.bobot_state.interpolation;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.units.measure.Angle;
 import frc.robot.bobot_state.BobotState;
@@ -17,7 +18,7 @@ public class HubInterpolator extends TargetInterpolator {
 
   private static final Angle interpolatorDefaultPitch = Degrees.of(28.0);
 
-  /** NOTE fill this in with the actual distance to angle to velocity calculations */
+  /** NOTE fill this in with the actual distance to angle to velocity with tof calculations */
   static {
     interpolator.addEntries(
         // Start of entries
@@ -25,41 +26,49 @@ public class HubInterpolator extends TargetInterpolator {
             .distanceToTarget(Feet.of(7))
             .primaryVelocity(RotationsPerSecond.of(47))
             .pitch(interpolatorDefaultPitch)
+            .timeOfFlight(Seconds.of(1.0))
             .build(),
         DistanceAngleSpeedEntry.builder()
             .distanceToTarget(Feet.of(8))
             .primaryVelocity(RotationsPerSecond.of(48))
             .pitch(interpolatorDefaultPitch)
+            .timeOfFlight(Seconds.of(1.01))
             .build(),
         DistanceAngleSpeedEntry.builder()
             .distanceToTarget(Feet.of(9))
             .primaryVelocity(RotationsPerSecond.of(50))
             .pitch(interpolatorDefaultPitch)
+            .timeOfFlight(Seconds.of(1.02))
             .build(),
         DistanceAngleSpeedEntry.builder()
             .distanceToTarget(Feet.of(10))
             .primaryVelocity(RotationsPerSecond.of(51))
             .pitch(interpolatorDefaultPitch)
+            .timeOfFlight(Seconds.of(1.03))
             .build(),
         DistanceAngleSpeedEntry.builder()
             .distanceToTarget(Feet.of(11))
             .primaryVelocity(RotationsPerSecond.of(53))
             .pitch(interpolatorDefaultPitch)
+            .timeOfFlight(Seconds.of(1.04))
             .build(),
         DistanceAngleSpeedEntry.builder()
             .distanceToTarget(Feet.of(12))
             .primaryVelocity(RotationsPerSecond.of(55))
             .pitch(interpolatorDefaultPitch)
+            .timeOfFlight(Seconds.of(1.05))
             .build(),
         DistanceAngleSpeedEntry.builder()
             .distanceToTarget(Feet.of(13))
             .primaryVelocity(RotationsPerSecond.of(56.5))
             .pitch(interpolatorDefaultPitch)
+            .timeOfFlight(Seconds.of(1.06))
             .build(),
         DistanceAngleSpeedEntry.builder()
             .distanceToTarget(Feet.of(17))
             .primaryVelocity(RotationsPerSecond.of(63.5))
             .pitch(interpolatorDefaultPitch)
+            .timeOfFlight(Seconds.of(1.07))
             .build()
         // DistanceAngleSpeedEntry.builder()
         //     .distanceToTarget(Feet.of(6))
@@ -86,6 +95,15 @@ public class HubInterpolator extends TargetInterpolator {
   }
 
   public HubInterpolator() {
-    super(() -> BobotState.getHubVARC().getTargetPose(), BobotState::getGlobalPose, interpolator);
+    super(
+        TargetInterpolatorConfig.builder()
+            .logKey("BobotState/Interpolation/Hub")
+            .targetPose(() -> BobotState.getHubVARC().getTargetPose())
+            .robotPose(() -> BobotState.getGlobalPose())
+            .robotVelocity(() -> BobotState.getRobotVelocity())
+            .lookaheadIterations(20)
+            .interpolator(interpolator)
+            .phaseDelay(Seconds.zero())
+            .build());
   }
 }

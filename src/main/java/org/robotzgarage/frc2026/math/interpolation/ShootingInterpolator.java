@@ -3,11 +3,14 @@ package org.robotzgarage.frc2026.math.interpolation;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Time;
+import java.util.OptionalDouble;
 import lombok.Builder;
 import org.robotzgarage.frc2026.util.FieldUtils;
 
@@ -24,7 +27,10 @@ public class ShootingInterpolator {
    */
   @Builder
   public static record InterpolatedCalculation(
-      Angle angle, AngularVelocity primaryVelocity, AngularVelocity secondaryVelocity) {}
+      Angle angle,
+      AngularVelocity primaryVelocity,
+      AngularVelocity secondaryVelocity,
+      Time timeOfFlight) {}
 
   /**
    * Given a distance to target, provide a pitch for your shooter in addition to the velocities
@@ -37,9 +43,10 @@ public class ShootingInterpolator {
       Distance distanceToTarget,
       Angle pitch,
       AngularVelocity primaryVelocity,
-      AngularVelocity secondaryVelocity) {
+      AngularVelocity secondaryVelocity,
+      Time timeOfFlight) {
 
-    public DistanceAngleSpeedEntry {
+    public DistanceAngleSpeedEntry {      
       if (secondaryVelocity == null) {
         secondaryVelocity = primaryVelocity;
       }
@@ -85,6 +92,9 @@ public class ShootingInterpolator {
   private final InterpolatingDoubleTreeMap distanceToVelocityRightMap =
       new InterpolatingDoubleTreeMap();
 
+  private final InterpolatingDoubleTreeMap distanceToTOFMap = new InterpolatingDoubleTreeMap();
+  private boolean hasTOFData = false;
+
   public void addEntries(DistanceAngleSpeedEntry... entries) {
     for (DistanceAngleSpeedEntry entry : entries) {
       addEntry(entry);
@@ -111,6 +121,16 @@ public class ShootingInterpolator {
 
     distanceToVelocityRightMap.put(
         entry.distanceToTarget.in(Meters), entry.secondaryVelocity.in(RotationsPerSecond));
+
+    if (entry.timeOfFlight() != null) {
+      distanceToTOFMap.put(entry.distanceToTarget.in(Meters), entry.timeOfFlight().in(Seconds));
+      hasTOFData = true;
+    }
+  }
+
+  public OptionalDouble getTOF(double distanceMeters) {
+    if (!hasTOFData) return OptionalDouble.empty();
+    return OptionalDouble.of(distanceToTOFMap.get(distanceMeters));
   }
 
   public InterpolatedCalculation calculateInterpolation(Distance distance) {
@@ -125,7 +145,8 @@ public class ShootingInterpolator {
     AngularVelocity rightSpeedCalculation =
         RotationsPerSecond.of(distanceToVelocityRightMap.get(distanceMeters));
 
+    Time tof = hasTOFData ? Seconds.of(distanceToTOFMap.get(distanceMeters)) : null;
     return new InterpolatedCalculation(
-        angleCalculation, leftSpeedCalculation, rightSpeedCalculation);
+        angleCalculation, leftSpeedCalculation, rightSpeedCalculation, tof);
   }
 }

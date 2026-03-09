@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Feet;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.bobot_state.interpolation.HubInterpolator;
 import frc.robot.bobot_state.varc.BumpVARC;
 import frc.robot.bobot_state.varc.DepotDropoffVARC;
@@ -61,6 +62,7 @@ public class BobotState extends VirtualSubsystem {
   @Getter @Setter private static Pose2d trigPose = new Pose2d();
   @Getter @Setter private static Pose2d constrainedPose = new Pose2d();
   @Getter @Setter private static Rotation2d rawGyroHeading = new Rotation2d();
+  @Getter @Setter private static ChassisSpeeds robotVelocity = new ChassisSpeeds();
 
   public static void offerGlobalVisionObservation(PoseObservation observation) {
     BobotState.globalPoseObservations.offer(observation);
@@ -145,6 +147,7 @@ public class BobotState extends VirtualSubsystem {
 
     {
       String subLogTitle = logRoot + "Interpolation/";
+      Logger.recordOutput(subLogTitle + "RobotVelocity", BobotState.getRobotVelocity());
       Logger.recordOutput(
           subLogTitle + "DistanceFromCenterOfHubFeet",
           BobotState.getHubVARC().getDistance().in(Feet));
