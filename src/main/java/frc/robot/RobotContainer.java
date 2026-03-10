@@ -287,8 +287,8 @@ public class RobotContainer {
         .whileTrue(
             DriveCommands.joystickDriveAtAngleRobotRelative(
                 drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
+                () -> controller.getLeftY(),
+                () -> controller.getLeftX(),
                 () -> BobotState.getFuelClusterVARC().getRotationTarget()));
 
     controller

@@ -103,6 +103,23 @@ public class Shooter extends SubsystemBase {
         });
   }
 
+  public Command runShooterInterpolate() {
+    return run(
+        () -> {
+          InterpolatedCalculation calculation =
+              BobotState.getDropoffInterpolator().getCalculation();
+          AngularVelocity velocity = calculation.primaryVelocity();
+          Distance distance = BobotState.getDropoffInterpolator().getDistanceFromTarget();
+
+          Logger.recordOutput(name + "/ShootAtHub/VelocityRPS", velocity.in(RotationsPerSecond));
+          Logger.recordOutput(name + "/ShootAtHub/DistanceFeet", distance.in(Feet));
+          Logger.recordOutput(
+              name + "/ShootAtHub/TargetPose",
+              BobotState.getDropoffInterpolator().getTargetPose().get());
+          shooter.setVelocityTorqueCurrent(velocity);
+        });
+  }
+
   /** Run the shooter just enough to poop out residual fuel */
   public Command runShooterToPoop() {
     return run(

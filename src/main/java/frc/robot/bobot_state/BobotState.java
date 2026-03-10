@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import frc.robot.bobot_state.interpolation.DropoffInterpolator;
 import frc.robot.bobot_state.interpolation.HubInterpolator;
 import frc.robot.bobot_state.varc.BumpVARC;
 import frc.robot.bobot_state.varc.DepotDropoffVARC;
@@ -46,6 +47,8 @@ public class BobotState extends VirtualSubsystem {
 
   @Getter @Setter private static List<Pose3d> knownFuelPoses = List.of();
   @Getter private static HubInterpolator hubInterpolator = new HubInterpolator();
+  @Getter private static DropoffInterpolator dropoffInterpolator = new DropoffInterpolator();
+  // @gETTER private static
 
   @Getter
   private static final Queue<PoseObservation> globalPoseObservations =
@@ -122,6 +125,7 @@ public class BobotState extends VirtualSubsystem {
     fuelClusterVARC.update();
     // getClosestDropoffVARC();
     BobotState.hubInterpolator.update();
+    BobotState.dropoffInterpolator.update();
 
     BobotState.closestDropoff =
         outpostVARC.getDistance().lt(depotVARC.getDistance()) ? outpostVARC : depotVARC;
