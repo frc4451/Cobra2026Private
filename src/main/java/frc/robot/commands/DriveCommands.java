@@ -159,6 +159,53 @@ public class DriveCommands {
             () -> angleController.reset(BobotState.getGlobalPose().getRotation().getRadians()));
   }
 
+  /**
+   * Robot relative drive command using joystick for linear control and PID for angular control.
+   * Same as {@link #joystickDriveAtAngle} but translation is robot-relative.
+   */
+  public static Command joystickDriveAtAngleRobotRelative(
+      Drive drive,
+      DoubleSupplier xSupplier,
+      DoubleSupplier ySupplier,
+      Supplier<Rotation2d> rotationSupplier) {
+
+    // Create PID controller
+    ProfiledPIDController angleController =
+        new ProfiledPIDController(
+            ANGLE_KP.get(),
+            0.0,
+            ANGLE_KD.get(),
+            new TrapezoidProfile.Constraints(
+                ANGLE_MAX_VELOCITY.get(), ANGLE_MAX_ACCELERATION.get()));
+    angleController.enableContinuousInput(-Math.PI, Math.PI);
+
+    // Construct command
+    return Commands.run(
+            () -> {
+              // Get linear velocity
+              Translation2d linearVelocity =
+                  getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
+
+              // Calculate angular speed
+              double omega =
+                  angleController.calculate(
+                      BobotState.getGlobalPose().getRotation().getRadians(),
+                      rotationSupplier.get().getRadians());
+
+              // Send robot-relative speeds directly (no field-relative conversion)
+              drive.runVelocity(
+                  new ChassisSpeeds(
+                      linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
+                      linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
+                      omega));
+            },
+            drive)
+
+        // Reset PID controller when command starts
+        .beforeStarting(
+            () -> angleController.reset(BobotState.getGlobalPose().getRotation().getRadians()));
+  }
+
   public static Command snapToAngle(
       Drive drive, Supplier<Rotation2d> targetSupplier, double toleranceDegrees) {
 
