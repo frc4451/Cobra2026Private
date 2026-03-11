@@ -6,7 +6,6 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -31,11 +30,11 @@ public abstract class TargetInterpolator {
   @Getter private InterpolatedCalculation calculation;
   /** Converged shooter position at the moment the ball is predicted to reach the target. */
   @Getter private Translation2d lookaheadTranslation = null;
+
   private final int lookaheadIterations;
   // Stored as a primitive double because it is allowed to be zero (no delay).
   private final double phaseDelaySeconds;
   private final String logKey;
-
 
   @Builder
   public record TargetInterpolatorConfig(
@@ -93,7 +92,8 @@ public abstract class TargetInterpolator {
 
       this.lookaheadTranslation = lookaheadTranslation;
       Logger.recordOutput(
-          logKey + "LookaheadPose", new Pose2d(lookaheadTranslation, robotPose.get().getRotation()));
+          logKey + "LookaheadPose",
+          new Pose2d(lookaheadTranslation, robotPose.get().getRotation()));
       Logger.recordOutput(
           logKey + "LookaheadDistanceFeet", Units.metersToFeet(lookaheadDistanceMeters));
       Logger.recordOutput(
