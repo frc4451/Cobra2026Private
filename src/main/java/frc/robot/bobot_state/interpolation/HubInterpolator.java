@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.units.measure.Angle;
 import frc.robot.bobot_state.BobotState;
+import frc.robot.subsystems.shooter.ShooterConstants;
 import org.robotzgarage.frc2026.math.interpolation.ShootingInterpolator;
 import org.robotzgarage.frc2026.math.interpolation.ShootingInterpolator.DistanceAngleSpeedEntry;
 import org.robotzgarage.frc2026.math.interpolation.TargetInterpolator;
@@ -18,7 +19,18 @@ public class HubInterpolator extends TargetInterpolator {
 
   private static final Angle interpolatorDefaultPitch = Degrees.of(28.0);
 
-  /** NOTE fill this in with the actual distance to angle to velocity with tof calculations */
+  /**
+   * Distance-to-velocity interpolation table for hub shots.
+   *
+   * <p>Each entry maps a shot distance (feet) to a flywheel velocity (RPS). The {@code
+   * timeOfFlight} value is the ball's <em>in-air</em> time only — from the moment the ball exits
+   * the shooter until it enters the hub. It does NOT include indexer feed delay or flywheel spinup;
+   * those belong in {@code phaseDelay} on the config.
+   *
+   * <p>The table must cover the full expected lookahead range: at max robot speed, the lookahead
+   * distance can exceed the actual shot distance by up to {@code maxSpeed × maxTOF}. Entries
+   * outside the table bounds will clamp to the nearest edge value.
+   */
   static {
     interpolator.addEntries(
         // Start of entries
@@ -113,6 +125,7 @@ public class HubInterpolator extends TargetInterpolator {
             .targetPose(() -> BobotState.getHubVARC().getTargetPose())
             .robotPose(() -> BobotState.getGlobalPose())
             .robotVelocity(() -> BobotState.getRobotVelocity())
+            .robotToShooter(() -> ShooterConstants.robotToShooter)
             .lookaheadIterations(20)
             .interpolator(interpolator)
             .phaseDelay(Seconds.zero())

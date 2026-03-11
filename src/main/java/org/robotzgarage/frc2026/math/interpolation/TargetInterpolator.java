@@ -6,6 +6,8 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
@@ -24,12 +26,16 @@ public abstract class TargetInterpolator {
 
   private final Supplier<Pose2d> robotPose;
   private final Supplier<ChassisSpeeds> robotVelocitySupplier;
+  private final Supplier<Transform2d> robotToShooter;
   @Getter private final Supplier<Pose2d> targetPose;
   @Getter private InterpolatedCalculation calculation;
+  /** Converged shooter position at the moment the ball is predicted to reach the target. */
+  @Getter private Translation2d lookaheadTranslation = null;
   private final int lookaheadIterations;
-  // This is instanced as a primative type to allow it to be nullable
+  // Stored as a primitive double because it is allowed to be zero (no delay).
   private final double phaseDelaySeconds;
   private final String logKey;
+
 
   @Builder
   public record TargetInterpolatorConfig(
@@ -39,7 +45,8 @@ public abstract class TargetInterpolator {
       Supplier<ChassisSpeeds> robotVelocity,
       ShootingInterpolator interpolator,
       int lookaheadIterations,
-      Time phaseDelay) {}
+      Time phaseDelay,
+      Supplier<Transform2d> robotToShooter) {}
 
   public TargetInterpolator(TargetInterpolatorConfig config) {
     this.robotPose = config.robotPose();
@@ -49,6 +56,7 @@ public abstract class TargetInterpolator {
     this.lookaheadIterations = config.lookaheadIterations();
     this.phaseDelaySeconds = config.phaseDelay() != null ? config.phaseDelay().in(Seconds) : 0.0;
     this.logKey = config.logKey() != null ? config.logKey() + "/" : "Interpolation/";
+    this.robotToShooter = config.robotToShooter();
     this.calculation =
         new InterpolatedCalculation(
             Degrees.zero(), RotationsPerSecond.zero(), RotationsPerSecond.zero(), null);
@@ -61,27 +69,31 @@ public abstract class TargetInterpolator {
     OptionalDouble initialTOF = interpolator.getTOF(lookaheadDistanceMeters);
     if (initialTOF.isPresent()) {
       ChassisSpeeds fieldVelocity = robotVelocitySupplier.get();
-      Translation2d robotTranslation = robotPose.get().getTranslation();
+      Pose2d currentPose = robotPose.get();
+      Translation2d shooterTranslation =
+          robotToShooter != null
+              ? currentPose.transformBy(robotToShooter.get()).getTranslation()
+              : currentPose.getTranslation();
       Translation2d target = targetPose.get().getTranslation();
 
       // Iteratively solve for lookahead distance.
-      // Use the current TOF estimate to project where the robot will be when
+      // Use the current TOF estimate to project where the shooter will be when
       // fuel lands in the hub, then recalculate the distance from that projected position.
-      Pose2d currentPose = robotPose.get();
-      Translation2d lookaheadTranslation = robotTranslation;
+      Translation2d lookaheadTranslation = shooterTranslation;
       for (int i = 0; i < lookaheadIterations; i++) {
         double timeOfFlight =
             interpolator.getTOF(lookaheadDistanceMeters).getAsDouble() + phaseDelaySeconds;
         lookaheadTranslation =
-            robotTranslation.plus(
+            shooterTranslation.plus(
                 new Translation2d(
                     fieldVelocity.vxMetersPerSecond * timeOfFlight,
                     fieldVelocity.vyMetersPerSecond * timeOfFlight));
         lookaheadDistanceMeters = lookaheadTranslation.getDistance(target);
       }
 
+      this.lookaheadTranslation = lookaheadTranslation;
       Logger.recordOutput(
-          logKey + "LookaheadPose", new Pose2d(lookaheadTranslation, currentPose.getRotation()));
+          logKey + "LookaheadPose", new Pose2d(lookaheadTranslation, robotPose.get().getRotation()));
       Logger.recordOutput(
           logKey + "LookaheadDistanceFeet", Units.metersToFeet(lookaheadDistanceMeters));
       Logger.recordOutput(

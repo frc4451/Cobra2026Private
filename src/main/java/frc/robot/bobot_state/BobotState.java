@@ -117,6 +117,9 @@ public class BobotState extends VirtualSubsystem {
   }
 
   public void periodic() {
+    // VARCs must update before the hub interpolator so that HubVARC can read
+    // hubInterpolator.getLookaheadTranslation() from the previous cycle. The one-loop
+    // (~20 ms) staleness is acceptable. Do NOT move hubInterpolator.update() above the VARCs.
     hubVARC.update();
     trenchVARC.update();
     bumpVARC.update();

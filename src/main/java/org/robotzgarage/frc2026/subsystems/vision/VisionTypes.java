@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
@@ -47,6 +48,13 @@ public final class VisionTypes {
               rollCCWPositive.in(Radians),
               pitchCCWPositive.in(Radians),
               yawCCWPositive.in(Radians)));
+    }
+
+    public Transform2d getTransform2d() {
+      return new Transform2d(
+          forwardPositive.in(Meters),
+          leftPositive.in(Meters),
+          new Rotation2d(yawCCWPositive.in(Radians)));
     }
   }
 
