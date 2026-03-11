@@ -1,6 +1,7 @@
 package frc.robot.subsystems.shooter;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
@@ -9,12 +10,14 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import frc.robot.Constants;
 import org.robotzgarage.frc2026.subsystems.flywheel.FlywheelFollower.FlywheelConfig;
+import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.RobotRelativeTransform;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfig;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfigFollower;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfigFollowerSim;
@@ -27,6 +30,18 @@ public class ShooterConstants {
       RotationsPerSecondPerSecond.of(400);
   public static final Current supplyCurrentLimit = Amps.of(40.0);
   public static final Current statorCurrentLimit = Amps.of(100.0);
+
+  // Collected from the center of the fuel from Cobra Week 1 CAD
+  public static final Transform2d robotToShooter =
+      RobotRelativeTransform.builder()
+          .forwardPositive(Inches.of(4.995397))
+          .leftPositive(Inches.of(-6.300))
+          .upPositive(Inches.of(13.991715))
+          .rollCCWPositive(Degrees.zero())
+          .pitchCCWPositive(Degrees.zero())
+          .yawCCWPositive(Degrees.zero())
+          .build()
+          .getTransform2d();
 
   public static final FlywheelConfig shooterFlywheelConfig =
       FlywheelConfig.builder()

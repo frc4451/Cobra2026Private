@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.autonomous.AutonomousManager;
@@ -285,11 +286,14 @@ public class RobotContainer {
         .a()
         .and(controller.rightBumper())
         .whileTrue(
-            DriveCommands.joystickDriveAtAngleRobotRelative(
-                drive,
-                () -> controller.getLeftY(),
-                () -> controller.getLeftX(),
-                () -> BobotState.getFuelClusterVARC().getRotationTarget()));
+            Commands.parallel(
+                DriveCommands.joystickDriveAtAngleRobotRelative(
+                    drive,
+                    () -> controller.getLeftY(),
+                    () -> controller.getLeftX(),
+                    () -> BobotState.getFuelClusterVARC().getRotationTarget()),
+                intake.runRollersVoltageOut()))
+        .onFalse(intake.stop());
 
     controller
         .b()
