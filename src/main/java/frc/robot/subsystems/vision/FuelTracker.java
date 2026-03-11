@@ -10,13 +10,16 @@ import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.ObjectDetectionTra
 public class FuelTracker {
   private static final LoggedTunableNumber deduplicationThresholdMeters =
       new LoggedTunableNumber("ObjectDetection/FuelTracker/DeduplicationThresholdMeters", 0.4);
+  
+  private static final LoggedTunableNumber trackingMemorySeconds = 
+      new LoggedTunableNumber("ObjectDetection/FuelTracker/TrackingMemorySeconds", VisionConstants.trackingMemorySeconds);
 
   // One entry per distinct fuel ball, not per observation frame
   private final List<ObjectDetectionTrackedPose> trackedPoses = new ArrayList<>();
 
   /** Every robot loop, evict any tracked fuel that hasn't been seen within the tracking window. */
   public void update() {
-    double cutoff = Timer.getFPGATimestamp() - VisionConstants.trackingMemorySeconds;
+    double cutoff = Timer.getFPGATimestamp() - trackingMemorySeconds.get();
     trackedPoses.removeIf(p -> p.timestampSeconds() < cutoff);
   }
 
