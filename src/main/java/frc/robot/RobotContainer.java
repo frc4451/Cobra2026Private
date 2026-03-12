@@ -200,6 +200,8 @@ public class RobotContainer {
 
     autoChooser.addOption("Himithy", autonomousManager.himithy());
     autoChooser.addOption("Himithyy", autonomousManager.himithyy());
+    autoChooser.addOption("Timithy", autonomousManager.timithy());
+    autoChooser.addOption("Timithyy", autonomousManager.timithyy());
 
     // autoChooser.addOption("1ft BLine test", autonomousManager.bline1ft());
     // autoChooser.addOption("2ft BLine test", autonomousManager.bline2ft());

@@ -221,7 +221,7 @@ public class AutonomousManager {
             BLineTrajectory("SnG-LT-1"),
             BLineTrajectorywithIntake("LT-SimpleIntake-1"),
             this.liftIntake(),
-            BLineTrajectory("SimpleIntake-Shoot"),
+            BLineTrajectory("LB-SimpleIntake-Shoot"),
             this.rotateToHub(),
             this.handleShotInterpolation("shot 1", 5.0, 2.0))
         .beforeStarting(Commands.print("Path start"))
@@ -234,7 +234,33 @@ public class AutonomousManager {
             BLineTrajectory("SnG-LT-1"),
             BLineTrajectorywithIntake("LT-Intake-NeutralZone"),
             this.liftIntake(),
-            BLineTrajectory("NeutralZonetoShoot"),
+            BLineTrajectory("RB-NeutralZone-Shoot"),
+            this.rotateToHub(),
+            this.handleShotInterpolation("shot 1", 10.0, 2.0))
+        .beforeStarting(Commands.print("Path start"))
+        .andThen(Commands.print("Path end"));
+  }
+
+  public Command timithy() {
+    return Commands.sequence(
+            this.deployIntake(),
+            BLineTrajectory("SnG-RT-1"),
+            BLineTrajectorywithIntake("RT-SimpleIntake-1"),
+            this.liftIntake(),
+            BLineTrajectory("RB-SimpleIntake-Shoot"),
+            this.rotateToHub(),
+            this.handleShotInterpolation("shot 1", 5.0, 2.0))
+        .beforeStarting(Commands.print("Path start"))
+        .andThen(Commands.print("Path end"));
+  }
+
+  public Command timithyy() {
+    return Commands.sequence(
+            this.deployIntake(),
+            BLineTrajectory("SnG-RT-1"),
+            BLineTrajectorywithIntake("RT-Intake-NeutralZone"),
+            this.liftIntake(),
+            BLineTrajectory("LB-NeutralZone-Shoot"),
             this.rotateToHub(),
             this.handleShotInterpolation("shot 1", 10.0, 2.0))
         .beforeStarting(Commands.print("Path start"))

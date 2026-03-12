@@ -28,7 +28,7 @@ public class Intake extends SubsystemBase {
   private static final LoggedTunableNumber endeffectorStart =
       new LoggedTunableNumber(name + "/EndeffectorStart", 90.0);
   private static final LoggedTunableNumber endeffectorDeploy =
-      new LoggedTunableNumber(name + "/EndeffectorDeploy", -5.0);
+      new LoggedTunableNumber(name + "/EndeffectorDeploy", -2.0);
   private static final LoggedTunableNumber endeffectorDeployVolts =
       new LoggedTunableNumber(name + "/EndeffectorDeployVolts", -2.0);
   private static final LoggedTunableNumber endeffectorLift =
@@ -126,9 +126,9 @@ public class Intake extends SubsystemBase {
         .andThen(runRollersVoltageOut());
   }
 
-  public Command endeffectorpush() {
-    return runEnd(() -> endeffector.runVolts(-0.5), () -> endeffector.stop());
-  }
+  // public Command endeffectorpush() {
+  //   return runEnd(() -> endeffector.runVolts(-0.5), () -> endeffector.stop());
+  // }
 
   public Trigger isNearGoal(Angle tolerance) {
     return new Trigger(
