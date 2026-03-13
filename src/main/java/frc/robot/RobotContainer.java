@@ -354,14 +354,13 @@ public class RobotContainer {
     // intake endeffector controlls
     controller.povLeft().onTrue(intake.endeffectorStart());
     controller.povUp().onTrue(intake.endeffectorSqueeze());
-    controller.povRight().onTrue(intake.endeffectorLift());
+    // controller.povRight().onTrue(intake.endeffectorLift());
     controller.povDown().onTrue(intake.endeffectorDeploy());
     // shooter controlls
     controller.rightBumper().whileTrue(shooter.runShooterToHub()).onFalse(shooter.stop());
-    controller.start().whileTrue(shooter.runShooterToPoop()).onFalse(shooter.stop());
+    controller.leftBumper().whileTrue(shooter.runShooterToPoop()).onFalse(shooter.stop());
     // feeder controlls
-    controller.a().onTrue(feeder.runFeederVoltage());
-    controller.a().onFalse(feeder.stop());
+    controller.a().onTrue(feeder.runFeederVoltage()).onFalse(feeder.stop());
 
     if (Constants.tuningMode) {
       controller
