@@ -361,6 +361,7 @@ public class RobotContainer {
     controller.leftBumper().whileTrue(shooter.runShooterToPoop()).onFalse(shooter.stop());
     // feeder controlls
     controller.a().onTrue(feeder.runFeederVoltage()).onFalse(feeder.stop());
+    controller.y().onTrue(feeder.runSpindexerReverse()).onFalse(feeder.stop());
 
     if (Constants.tuningMode) {
       controller

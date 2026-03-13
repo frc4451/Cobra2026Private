@@ -249,7 +249,7 @@ public class AutonomousManager {
             this.liftIntake(),
             BLineTrajectory("RB-SimpleIntake-Shoot"),
             this.rotateToHub(),
-            this.handleShotInterpolation("shot 1", 5.0, 2.0))
+            this.handleShotInterpolation("shot 1", 8.0, 3.0))
         .beforeStarting(Commands.print("Path start"))
         .andThen(Commands.print("Path end"));
   }
@@ -262,7 +262,7 @@ public class AutonomousManager {
             this.liftIntake(),
             BLineTrajectory("LB-NeutralZone-Shoot"),
             this.rotateToHub(),
-            this.handleShotInterpolation("shot 1", 10.0, 2.0))
+            this.handleShotInterpolation("shot 1", 10.0, 6.0))
         .beforeStarting(Commands.print("Path start"))
         .andThen(Commands.print("Path end"));
   }
