@@ -92,19 +92,19 @@ public class VisionConstants {
           //               .build()),
           //   SimCameraConfig.THRIFTY_CAM_95_720p,
           //   List.of(PoseEstimationMethod.MULTI_TAG)),
-          //   new AprilTagCameraConfig(
-          //       new VisionSource(
-          //           "RightRearView",
-          //           RobotRelativeTransform.builder()
-          //               .forwardPositive(Inches.of(5.632))
-          //               .leftPositive(Inches.of(-12.190))
-          //               .upPositive(Inches.of(8.013))
-          //               .rollCCWPositive(Degrees.zero())
-          //               .pitchCCWPositive(Degrees.of(-20.0))
-          //               .yawCCWPositive(Degrees.of(-120))
-          //               .build()),
-          //       SimCameraConfig.THRIFTY_CAM_95_720p,
-          //       List.of(PoseEstimationMethod.MULTI_TAG)),
+            new AprilTagCameraConfig(
+                new VisionSource(
+                    "RightRearView",
+                    RobotRelativeTransform.builder()
+                        .forwardPositive(Inches.of(5.632))
+                        .leftPositive(Inches.of(-12.190))
+                        .upPositive(Inches.of(8.013))
+                        .rollCCWPositive(Degrees.zero())
+                        .pitchCCWPositive(Degrees.of(-20.0))
+                        .yawCCWPositive(Degrees.of(-120))
+                        .build()),
+                SimCameraConfig.THRIFTY_CAM_95_720p,
+                List.of(PoseEstimationMethod.MULTI_TAG)),
           new AprilTagCameraConfig(
               new VisionSource(
                   "ShooterCam",
