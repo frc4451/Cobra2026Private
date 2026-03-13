@@ -47,8 +47,8 @@
     "max_velocity_meters_per_sec": [
       {
         "value": 1.9999999999999996,
-        "start_ordinal": 1,
-        "end_ordinal": 2
+        "start_ordinal": 0,
+        "end_ordinal": 3
       }
     ]
   }

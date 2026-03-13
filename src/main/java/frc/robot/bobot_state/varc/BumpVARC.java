@@ -30,6 +30,8 @@ public class BumpVARC extends TargetAngleTracker {
 
     Pose2d bumpPose = AllianceFlipUtil.apply(new Pose2d(bumpTranslation, Rotation2d.kZero));
 
+    Rotation2d closestRotation = robotPose.getRotation();
+
     boolean leftBumpCloser = distanceToLeftBump.lt(distanceToRightBump);
 
     this.distance = leftBumpCloser ? distanceToLeftBump : distanceToRightBump;
