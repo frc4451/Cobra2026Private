@@ -306,9 +306,7 @@ public class AutonomousManager {
             Commands.waitSeconds(4),
             BLineTrajectory("dimithy-p2"),
             this.rotateToHub(),
-            Commands.parallel(
-                this.handleShotInterpolation("shot 1", 10.0, 5.0),
-                Commands.waitSeconds(7).andThen(intake.endeffectorDeploy())))
+            this.handleShotInterpolation("shot 1", 10.0, 5.0))
         .beforeStarting(Commands.print("Path start"))
         .andThen(Commands.print("Path end"));
   }
