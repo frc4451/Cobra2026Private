@@ -267,6 +267,50 @@ public class AutonomousManager {
         .andThen(Commands.print("Path end"));
   }
 
+  public Command timithy_1() {
+    return Commands.sequence(
+            this.deployIntake(),
+            Commands.deadline(
+                    BLineTrajectory("timithy-1"),
+                    Commands.waitSeconds(1)
+                        .andThen(
+                            Commands.deadline(
+                                Commands.waitSeconds(5), intake.runRollersVoltageOut())))
+                .andThen(Commands.waitSeconds(1).andThen(intake.stop())),
+            this.rotateToHub(),
+            this.handleShotInterpolation("shot 1", 10.0, 6.0))
+        .beforeStarting(Commands.print("Path start"))
+        .andThen(Commands.print("Path end"));
+  }
+
+  public Command himithy_1() {
+    return Commands.sequence(
+            this.deployIntake(),
+            Commands.deadline(
+                    BLineTrajectory("himithy-1"),
+                    Commands.waitSeconds(1)
+                        .andThen(
+                            Commands.deadline(
+                                Commands.waitSeconds(5), intake.runRollersVoltageOut())))
+                .andThen(Commands.waitSeconds(1).andThen(intake.stop())),
+            this.rotateToHub(),
+            this.handleShotInterpolation("shot 1", 10.0, 6.0))
+        .beforeStarting(Commands.print("Path start"))
+        .andThen(Commands.print("Path end"));
+  }
+
+  public Command dimithy_1() {
+    return Commands.sequence(
+            this.deployIntake(),
+            BLineTrajectory("dimithy-1"),
+            Commands.waitSeconds(4),
+            BLineTrajectory("dimithy-p2"),
+            this.rotateToHub(),
+            this.handleShotInterpolation("shot 1", 10.0, 6.0))
+        .beforeStarting(Commands.print("Path start"))
+        .andThen(Commands.print("Path end"));
+  }
+
   public Command bline1ft() {
     return Commands.sequence(BLineTrajectory("1ft-bline"));
   }
