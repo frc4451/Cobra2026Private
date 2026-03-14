@@ -3,7 +3,7 @@
     {
       "type": "waypoint",
       "translation_target": {
-        "x_meters": 7.8,
+        "x_meters": 7.450000000000001,
         "y_meters": 2.2,
         "intermediate_handoff_radius_meters": 0.1
       },
