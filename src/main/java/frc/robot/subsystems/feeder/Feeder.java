@@ -52,6 +52,13 @@ public class Feeder extends SubsystemBase {
         });
   }
 
+  public Command runSpindexerReverse() {
+    return run(
+        () -> {
+          spindexer.runVolts(-spindexerVoltage.get());
+        });
+  }
+
   public Command runTowerTorqueCurrent() {
     return run(
         () -> {

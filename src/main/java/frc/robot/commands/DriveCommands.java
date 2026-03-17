@@ -35,13 +35,13 @@ import org.littletonrobotics.LoggedTunableNumber;
 public class DriveCommands {
   private static final double DEADBAND = 0.1;
   private static final LoggedTunableNumber ANGLE_KP =
-      new LoggedTunableNumber("DriveCommands/kP", 10.0);
+      new LoggedTunableNumber("DriveCommands/kP", 15.0);
   private static final LoggedTunableNumber ANGLE_KD =
       new LoggedTunableNumber("DriveCommands/kD", 0.2);
   private static final LoggedTunableNumber ANGLE_MAX_VELOCITY =
-      new LoggedTunableNumber("DriveCommands/AngleMaxVelocity", 16.0);
+      new LoggedTunableNumber("DriveCommands/AngleMaxVelocity", 24.0);
   private static final LoggedTunableNumber ANGLE_MAX_ACCELERATION =
-      new LoggedTunableNumber("DriveCommands/AngleMaxAcceleration", 40.0);
+      new LoggedTunableNumber("DriveCommands/AngleMaxAcceleration", 96.0);
   private static final double FF_START_DELAY = 2.0; // Secs
   private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
   private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
@@ -151,6 +151,53 @@ public class DriveCommands {
                       isFlipped
                           ? BobotState.getGlobalPose().getRotation().plus(new Rotation2d(Math.PI))
                           : BobotState.getGlobalPose().getRotation()));
+            },
+            drive)
+
+        // Reset PID controller when command starts
+        .beforeStarting(
+            () -> angleController.reset(BobotState.getGlobalPose().getRotation().getRadians()));
+  }
+
+  /**
+   * Robot relative drive command using joystick for linear control and PID for angular control.
+   * Same as {@link #joystickDriveAtAngle} but translation is robot-relative.
+   */
+  public static Command joystickDriveAtAngleRobotRelative(
+      Drive drive,
+      DoubleSupplier xSupplier,
+      DoubleSupplier ySupplier,
+      Supplier<Rotation2d> rotationSupplier) {
+
+    // Create PID controller
+    ProfiledPIDController angleController =
+        new ProfiledPIDController(
+            ANGLE_KP.get(),
+            0.0,
+            ANGLE_KD.get(),
+            new TrapezoidProfile.Constraints(
+                ANGLE_MAX_VELOCITY.get(), ANGLE_MAX_ACCELERATION.get()));
+    angleController.enableContinuousInput(-Math.PI, Math.PI);
+
+    // Construct command
+    return Commands.run(
+            () -> {
+              // Get linear velocity
+              Translation2d linearVelocity =
+                  getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
+
+              // Calculate angular speed
+              double omega =
+                  angleController.calculate(
+                      BobotState.getGlobalPose().getRotation().getRadians(),
+                      rotationSupplier.get().getRadians());
+
+              // Send robot-relative speeds directly (no field-relative conversion)
+              drive.runVelocity(
+                  new ChassisSpeeds(
+                      linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
+                      linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
+                      omega));
             },
             drive)
 

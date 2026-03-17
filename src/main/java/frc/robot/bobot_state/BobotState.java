@@ -5,6 +5,8 @@ import static edu.wpi.first.units.Units.Feet;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import frc.robot.bobot_state.interpolation.DropoffInterpolator;
 import frc.robot.bobot_state.interpolation.HubInterpolator;
 import frc.robot.bobot_state.varc.BumpVARC;
 import frc.robot.bobot_state.varc.DepotDropoffVARC;
@@ -45,6 +47,8 @@ public class BobotState extends VirtualSubsystem {
 
   @Getter @Setter private static List<Pose3d> knownFuelPoses = List.of();
   @Getter private static HubInterpolator hubInterpolator = new HubInterpolator();
+  @Getter private static DropoffInterpolator dropoffInterpolator = new DropoffInterpolator();
+  // @gETTER private static
 
   @Getter
   private static final Queue<PoseObservation> globalPoseObservations =
@@ -61,6 +65,7 @@ public class BobotState extends VirtualSubsystem {
   @Getter @Setter private static Pose2d trigPose = new Pose2d();
   @Getter @Setter private static Pose2d constrainedPose = new Pose2d();
   @Getter @Setter private static Rotation2d rawGyroHeading = new Rotation2d();
+  @Getter @Setter private static ChassisSpeeds robotVelocity = new ChassisSpeeds();
 
   public static void offerGlobalVisionObservation(PoseObservation observation) {
     BobotState.globalPoseObservations.offer(observation);
@@ -112,6 +117,9 @@ public class BobotState extends VirtualSubsystem {
   }
 
   public void periodic() {
+    // VARCs must update before the hub interpolator so that HubVARC can read
+    // hubInterpolator.getLookaheadTranslation() from the previous cycle. The one-loop
+    // (~20 ms) staleness is acceptable. Do NOT move hubInterpolator.update() above the VARCs.
     hubVARC.update();
     trenchVARC.update();
     bumpVARC.update();
@@ -120,6 +128,7 @@ public class BobotState extends VirtualSubsystem {
     fuelClusterVARC.update();
     // getClosestDropoffVARC();
     BobotState.hubInterpolator.update();
+    BobotState.dropoffInterpolator.update();
 
     BobotState.closestDropoff =
         outpostVARC.getDistance().lt(depotVARC.getDistance()) ? outpostVARC : depotVARC;
@@ -145,6 +154,7 @@ public class BobotState extends VirtualSubsystem {
 
     {
       String subLogTitle = logRoot + "Interpolation/";
+      Logger.recordOutput(subLogTitle + "RobotVelocity", BobotState.getRobotVelocity());
       Logger.recordOutput(
           subLogTitle + "DistanceFromCenterOfHubFeet",
           BobotState.getHubVARC().getDistance().in(Feet));

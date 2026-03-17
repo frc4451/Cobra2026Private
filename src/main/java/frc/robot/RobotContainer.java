@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.autonomous.AutonomousManager;
@@ -199,6 +200,11 @@ public class RobotContainer {
 
     autoChooser.addOption("Himithy", autonomousManager.himithy());
     autoChooser.addOption("Himithyy", autonomousManager.himithyy());
+    autoChooser.addOption("Timithy", autonomousManager.timithy());
+    autoChooser.addOption("Timithyy", autonomousManager.timithyy());
+    autoChooser.addOption("Timithy-1", autonomousManager.timithy_1());
+    autoChooser.addOption("Himithy-1", autonomousManager.himithy_1());
+    autoChooser.addOption("Dimithy-1", autonomousManager.dimithy_1());
 
     // autoChooser.addOption("1ft BLine test", autonomousManager.bline1ft());
     // autoChooser.addOption("2ft BLine test", autonomousManager.bline2ft());
@@ -282,6 +288,19 @@ public class RobotContainer {
                 () -> BobotState.getFuelClusterVARC().getRotationTarget()));
 
     controller
+        .a()
+        .and(controller.rightBumper())
+        .whileTrue(
+            Commands.parallel(
+                DriveCommands.joystickDriveAtAngleRobotRelative(
+                    drive,
+                    () -> controller.getLeftY(),
+                    () -> controller.getLeftX(),
+                    () -> BobotState.getFuelClusterVARC().getRotationTarget()),
+                intake.runRollersVoltageOut()))
+        .onFalse(intake.stop());
+
+    controller
         .b()
         .whileTrue(
             DriveCommands.joystickDriveAtAngle(
@@ -338,14 +357,14 @@ public class RobotContainer {
     // intake endeffector controlls
     controller.povLeft().onTrue(intake.endeffectorStart());
     controller.povUp().onTrue(intake.endeffectorSqueeze());
-    controller.povRight().onTrue(intake.endeffectorLift());
+    // controller.povRight().onTrue(intake.endeffectorLift());
     controller.povDown().onTrue(intake.endeffectorDeploy());
     // shooter controlls
     controller.rightBumper().whileTrue(shooter.runShooterToHub()).onFalse(shooter.stop());
-    controller.start().whileTrue(shooter.runShooterToPoop()).onFalse(shooter.stop());
+    controller.leftBumper().whileTrue(shooter.runShooterToPoop()).onFalse(shooter.stop());
     // feeder controlls
-    controller.a().onTrue(feeder.runFeederVoltage());
-    controller.a().onFalse(feeder.stop());
+    controller.a().onTrue(feeder.runFeederVoltage()).onFalse(feeder.stop());
+    controller.y().onTrue(feeder.runSpindexerReverse()).onFalse(feeder.stop());
 
     if (Constants.tuningMode) {
       controller
