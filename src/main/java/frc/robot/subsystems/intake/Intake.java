@@ -28,7 +28,7 @@ public class Intake extends SubsystemBase {
   private static final LoggedTunableNumber endeffectorStart =
       new LoggedTunableNumber(name + "/EndeffectorStart", 90.0);
   private static final LoggedTunableNumber endeffectorDeploy =
-      new LoggedTunableNumber(name + "/EndeffectorDeploy", -2.0);
+      new LoggedTunableNumber(name + "/EndeffectorDeploy", 0.0);
   private static final LoggedTunableNumber endeffectorDeployVolts =
       new LoggedTunableNumber(name + "/EndeffectorDeployVolts", -2.0);
   private static final LoggedTunableNumber endeffectorLift =
