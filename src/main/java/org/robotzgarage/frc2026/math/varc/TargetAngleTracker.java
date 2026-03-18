@@ -13,4 +13,22 @@ public abstract class TargetAngleTracker {
   @Getter protected Pose2d targetPose;
 
   public abstract void update();
+
+  public static Rotation2d closestAngle(Rotation2d currentPose, Rotation2d... targetangles) {
+    Rotation2d closest = Rotation2d.fromDegrees(360);
+
+    // for (Rotation2d target : targetangles) {
+    //   if (Math.abs(currentPose.getDegrees() - target.getDegrees()) < closest.getDegrees()) {
+    //     closest = target;
+    //   }
+    // }
+
+    for (Rotation2d target : targetangles) {
+      if (Math.abs(currentPose.relativeTo(target).getDegrees()) < closest.getDegrees()) {
+        closest = target;
+      }
+    }
+
+    return closest;
+  }
 }
