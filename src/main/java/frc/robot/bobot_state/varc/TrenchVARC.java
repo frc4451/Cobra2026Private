@@ -37,14 +37,14 @@ public class TrenchVARC extends TargetAngleTracker {
             ? distanceToLeftTrench
             : distanceToRightTrench;
 
-    this.rotationTarget = AllianceFlipUtil.apply(closestAngle(
+    this.rotationTarget =
+        closestAngle(
             robotPose.getRotation(),
             // Rotation2d.fromDegrees(0),
+            Rotation2d.fromDegrees(0),
             Rotation2d.fromDegrees(90),
             Rotation2d.fromDegrees(-90),
-            Rotation2d.fromDegrees(-179),
-            Rotation2d.fromDegrees(180)));
-        
+            Rotation2d.fromDegrees(180));
 
     this.targetPose = trenchPose;
   }

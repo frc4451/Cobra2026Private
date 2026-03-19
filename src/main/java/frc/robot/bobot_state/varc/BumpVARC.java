@@ -20,15 +20,13 @@ public class BumpVARC extends TargetAngleTracker {
     Pose2d robotPose = BobotState.getGlobalPose();
 
     Translation2d robotTranslation = robotPose.getTranslation();
-    Distance distanceToLeftBump =
-        Meters.of(robotTranslation.getDistance(AllianceFlipUtil.apply(leftBumpCenter)));
-    Distance distanceToRightBump =
-        Meters.of(robotTranslation.getDistance(AllianceFlipUtil.apply(rightBumpCenter)));
+    Distance distanceToLeftBump = Meters.of(robotTranslation.getDistance(leftBumpCenter));
+    Distance distanceToRightBump = Meters.of(robotTranslation.getDistance(rightBumpCenter));
 
     Translation2d bumpTranslation =
         distanceToLeftBump.lt(distanceToRightBump) ? leftBumpCenter : rightBumpCenter;
 
-    Pose2d bumpPose = AllianceFlipUtil.apply(new Pose2d(bumpTranslation, Rotation2d.kZero));
+    Pose2d bumpPose = AllianceFlipUtil.apply(new Pose2d(AllianceFlipUtil.apply(bumpTranslation), Rotation2d.kZero));
 
     boolean leftBumpCloser = distanceToLeftBump.lt(distanceToRightBump);
 
@@ -37,14 +35,14 @@ public class BumpVARC extends TargetAngleTracker {
     // this.rotationTarget = (leftBumpCloser ? VARCConstants.leftBumpRotation :
     // VARCConstants.rightBumpRotation)
     //         .getValue();
-    this.rotationTarget = AllianceFlipUtil.apply(
+    this.rotationTarget =
         closestAngle(
             robotPose.getRotation(),
             Rotation2d.fromDegrees(45),
             Rotation2d.fromDegrees(-45),
             Rotation2d.fromDegrees(135),
-            Rotation2d.fromDegrees(-135)));
-        
+            Rotation2d.fromDegrees(-135));
+
     this.targetPose = bumpPose;
   }
 }
