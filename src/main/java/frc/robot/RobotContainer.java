@@ -333,6 +333,15 @@ public class RobotContainer {
     //             () -> -controller.getLeftX(),
     //             () -> BobotState.getOutpostVARC().getRotationTarget()));
 
+    // controller
+    //     .x()
+    //     .and(controller.rightBumper())
+    //     .whileTrue(
+    //         DriveCommands.drivePerpendicularToPose(
+    //             drive,
+    //             BobotState.getClosestTraversal().getTargetPose(),
+    //             () -> -controller.getLeftX()));
+
     // controller.rightTrigger().onTrue(shooter.runShooterToHub());
     // controller.rightTrigger().onFalse(shooter.stop());
     // controller.rightBumper().whileTrue(shooter.runShooterToHub()).onFalse(shooter.stop());
