@@ -46,5 +46,6 @@ public class BumpVARC extends TargetAngleTracker {
             Rotation2d.fromDegrees(-135));
 
     this.targetPose = bumpPose;
+    this.rotationTargetPose = new Pose2d(robotTranslation, this.rotationTarget);
   }
 }

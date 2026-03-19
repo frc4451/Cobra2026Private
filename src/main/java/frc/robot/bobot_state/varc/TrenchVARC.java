@@ -47,5 +47,6 @@ public class TrenchVARC extends TargetAngleTracker {
             Rotation2d.fromDegrees(180));
 
     this.targetPose = trenchPose;
+    this.rotationTargetPose = new Pose2d(robotTranslation, this.rotationTarget);
   }
 }

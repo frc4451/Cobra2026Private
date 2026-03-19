@@ -333,14 +333,14 @@ public class RobotContainer {
     //             () -> -controller.getLeftX(),
     //             () -> BobotState.getOutpostVARC().getRotationTarget()));
 
-    // controller
-    //     .x()
-    //     .and(controller.rightBumper())
-    //     .whileTrue(
-    //         DriveCommands.drivePerpendicularToPose(
-    //             drive,
-    //             BobotState.getClosestTraversal().getTargetPose(),
-    //             () -> -controller.getLeftX()));
+    controller
+        .x()
+        .and(controller.rightBumper())
+        .whileTrue(
+            DriveCommands.drivePerpendicularToPose(
+                drive,
+                () -> BobotState.getClosestTraversal().getRotationTargetPose(),
+                () -> -controller.getLeftY()));
 
     // controller.rightTrigger().onTrue(shooter.runShooterToHub());
     // controller.rightTrigger().onFalse(shooter.stop());

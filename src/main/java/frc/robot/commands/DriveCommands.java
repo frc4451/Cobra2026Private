@@ -274,12 +274,12 @@ public class DriveCommands {
 
     return Commands.run(
         () -> {
-          Pose2d robotPose = drive.getGlobalPose();
-          Pose2d targetPose = targetPoseSupplier.get();
-          Rotation2d desiredTheta = targetPose.getRotation().plus(Rotation2d.kPi);
-          // perpendicularError = PoseUtils.getPerpendicularError(robotPose, targetPose);
-          double parallelError = PoseUtils.getParallelError(robotPose, targetPose);
-          double thetaError = robotPose.getRotation().minus(desiredTheta).getRadians();
+          Rotation2d desiredTheta = targetPoseSupplier.get().getRotation().plus(Rotation2d.kPi);
+          // perpendicularError = PoseUtils.getPerpendicularError(drive.getGlobalPose(),
+          // targetPose);
+          double parallelError =
+              PoseUtils.getParallelError(drive.getGlobalPose(), targetPoseSupplier.get());
+          double thetaError = drive.getGlobalPose().getRotation().minus(desiredTheta).getRadians();
           double parallelSpeed = parallelController.calculate(-parallelError, 0);
           parallelSpeed = !parallelController.atSetpoint() ? parallelSpeed : 0;
           double angularSpeed = angleController.calculate(thetaError, 0);
@@ -289,11 +289,35 @@ public class DriveCommands {
               new ChassisSpeeds(
                   perpendicularInput.getAsDouble() * drive.getMaxLinearSpeedMetersPerSec(),
                   parallelSpeed,
-                  angularSpeed);
+                  0.0);
 
           drive.runVelocity(speeds);
         });
   }
+
+//   public static Command driveYAxie(
+//       Drive drive, Supplier<Pose2d> targetPoseSupplier, DoubleSupplier perpendicularInput) {
+
+//     ProfiledPIDController parallelController =
+//         new ProfiledPIDController(5.0, 0.0, 0.3, new TrapezoidProfile.Constraints(4.0, 4.0));
+//     parallelController.setTolerance(Units.inchesToMeters(0.25));
+
+//     return Commands.run(
+//         () -> {
+//           double parallelError =
+//               PoseUtils.getParallelError(drive.getGlobalPose(), targetPoseSupplier.get());
+//           double parallelSpeed = parallelController.calculate(-parallelError, 0);
+//           parallelSpeed = !parallelController.atSetpoint() ? parallelSpeed : 0;
+
+//           ChassisSpeeds speeds =
+//               new ChassisSpeeds(
+//                   perpendicularInput.getAsDouble() * drive.getMaxLinearSpeedMetersPerSec(),
+//                   parallelSpeed,
+//                   0.0);
+
+//           drive.runVelocity(speeds);
+//         });
+//   }
 
   /**
    * Measures the velocity feedforward constants for the drive motors.
