@@ -19,6 +19,7 @@ import frc.robot.autonomous.AutonomousManager;
 import frc.robot.bobot_state.BobotState;
 import frc.robot.bobot_state.dashboard.TeleopShiftManager;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.DriveFieldRelativePerpendicularToPoseCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -317,12 +318,23 @@ public class RobotContainer {
 
     controller
         .x()
+        .and(controller.rightBumper().negate())
         .whileTrue(
             DriveCommands.joystickDriveAtAngle(
                 drive,
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX(),
                 () -> BobotState.getClosestTraversal().getRotationTarget()));
+
+    controller
+        .x()
+        .and(controller.rightBumper())
+        .whileTrue(
+            new DriveFieldRelativePerpendicularToPoseCommand(
+                drive,
+                () -> -controller.getLeftY(),
+                () -> BobotState.getTrenchVARC().getTargetPose(),
+                () -> BobotState.getTrenchVARC().getRotationTarget()));
 
     // controller
     //     .y()
@@ -332,15 +344,6 @@ public class RobotContainer {
     //             () -> -controller.getLeftY(),
     //             () -> -controller.getLeftX(),
     //             () -> BobotState.getOutpostVARC().getRotationTarget()));
-
-    controller
-        .x()
-        .and(controller.rightBumper())
-        .whileTrue(
-            DriveCommands.drivePerpendicularToPose(
-                drive,
-                () -> BobotState.getClosestTraversal().getRotationTargetPose(),
-                () -> -controller.getLeftY()));
 
     // controller.rightTrigger().onTrue(shooter.runShooterToHub());
     // controller.rightTrigger().onFalse(shooter.stop());

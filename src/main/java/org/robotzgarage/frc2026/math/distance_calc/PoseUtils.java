@@ -124,4 +124,18 @@ public class PoseUtils {
     }
     return average.div(translations.length);
   }
+
+  public static Rotation2d getClosestAngle(Rotation2d current, Rotation2d... targets) {
+    Rotation2d closest = Rotation2d.fromDegrees(Double.MAX_VALUE);
+    Rotation2d result = Rotation2d.fromDegrees(Double.MAX_VALUE);
+
+    for (Rotation2d target : targets) {
+      if (Math.abs(target.minus(current).getDegrees()) < closest.getDegrees()) {
+        closest = Rotation2d.fromDegrees(Math.abs(target.minus(current).getDegrees()));
+        result = target;
+      }
+    }
+
+    return result;
+  }
 }
