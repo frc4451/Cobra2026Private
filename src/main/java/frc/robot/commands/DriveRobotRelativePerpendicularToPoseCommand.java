@@ -22,21 +22,16 @@ public class DriveRobotRelativePerpendicularToPoseCommand extends Command {
       new ProfiledPIDController(5.0, 0.0, 0.3, new TrapezoidProfile.Constraints(8.0, 20.0));
 
   private final Drive drive;
-  private final boolean useConstrainedPose;
   private final Supplier<Pose2d> targetPoseSupplier;
   private final DoubleSupplier perpendicularInput;
 
   private double perpendicularError = 0;
 
   public DriveRobotRelativePerpendicularToPoseCommand(
-      Drive drive,
-      boolean useConstrainedPose,
-      Supplier<Pose2d> targetPoseSupplier,
-      DoubleSupplier perpendicularInput) {
+      Drive drive, DoubleSupplier perpendicularInput, Supplier<Pose2d> targetPoseSupplier) {
     addRequirements(drive);
 
     this.drive = drive;
-    this.useConstrainedPose = useConstrainedPose;
     this.targetPoseSupplier = targetPoseSupplier;
     this.perpendicularInput = perpendicularInput;
   }
@@ -50,7 +45,7 @@ public class DriveRobotRelativePerpendicularToPoseCommand extends Command {
 
   @Override
   public void execute() {
-    Pose2d robotPose = useConstrainedPose ? drive.getConstrainedPose() : drive.getGlobalPose();
+    Pose2d robotPose = drive.getGlobalPose();
     Pose2d targetPose = targetPoseSupplier.get();
     Logger.recordOutput("Commands/" + getName() + "/targetPose", targetPose);
 
