@@ -20,6 +20,7 @@ import frc.robot.bobot_state.BobotState;
 import frc.robot.bobot_state.dashboard.TeleopShiftManager;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.DriveFieldRelativePerpendicularToPoseCommand;
+import frc.robot.commands.DriveRobotRelativePerpendicularToPoseCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -303,12 +304,23 @@ public class RobotContainer {
 
     controller
         .b()
+        .and(controller.rightBumper().negate())
         .whileTrue(
             DriveCommands.joystickDriveAtAngle(
                 drive,
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX(),
                 () -> BobotState.getShooterAlignmentVARC().getRotationTarget()));
+
+    // Use this to test shoot on the move while driving towards and aways from the hub
+    controller
+        .b()
+        .and(controller.rightBumper())
+        .whileTrue(
+            new DriveRobotRelativePerpendicularToPoseCommand(
+                drive,
+                () -> -controller.getLeftY(),
+                () -> BobotState.getShooterAlignmentVARC().getTargetPose()));
 
     // controller
     //     .rightBumper()
