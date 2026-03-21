@@ -26,8 +26,8 @@ public class HubVARC extends TargetAngleTracker {
     // If we have a lookahead pose provided to us from Hub Interpolator, we use
     // that over the robot's pose. Otherwise, default to existing robot pose.
     Translation2d lookahead = BobotState.getHubInterpolator().getLookaheadTranslation();
-    Pose2d aimPose = lookahead != null ? new Pose2d(lookahead, robotPose.getRotation()) : robotPose;
 
+    Pose2d aimPose = lookahead != null ? new Pose2d(lookahead, robotPose.getRotation()) : robotPose;
     this.rotationTarget =
         this.targetPose.relativeTo(aimPose).getTranslation().getAngle().plus(aimPose.getRotation());
   }
