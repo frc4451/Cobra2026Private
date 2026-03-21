@@ -10,6 +10,7 @@ import frc.robot.bobot_state.BobotState;
 import org.littletonrobotics.AllianceFlipUtil;
 import org.littletonrobotics.FieldConstants.LeftBump;
 import org.littletonrobotics.FieldConstants.RightBump;
+import org.robotzgarage.frc2026.math.distance_calc.PoseUtils;
 import org.robotzgarage.frc2026.math.varc.TargetAngleTracker;
 
 public class BumpVARC extends TargetAngleTracker {
@@ -38,7 +39,7 @@ public class BumpVARC extends TargetAngleTracker {
     // VARCConstants.rightBumpRotation)
     //         .getValue();
     this.rotationTarget =
-        closestAngle(
+        PoseUtils.getClosestAngle(
             robotPose.getRotation(),
             Rotation2d.fromDegrees(45),
             Rotation2d.fromDegrees(-45),

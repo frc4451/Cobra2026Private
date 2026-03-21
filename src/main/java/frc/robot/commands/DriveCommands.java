@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.LoggedTunableNumber;
-import org.robotzgarage.frc2026.math.distance_calc.PoseUtils;
 
 public class DriveCommands {
   private static final double DEADBAND = 0.1;
@@ -124,6 +123,12 @@ public class DriveCommands {
                 ANGLE_MAX_VELOCITY.get(), ANGLE_MAX_ACCELERATION.get()));
     angleController.enableContinuousInput(-Math.PI, Math.PI);
 
+    // Mutable holder for previous rotation target so the profiled PID can receive the
+    // setpoint's rate of change as a goal velocity. Without this the controller always
+    // plans to stop at the goal (velocity=0), causing lag on a moving SOTM setpoint and
+    // overshoot when the setpoint stabilises.
+    double[] prevTarget = {0.0};
+
     // Construct command
     return Commands.run(
             () -> {
@@ -131,11 +136,16 @@ public class DriveCommands {
               Translation2d linearVelocity =
                   getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
 
+              // Compute setpoint velocity (rad/s) for feed-forward into the profiled PID.
+              double currentTarget = rotationSupplier.get().getRadians();
+              double targetVelocity = MathUtil.angleModulus(currentTarget - prevTarget[0]) / 0.02;
+              prevTarget[0] = currentTarget;
+
               // Calculate angular speed
               double omega =
                   angleController.calculate(
                       BobotState.getGlobalPose().getRotation().getRadians(),
-                      rotationSupplier.get().getRadians());
+                      new TrapezoidProfile.State(currentTarget, targetVelocity));
 
               // Convert to field relative speeds & send command
               ChassisSpeeds speeds =
@@ -155,9 +165,13 @@ public class DriveCommands {
             },
             drive)
 
-        // Reset PID controller when command starts
+        // Reset PID controller and previous-target tracker when command starts
         .beforeStarting(
-            () -> angleController.reset(BobotState.getGlobalPose().getRotation().getRadians()));
+            () -> {
+              double initialTarget = rotationSupplier.get().getRadians();
+              angleController.reset(BobotState.getGlobalPose().getRotation().getRadians());
+              prevTarget[0] = initialTarget;
+            });
   }
 
   /**

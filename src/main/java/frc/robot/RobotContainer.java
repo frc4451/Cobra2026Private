@@ -19,6 +19,8 @@ import frc.robot.autonomous.AutonomousManager;
 import frc.robot.bobot_state.BobotState;
 import frc.robot.bobot_state.dashboard.TeleopShiftManager;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.DriveFieldRelativePerpendicularToPoseCommand;
+import frc.robot.commands.DriveRobotRelativePerpendicularToPoseCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -302,12 +304,23 @@ public class RobotContainer {
 
     controller
         .b()
+        .and(controller.rightBumper().negate())
         .whileTrue(
             DriveCommands.joystickDriveAtAngle(
                 drive,
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX(),
                 () -> BobotState.getShooterAlignmentVARC().getRotationTarget()));
+
+    // Use this to test shoot on the move while driving towards and aways from the hub
+    controller
+        .b()
+        .and(controller.rightBumper())
+        .whileTrue(
+            new DriveRobotRelativePerpendicularToPoseCommand(
+                drive,
+                () -> -controller.getLeftY(),
+                () -> BobotState.getShooterAlignmentVARC().getTargetPose()));
 
     // controller
     //     .rightBumper()
@@ -317,12 +330,23 @@ public class RobotContainer {
 
     controller
         .x()
+        .and(controller.rightBumper().negate())
         .whileTrue(
             DriveCommands.joystickDriveAtAngle(
                 drive,
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX(),
                 () -> BobotState.getClosestTraversal().getRotationTarget()));
+
+    controller
+        .x()
+        .and(controller.rightBumper())
+        .whileTrue(
+            new DriveFieldRelativePerpendicularToPoseCommand(
+                drive,
+                () -> -controller.getLeftY(),
+                () -> BobotState.getTrenchVARC().getTargetPose(),
+                () -> BobotState.getTrenchVARC().getRotationTarget()));
 
     // controller
     //     .y()
