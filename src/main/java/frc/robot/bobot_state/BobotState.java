@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.bobot_state.interpolation.DropoffInterpolator;
 import frc.robot.bobot_state.interpolation.HubInterpolator;
 import frc.robot.bobot_state.varc.BumpVARC;
@@ -114,6 +115,10 @@ public class BobotState extends VirtualSubsystem {
       case NEAR_ALLIANCE -> BobotState.getHubVARC();
       default -> BobotState.getClosestDropoff();
     };
+  }
+
+  public static Trigger inNearAllianceZone() {
+    return new Trigger(() -> BobotState.getCurrentFieldZone() == FieldZone.NEAR_ALLIANCE);
   }
 
   public void periodic() {

@@ -61,29 +61,12 @@ public class DropoffInterpolator extends TargetInterpolator {
             .distanceToTarget(Feet.of(17))
             .primaryVelocity(RotationsPerSecond.of(63.5))
             .pitch(interpolatorDefaultPitch)
-            .build()
-        // DistanceAngleSpeedEntry.builder()
-        //     .distanceToTarget(Feet.of(6))
-        //     .primaryVelocity(RotationsPerSecond.of(69))
-        //     .pitch(interpolatorDefaultPitch)
-        //     .build(),
-        // DistanceAngleSpeedEntry.builder()
-        //     .distanceToTarget(Feet.of(8))
-        //     .primaryVelocity(RotationsPerSecond.of(75))
-        //     .pitch(interpolatorDefaultPitch)
-        //     .build(),
-        // DistanceAngleSpeedEntry.builder()
-        //     .distanceToTarget(Feet.of(10))
-        //     .primaryVelocity(RotationsPerSecond.of(79))
-        //     .pitch(interpolatorDefaultPitch)
-        //     .build(),
-        // DistanceAngleSpeedEntry.builder()
-        //     .distanceToTarget(Feet.of(12))
-        //     .primaryVelocity(RotationsPerSecond.of(85))
-        //     .pitch(interpolatorDefaultPitch)
-        //     .build()
-        // End of entries
-        );
+            .build(),
+        DistanceAngleSpeedEntry.builder()
+            .distanceToTarget(Feet.of(47))
+            .primaryVelocity(RotationsPerSecond.of(92.4))
+            .pitch(interpolatorDefaultPitch)
+            .build());
   }
 
   public DropoffInterpolator() {

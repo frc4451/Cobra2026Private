@@ -43,7 +43,6 @@ import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOSimTalo
 import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOTalonFX;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFX;
-import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFXWithCANCoder;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFX;
 import org.robotzgarage.frc2026.subsystems.vision.AprilTagVision;
 import org.robotzgarage.frc2026.util.GarageCommandXboxController;
@@ -100,7 +99,11 @@ public class RobotContainer {
         // Real robot, it's ALIVE!!! ALIIIIIIVVVE!!!!!
         // EX. exampleIO = new SingleRollerIOTalonFX(exampleConstants.exampleConfig);
         intakeIO = new SingleRollerIOTalonFX(IntakeConstants.intakeConfig);
-        endeffectorIO = new SingleRollerIOTalonFX(IntakeConstants.endeffectorConfig);
+        endeffectorIO =
+            // new SingleRollerIOTalonFXWithCANCoder(
+            //     IntakeConstants.endeffectorConfig, IntakeConstants.cancoderConfig);
+            new SingleRollerIOTalonFX(IntakeConstants.endeffectorConfig);
+
         // endeffectorIO = new SingleRollerIOTalonFX(IntakeConstants.endeffectorConfig);
 
         shooterIO = new FollowRollersIOTalonFX(ShooterConstants.flywheelFollowersConfig);
@@ -122,9 +125,9 @@ public class RobotContainer {
         // EX. exampleIO = new SingleRollerIOSimTalonFX(exampleConstants.exampleConfigSim);
         intakeIO = new SingleRollerIOSimTalonFX(IntakeConstants.intakeConfigSim);
         endeffectorIO =
-            new SingleRollerIOSimTalonFXWithCANCoder(
-                IntakeConstants.endeffectorConfigSim, IntakeConstants.cancoderConfig);
-        // endeffectorIO = new SingleRollerIOSimTalonFX(IntakeConstants.endeffectorConfigSim);
+            //     new SingleRollerIOSimTalonFXWithCANCoder(
+            //         IntakeConstants.endeffectorConfigSim, IntakeConstants.cancoderConfig);
+            new SingleRollerIOSimTalonFX(IntakeConstants.endeffectorConfigSim);
 
         shooterIO = new FollowRollersIOSimTalonFX(ShooterConstants.flywheelFollowersConfigSim);
 
@@ -171,31 +174,10 @@ public class RobotContainer {
     // Autonomous choices
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
-    // Set up SysId routines
-    autoChooser.addOption(
-        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-    autoChooser.addOption(
-        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Forward)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Reverse)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
     // Configure the button bindings
     configureDriverBindings(drivercontroller);
     configureOperatorBindings(operatorcontroller);
-
-    configureDriverBindings(drivercontroller);
-    // configureOperatorBindings(operatorcontroller);
-    // configureBLineRoutines();
     configureAutonomousRoutines();
-
     configureTuningRoutines();
 
     DriverStation.silenceJoystickConnectionWarning(true);
@@ -218,6 +200,22 @@ public class RobotContainer {
 
   private void configureTuningRoutines() {
     if (Constants.tuningMode) {
+      // Set up SysId routines
+      autoChooser.addOption(
+          "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
+      autoChooser.addOption(
+          "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+      autoChooser.addOption(
+          "Drive SysId (Quasistatic Forward)",
+          drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+      autoChooser.addOption(
+          "Drive SysId (Quasistatic Reverse)",
+          drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+      autoChooser.addOption(
+          "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+      autoChooser.addOption(
+          "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
       autoChooser.addOption(
           "Tune Intake Roller (Volts)",
           this.intake.rollersFeedForwardCharacterization(TuningUnit.VOLTS));
@@ -262,8 +260,6 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureDriverBindings(GarageCommandXboxController controller) {
-    // LoggedTunableNumber feetFromCenterOfHubX = new LoggedTunableNumber("FeetFromHubCenterX", 0);
-    // LoggedTunableNumber feetFromCenterOfHubY = new LoggedTunableNumber("FeetFromHubCenterY", 0);
 
     // Default command, normal field-relative drive
     drive.setDefaultCommand(
@@ -272,17 +268,6 @@ public class RobotContainer {
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
-
-    // controller
-    //     .a()
-    //     .onTrue(
-    //         AutoCommands.interpolationDistanceHelper(
-    //             drive,
-    //             new Pose2d(
-    //                 Hub.innerCenterPoint.toTranslation2d(),
-    //                 Hub.nearFace.getRotation().plus(Rotation2d.k180deg)),
-    //             feetFromCenterOfHubX,
-    //             feetFromCenterOfHubY));
 
     controller
         .a()
@@ -325,12 +310,6 @@ public class RobotContainer {
     //             () -> -controller.getLeftY(),
     //             () -> BobotState.getShooterAlignmentVARC().getTargetPose()));
 
-    // controller
-    //     .rightBumper()
-    //     .whileTrue(
-    //         DriveCommands.joystickDrive(
-    //             drive, () -> -controller.getLeftY(), () -> 0.0, () -> controller.getRightX()));
-
     controller
         .x()
         .and(controller.rightBumper().negate())
@@ -360,15 +339,6 @@ public class RobotContainer {
     //             () -> -controller.getLeftX(),
     //             () -> BobotState.getOutpostVARC().getRotationTarget()));
 
-    controller
-        .x()
-        .and(controller.rightBumper())
-        .whileTrue(
-            DriveCommands.driveYAxie(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> BobotState.getClosestTraversal().getRotationTargetPose()));
-
     // controller.rightTrigger().onTrue(shooter.runShooterToHub());
     // controller.rightTrigger().onFalse(shooter.stop());
     // controller.rightBumper().whileTrue(shooter.runShooterToHub()).onFalse(shooter.stop());
@@ -388,29 +358,40 @@ public class RobotContainer {
    */
   private void configureOperatorBindings(GarageCommandXboxController controller) {
     // Rumble when the driver is actively aiming and within range of the SOTM target
-    sotmCommand.aimingReady(Rotation2d.fromDegrees(2.0)).onTrue(controller.rumble(0.5));
+    sotmCommand
+        .aimingReady(Rotation2d.fromDegrees(8.0))
+        .onTrue(controller.rumbleOnOff(0.5, 0.25, 0.25, 2));
 
     // Deploy the Intake as soon as Teleop starts
     teleopActive.onTrue(intake.endeffectorDeploy());
 
-    // intake endeffector controlls
     controller.povLeft().onTrue(intake.endeffectorStart());
     controller.povUp().onTrue(intake.endeffectorSqueeze());
     // controller.povRight().onTrue(intake.endeffectorLift());
     controller.povDown().onTrue(intake.endeffectorDeploy());
-    // shooter controlls
-    controller.rightBumper().whileTrue(shooter.runShooterToHub()).onFalse(shooter.stop());
+
+    controller
+        .rightBumper()
+        .and(BobotState.inNearAllianceZone().negate())
+        .whileTrue(shooter.runShooterDropOff())
+        .onFalse(shooter.stop());
+
+    controller
+        .rightBumper()
+        .and(BobotState.inNearAllianceZone())
+        .whileTrue(shooter.runShooterToHub())
+        .onFalse(shooter.stop());
+
     controller.leftBumper().whileTrue(shooter.runShooterToPoop()).onFalse(shooter.stop());
-    // feeder controlls
+
+    // override for shooter for BAD things
+    controller
+        .leftTrigger()
+        .whileTrue(shooter.runShooterVelocityTorqueCurrent())
+        .onFalse(shooter.stop());
+
     controller.a().onTrue(feeder.runFeederVoltage()).onFalse(feeder.stop());
     controller.y().onTrue(feeder.runSpindexerReverse()).onFalse(feeder.stop());
-
-    if (Constants.tuningMode) {
-      controller
-          .leftBumper()
-          .whileTrue(shooter.runShooterVelocityTorqueCurrent())
-          .onFalse(shooter.stop());
-    }
   }
 
   /**

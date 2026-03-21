@@ -23,14 +23,14 @@ public class Intake extends SubsystemBase {
   private static final LoggedTunableNumber intakeAmps =
       new LoggedTunableNumber(name + "/RollersAmps", 20.0);
   private static final LoggedTunableNumber intakeVoltage =
-      new LoggedTunableNumber(name + "/RollersVoltage", 10.0);
+      new LoggedTunableNumber(name + "/RollersVoltage", 9.0);
 
   private static final LoggedTunableNumber endeffectorStart =
       new LoggedTunableNumber(name + "/EndeffectorStart", 90.0);
   private static final LoggedTunableNumber endeffectorDeploy =
       new LoggedTunableNumber(name + "/EndeffectorDeploy", 0.0);
   private static final LoggedTunableNumber endeffectorDeployVolts =
-      new LoggedTunableNumber(name + "/EndeffectorDeployVolts", -2.0);
+      new LoggedTunableNumber(name + "/EndeffectorDeployVolts", 0.0);
   private static final LoggedTunableNumber endeffectorLift =
       new LoggedTunableNumber(name + "/EndeffectorLift", 20.0);
   private static final LoggedTunableNumber endeffectorSqueeze =

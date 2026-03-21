@@ -21,10 +21,10 @@ public class DriveFieldRelativePerpendicularToPoseCommand extends Command {
   private final Supplier<Rotation2d> desiredHeadingSupplier;
 
   private final ProfiledPIDController parallelController =
-      new ProfiledPIDController(5.0, 0.0, 0.3, new TrapezoidProfile.Constraints(4.0, 4.0));
+      new ProfiledPIDController(3.0, 0.0, 0.3, new TrapezoidProfile.Constraints(4.0, 4.0));
 
   private final ProfiledPIDController angleController =
-      new ProfiledPIDController(5.0, 0.0, 0.3, new TrapezoidProfile.Constraints(8.0, 20.0));
+      new ProfiledPIDController(3.0, 0.0, 0.3, new TrapezoidProfile.Constraints(8.0, 20.0));
 
   // Pose where we want to align the robot
   private Pose2d targetPose = new Pose2d();

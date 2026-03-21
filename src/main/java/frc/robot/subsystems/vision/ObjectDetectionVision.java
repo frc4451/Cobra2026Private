@@ -24,7 +24,7 @@ public class ObjectDetectionVision extends VirtualSubsystem {
       Alert disconnectedAlert) {}
 
   private final ObjectDetectionCamera intakeFuelDetection;
-  private final ObjectDetectionCamera hopperFuelDetection;
+  // private final ObjectDetectionCamera hopperFuelDetection;
 
   private final String objectDetectionLogRoot = "ObjectDetection";
 
@@ -46,7 +46,7 @@ public class ObjectDetectionVision extends VirtualSubsystem {
 
   public ObjectDetectionVision() {
     ObjectDetectionIO intakeFuelDetectionIO;
-    ObjectDetectionIO hopperFuelDetectionIO;
+    // ObjectDetectionIO hopperFuelDetectionIO;
 
     switch (Constants.currentMode) {
       case REAL:
@@ -55,11 +55,11 @@ public class ObjectDetectionVision extends VirtualSubsystem {
                 VisionConstants.intakeFuelDetection.source(),
                 () -> BobotState.getGlobalPose(),
                 VisionConstants.intakeFuelDetection.objectDetectionStrategies());
-        hopperFuelDetectionIO =
-            new ObjectDetectionIOPhoton(
-                VisionConstants.hopperFuelDetection.source(),
-                () -> BobotState.getGlobalPose(),
-                VisionConstants.hopperFuelDetection.objectDetectionStrategies());
+        // hopperFuelDetectionIO =
+        //     new ObjectDetectionIOPhoton(
+        //         VisionConstants.hopperFuelDetection.source(),
+        //         () -> BobotState.getGlobalPose(),
+        //         VisionConstants.hopperFuelDetection.objectDetectionStrategies());
         break;
       case SIM:
         intakeFuelDetectionIO =
@@ -68,17 +68,17 @@ public class ObjectDetectionVision extends VirtualSubsystem {
                 () -> BobotState.getGlobalPose(),
                 VisionConstants.intakeFuelDetection.objectDetectionStrategies(),
                 VisionConstants.intakeFuelDetection.simCameraConfig());
-        hopperFuelDetectionIO =
-            new ObjectDetectionIOPhotonSim(
-                VisionConstants.hopperFuelDetection.source(),
-                () -> BobotState.getGlobalPose(),
-                VisionConstants.hopperFuelDetection.objectDetectionStrategies(),
-                VisionConstants.hopperFuelDetection.simCameraConfig());
+        // hopperFuelDetectionIO =
+        //     new ObjectDetectionIOPhotonSim(
+        //         VisionConstants.hopperFuelDetection.source(),
+        //         () -> BobotState.getGlobalPose(),
+        //         VisionConstants.hopperFuelDetection.objectDetectionStrategies(),
+        //         VisionConstants.hopperFuelDetection.simCameraConfig());
         break;
       case REPLAY:
       default:
         intakeFuelDetectionIO = new ObjectDetectionIO() {};
-        hopperFuelDetectionIO = new ObjectDetectionIO() {};
+        // hopperFuelDetectionIO = new ObjectDetectionIO() {};
         break;
     }
 
@@ -93,22 +93,22 @@ public class ObjectDetectionVision extends VirtualSubsystem {
                     + VisionConstants.intakeFuelDetection.source().name()
                     + " is disconnected!",
                 AlertType.kWarning));
-    hopperFuelDetection =
-        new ObjectDetectionCamera(
-            hopperFuelDetectionIO,
-            new ObjectDetectionIOInputsAutoLogged(),
-            VisionConstants.hopperFuelDetection.source(),
-            new Alert(
-                objectDetectionLogRoot
-                    + " "
-                    + VisionConstants.hopperFuelDetection.source().name()
-                    + " is disconnected!",
-                AlertType.kWarning));
+    // hopperFuelDetection =
+    //     new ObjectDetectionCamera(
+    //         hopperFuelDetectionIO,
+    //         new ObjectDetectionIOInputsAutoLogged(),
+    //         VisionConstants.hopperFuelDetection.source(),
+    //         new Alert(
+    //             objectDetectionLogRoot
+    //                 + " "
+    //                 + VisionConstants.hopperFuelDetection.source().name()
+    //                 + " is disconnected!",
+    //             AlertType.kWarning));
   }
 
   @Override
   public void periodic() {
-    for (ObjectDetectionCamera cam : List.of(intakeFuelDetection, hopperFuelDetection)) {
+    for (ObjectDetectionCamera cam : List.of(intakeFuelDetection)) {
       // Process Inputs
       cam.io.updateInputs(cam.inputs);
       Logger.processInputs(objectDetectionLogRoot + "/" + cam.source.name(), cam.inputs);
@@ -142,10 +142,10 @@ public class ObjectDetectionVision extends VirtualSubsystem {
         objectDetectionSim -> objectDetectionSim.update(BobotState.getGlobalPose()));
   }
 
-  @AutoLogOutput(key = "ObjectDetection/Hopper/NumFuelCollected")
-  public int getNumFuelInHopperView() {
-    return hopperFuelDetection.inputs.numObjectsInView;
-  }
+  // @AutoLogOutput(key = "ObjectDetection/Hopper/NumFuelCollected")
+  // public int getNumFuelInHopperView() {
+  //   return hopperFuelDetection.inputs.numObjectsInView;
+  // }
 
   @AutoLogOutput(key = "ObjectDetection/Intake/NumFuelInView")
   public int getNumFuelInIntakeView() {

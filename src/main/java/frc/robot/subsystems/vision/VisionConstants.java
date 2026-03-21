@@ -49,20 +49,20 @@ public class VisionConstants {
           SimCameraConfig.ARDUCAM_OV9782_100,
           List.of(ObjectDetectionStrategy.QUANTITY, ObjectDetectionStrategy.POSE_TRACKING));
 
-  public static final ObjectDetectionCameraConfig hopperFuelDetection =
-      new ObjectDetectionCameraConfig(
-          new VisionSource(
-              "ColemanCam",
-              RobotRelativeTransform.builder()
-                  .forwardPositive(Inches.of(4.388))
-                  .leftPositive(Inches.of(9.936))
-                  .upPositive(Inches.of(18.938))
-                  .rollCCWPositive(Degrees.zero())
-                  .pitchCCWPositive(Degrees.of(30.0))
-                  .yawCCWPositive(Degrees.of(-135.0))
-                  .build()),
-          SimCameraConfig.ARDUCAM_OV9782_100,
-          List.of(ObjectDetectionStrategy.QUANTITY));
+  //   public static final ObjectDetectionCameraConfig hopperFuelDetection =
+  //       new ObjectDetectionCameraConfig(
+  //           new VisionSource(
+  //               "ColemanCam",
+  //               RobotRelativeTransform.builder()
+  //                   .forwardPositive(Inches.of(4.388))
+  //                   .leftPositive(Inches.of(9.936))
+  //                   .upPositive(Inches.of(18.938))
+  //                   .rollCCWPositive(Degrees.zero())
+  //                   .pitchCCWPositive(Degrees.of(30.0))
+  //                   .yawCCWPositive(Degrees.of(-135.0))
+  //                   .build()),
+  //           SimCameraConfig.ARDUCAM_OV9782_100,
+  //           List.of(ObjectDetectionStrategy.QUANTITY));
 
   public static final List<AprilTagCameraConfig> aprilTagCamerasConfigs =
       List.of(
@@ -120,5 +120,5 @@ public class VisionConstants {
 
   public static final double fuelHeightMeters = 0.150;
   public static final double fuelRadiusMeters = fuelHeightMeters / 2.0;
-  public static final double trackingMemorySeconds = 3.0;
+  public static final double trackingMemorySeconds = 2.0;
 }

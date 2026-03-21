@@ -95,8 +95,8 @@ public class SingleRollerIOTalonFXWithCANCoder implements SingleRollerIO {
             ? SensorDirectionValue.Clockwise_Positive
             : SensorDirectionValue.CounterClockwise_Positive;
 
-    if (canCoderConfig.disparity() != null) {
-      encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = canCoderConfig.disparity();
+    if (canCoderConfig.discontinuity() != null) {
+      encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = canCoderConfig.discontinuity();
     }
 
     // encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint =

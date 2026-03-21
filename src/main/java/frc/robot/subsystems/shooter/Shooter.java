@@ -28,7 +28,7 @@ public class Shooter extends SubsystemBase {
   private static final LoggedTunableNumber shooterPercent =
       new LoggedTunableNumber(name + "/ShooterPercent", 0.78);
   private static final LoggedTunableNumber shooterVelocity =
-      new LoggedTunableNumber(name + "/ShooterVelocity", 67.0);
+      new LoggedTunableNumber(name + "/ShooterVelocity", 60.0);
 
   private static final LoggedTunableNumber shooterPoopVelocity =
       new LoggedTunableNumber(name + "/ShooterPoopVelocityRPS", 10.0);
@@ -87,6 +87,7 @@ public class Shooter extends SubsystemBase {
     return run(() -> shooter.setVelocityTorqueCurrent(velocity));
   }
 
+  /** Runs shooter to the velocity given by the hub interpolation table */
   public Command runShooterToHub() {
     return run(
         () -> {
@@ -94,6 +95,7 @@ public class Shooter extends SubsystemBase {
           AngularVelocity velocity = calculation.primaryVelocity();
           Distance distance = BobotState.getHubInterpolator().getDistanceFromTarget();
 
+          Logger.recordOutput(name + "/CurrentInterpolator", "HUB");
           Logger.recordOutput(name + "/ShootAtHub/VelocityRPS", velocity.in(RotationsPerSecond));
           Logger.recordOutput(name + "/ShootAtHub/DistanceFeet", distance.in(Feet));
           Logger.recordOutput(
@@ -103,7 +105,8 @@ public class Shooter extends SubsystemBase {
         });
   }
 
-  public Command runShooterInterpolate() {
+  /** Runs shooter to the velocity given by the dropoff interpolation table */
+  public Command runShooterDropOff() {
     return run(
         () -> {
           InterpolatedCalculation calculation =
@@ -111,10 +114,12 @@ public class Shooter extends SubsystemBase {
           AngularVelocity velocity = calculation.primaryVelocity();
           Distance distance = BobotState.getDropoffInterpolator().getDistanceFromTarget();
 
-          Logger.recordOutput(name + "/ShootAtHub/VelocityRPS", velocity.in(RotationsPerSecond));
-          Logger.recordOutput(name + "/ShootAtHub/DistanceFeet", distance.in(Feet));
+          Logger.recordOutput(name + "/CurrentInterpolator", "DROPOFF");
           Logger.recordOutput(
-              name + "/ShootAtHub/TargetPose",
+              name + "/ShootAtDropOff/VelocityRPS", velocity.in(RotationsPerSecond));
+          Logger.recordOutput(name + "/ShootAtDropOff/DistanceFeet", distance.in(Feet));
+          Logger.recordOutput(
+              name + "/ShootAtDropOff/TargetPose",
               BobotState.getDropoffInterpolator().getTargetPose().get());
           shooter.setVelocityTorqueCurrent(velocity);
         });
