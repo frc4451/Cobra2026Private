@@ -103,7 +103,7 @@ public abstract class TargetInterpolator {
       double dot =
           currentToTarget.getX() * lookaheadToTarget.getX()
               + currentToTarget.getY() * lookaheadToTarget.getY();
-      
+
       // Enter overshot when dot <= 0; don't exit until dot exceeds 10% of
       // |currentToTarget|^2 so the flag doesn't chatter at the boundary and cause PID spikes.
       double exitThreshold =

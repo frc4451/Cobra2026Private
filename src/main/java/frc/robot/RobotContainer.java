@@ -317,14 +317,14 @@ public class RobotContainer {
     controller.b().and(controller.rightBumper().negate()).whileTrue(sotmCommand);
 
     // Use this to test shoot on the move while driving towards and aways from the hub
-    controller
-        .b()
-        .and(controller.rightBumper())
-        .whileTrue(
-            new DriveRobotRelativePerpendicularToPoseCommand(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> BobotState.getShooterAlignmentVARC().getTargetPose()));
+    // controller
+    //     .b()
+    //     .and(controller.rightBumper())
+    //     .whileTrue(
+    //         new DriveRobotRelativePerpendicularToPoseCommand(
+    //             drive,
+    //             () -> -controller.getLeftY(),
+    //             () -> BobotState.getShooterAlignmentVARC().getTargetPose()));
 
     // controller
     //     .rightBumper()
@@ -380,7 +380,7 @@ public class RobotContainer {
    */
   private void configureOperatorBindings(GarageCommandXboxController controller) {
     // Rumble when the driver is actively aiming and within range of the SOTM target
-    sotmCommand.aimingReady(Rotation2d.fromDegrees(2.0)).whileTrue(controller.rumble(0.5));
+    sotmCommand.aimingReady(Rotation2d.fromDegrees(2.0)).onTrue(controller.rumble(0.5));
 
     // Deploy the Intake as soon as Teleop starts
     teleopActive.onTrue(intake.endeffectorDeploy());
