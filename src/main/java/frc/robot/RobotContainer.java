@@ -337,10 +337,10 @@ public class RobotContainer {
         .x()
         .and(controller.rightBumper())
         .whileTrue(
-            DriveCommands.drivePerpendicularToPose(
+            DriveCommands.driveYAxie(
                 drive,
-                () -> BobotState.getClosestTraversal().getRotationTargetPose(),
-                () -> -controller.getLeftY()));
+                () -> -controller.getLeftY(),
+                () -> BobotState.getClosestTraversal().getRotationTargetPose()));
 
     // controller.rightTrigger().onTrue(shooter.runShooterToHub());
     // controller.rightTrigger().onFalse(shooter.stop());

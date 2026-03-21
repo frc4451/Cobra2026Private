@@ -295,29 +295,32 @@ public class DriveCommands {
         });
   }
 
-//   public static Command driveYAxie(
-//       Drive drive, Supplier<Pose2d> targetPoseSupplier, DoubleSupplier perpendicularInput) {
+  public static Command driveYAxie(
+      Drive drive, DoubleSupplier xInput, Supplier<Pose2d> targetYAxie) {
 
-//     ProfiledPIDController parallelController =
-//         new ProfiledPIDController(5.0, 0.0, 0.3, new TrapezoidProfile.Constraints(4.0, 4.0));
-//     parallelController.setTolerance(Units.inchesToMeters(0.25));
+    ProfiledPIDController errorController =
+        new ProfiledPIDController(5.0, 0.0, 0.3, new TrapezoidProfile.Constraints(4.0, 4.0));
+    errorController.setTolerance(Units.inchesToMeters(0.25));
 
-//     return Commands.run(
-//         () -> {
-//           double parallelError =
-//               PoseUtils.getParallelError(drive.getGlobalPose(), targetPoseSupplier.get());
-//           double parallelSpeed = parallelController.calculate(-parallelError, 0);
-//           parallelSpeed = !parallelController.atSetpoint() ? parallelSpeed : 0;
+    return Commands.run(
+        () -> {
+          double parallelError =
+              PoseUtils.getParallelError(drive.getGlobalPose(), targetYAxie.get());
+          double parallelSpeed = errorController.calculate(-parallelError, 0);
+          parallelSpeed = !errorController.atSetpoint() ? parallelSpeed : 0;
 
-//           ChassisSpeeds speeds =
-//               new ChassisSpeeds(
-//                   perpendicularInput.getAsDouble() * drive.getMaxLinearSpeedMetersPerSec(),
-//                   parallelSpeed,
-//                   0.0);
+          Translation2d linearVelocity =
+              getLinearVelocityFromJoysticks(xInput.getAsDouble(), parallelSpeed);
 
-//           drive.runVelocity(speeds);
-//         });
-//   }
+          ChassisSpeeds speeds =
+              new ChassisSpeeds(
+                  linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
+                  linearVelocity.getY(),
+                  0.0);
+
+          drive.runVelocity(speeds);
+        });
+  }
 
   /**
    * Measures the velocity feedforward constants for the drive motors.
