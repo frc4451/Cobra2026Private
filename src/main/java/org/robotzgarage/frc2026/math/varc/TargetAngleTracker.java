@@ -11,6 +11,7 @@ public abstract class TargetAngleTracker {
   @Getter protected Distance distance = Meters.zero();
   @Getter protected Rotation2d rotationTarget = Rotation2d.kZero;
   @Getter protected Pose2d targetPose;
+  @Getter protected Pose2d rotationTargetPose;
 
   public abstract void update();
 }

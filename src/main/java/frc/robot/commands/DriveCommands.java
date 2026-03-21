@@ -31,16 +31,15 @@ import java.util.List;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.LoggedTunableNumber;
+import org.robotzgarage.frc2026.math.distance_calc.PoseUtils;
 
 public class DriveCommands {
   private static final double DEADBAND = 0.1;
-  private static final LoggedTunableNumber ANGLE_KP =
-      new LoggedTunableNumber("DriveCommands/kP", 15.0);
-  private static final LoggedTunableNumber ANGLE_KD =
-      new LoggedTunableNumber("DriveCommands/kD", 0.2);
-  private static final LoggedTunableNumber ANGLE_MAX_VELOCITY =
+  static final LoggedTunableNumber ANGLE_KP = new LoggedTunableNumber("DriveCommands/kP", 5.0);
+  static final LoggedTunableNumber ANGLE_KD = new LoggedTunableNumber("DriveCommands/kD", 0.2);
+  static final LoggedTunableNumber ANGLE_MAX_VELOCITY =
       new LoggedTunableNumber("DriveCommands/AngleMaxVelocity", 24.0);
-  private static final LoggedTunableNumber ANGLE_MAX_ACCELERATION =
+  static final LoggedTunableNumber ANGLE_MAX_ACCELERATION =
       new LoggedTunableNumber("DriveCommands/AngleMaxAcceleration", 96.0);
   private static final double FF_START_DELAY = 2.0; // Secs
   private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
@@ -123,6 +122,12 @@ public class DriveCommands {
                 ANGLE_MAX_VELOCITY.get(), ANGLE_MAX_ACCELERATION.get()));
     angleController.enableContinuousInput(-Math.PI, Math.PI);
 
+    // Mutable holder for previous rotation target so the profiled PID can receive the
+    // setpoint's rate of change as a goal velocity. Without this the controller
+    // plans to stop at the goal (velocity=0), causing lag on a moving SOTM setpoint and
+    // overshoot when the setpoint stabilises.
+    double[] prevTarget = {0.0};
+
     // Construct command
     return Commands.run(
             () -> {
@@ -130,11 +135,16 @@ public class DriveCommands {
               Translation2d linearVelocity =
                   getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
 
+              // Compute setpoint velocity (rad/s) for feed-forward into the profiled PID.
+              double currentTarget = rotationSupplier.get().getRadians();
+              double targetVelocity = MathUtil.angleModulus(currentTarget - prevTarget[0]) / 0.02;
+              prevTarget[0] = currentTarget;
+
               // Calculate angular speed
               double omega =
                   angleController.calculate(
                       BobotState.getGlobalPose().getRotation().getRadians(),
-                      rotationSupplier.get().getRadians());
+                      new TrapezoidProfile.State(currentTarget, targetVelocity));
 
               // Convert to field relative speeds & send command
               ChassisSpeeds speeds =
@@ -154,9 +164,13 @@ public class DriveCommands {
             },
             drive)
 
-        // Reset PID controller when command starts
+        // Reset PID controller and previous-target tracker when command starts
         .beforeStarting(
-            () -> angleController.reset(BobotState.getGlobalPose().getRotation().getRadians()));
+            () -> {
+              double initialTarget = rotationSupplier.get().getRadians();
+              angleController.reset(BobotState.getGlobalPose().getRotation().getRadians());
+              prevTarget[0] = initialTarget;
+            });
   }
 
   /**
@@ -257,6 +271,33 @@ public class DriveCommands {
 
         // Stop drivetrain when done
         .finallyDo(interrupted -> drive.runVelocity(new ChassisSpeeds()));
+  }
+
+  public static Command driveYAxie(
+      Drive drive, DoubleSupplier xInput, Supplier<Pose2d> targetYAxie) {
+
+    ProfiledPIDController errorController =
+        new ProfiledPIDController(5.0, 0.0, 0.3, new TrapezoidProfile.Constraints(4.0, 4.0));
+    errorController.setTolerance(Units.inchesToMeters(0.25));
+
+    return Commands.run(
+        () -> {
+          double parallelError =
+              PoseUtils.getParallelError(drive.getGlobalPose(), targetYAxie.get());
+          double parallelSpeed = errorController.calculate(-parallelError, 0);
+          parallelSpeed = !errorController.atSetpoint() ? parallelSpeed : 0;
+
+          Translation2d linearVelocity =
+              getLinearVelocityFromJoysticks(xInput.getAsDouble(), parallelSpeed);
+
+          ChassisSpeeds speeds =
+              new ChassisSpeeds(
+                  linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
+                  linearVelocity.getY(),
+                  0.0);
+
+          drive.runVelocity(speeds);
+        });
   }
 
   /**

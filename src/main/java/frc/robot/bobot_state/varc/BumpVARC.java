@@ -10,6 +10,7 @@ import frc.robot.bobot_state.BobotState;
 import org.littletonrobotics.AllianceFlipUtil;
 import org.littletonrobotics.FieldConstants.LeftBump;
 import org.littletonrobotics.FieldConstants.RightBump;
+import org.robotzgarage.frc2026.math.distance_calc.PoseUtils;
 import org.robotzgarage.frc2026.math.varc.TargetAngleTracker;
 
 public class BumpVARC extends TargetAngleTracker {
@@ -20,25 +21,32 @@ public class BumpVARC extends TargetAngleTracker {
     Pose2d robotPose = BobotState.getGlobalPose();
 
     Translation2d robotTranslation = robotPose.getTranslation();
-    Distance distanceToLeftBump =
-        Meters.of(robotTranslation.getDistance(AllianceFlipUtil.apply(leftBumpCenter)));
-    Distance distanceToRightBump =
-        Meters.of(robotTranslation.getDistance(AllianceFlipUtil.apply(rightBumpCenter)));
+    Distance distanceToLeftBump = Meters.of(robotTranslation.getDistance(leftBumpCenter));
+    Distance distanceToRightBump = Meters.of(robotTranslation.getDistance(rightBumpCenter));
 
     Translation2d bumpTranslation =
         distanceToLeftBump.lt(distanceToRightBump) ? leftBumpCenter : rightBumpCenter;
 
-    Pose2d bumpPose = AllianceFlipUtil.apply(new Pose2d(bumpTranslation, Rotation2d.kZero));
-
-    Rotation2d closestRotation = robotPose.getRotation();
+    Pose2d bumpPose =
+        AllianceFlipUtil.apply(
+            new Pose2d(AllianceFlipUtil.apply(bumpTranslation), Rotation2d.kZero));
 
     boolean leftBumpCloser = distanceToLeftBump.lt(distanceToRightBump);
 
     this.distance = leftBumpCloser ? distanceToLeftBump : distanceToRightBump;
 
+    // this.rotationTarget = (leftBumpCloser ? VARCConstants.leftBumpRotation :
+    // VARCConstants.rightBumpRotation)
+    //         .getValue();
     this.rotationTarget =
-        (leftBumpCloser ? VARCConstants.leftBumpRotation : VARCConstants.rightBumpRotation)
-            .getValue();
+        PoseUtils.getClosestAngle(
+            robotPose.getRotation(),
+            Rotation2d.fromDegrees(45),
+            Rotation2d.fromDegrees(-45),
+            Rotation2d.fromDegrees(135),
+            Rotation2d.fromDegrees(-135));
+
     this.targetPose = bumpPose;
+    this.rotationTargetPose = new Pose2d(robotTranslation, this.rotationTarget);
   }
 }

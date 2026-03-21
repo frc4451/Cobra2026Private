@@ -10,6 +10,7 @@ import frc.robot.bobot_state.BobotState;
 import org.littletonrobotics.AllianceFlipUtil;
 import org.littletonrobotics.FieldConstants.LeftTrench;
 import org.littletonrobotics.FieldConstants.RightTrench;
+import org.robotzgarage.frc2026.math.distance_calc.PoseUtils;
 import org.robotzgarage.frc2026.math.varc.TargetAngleTracker;
 
 public class TrenchVARC extends TargetAngleTracker {
@@ -37,8 +38,16 @@ public class TrenchVARC extends TargetAngleTracker {
             ? distanceToLeftTrench
             : distanceToRightTrench;
 
-    this.rotationTarget = AllianceFlipUtil.apply(Rotation2d.k180deg);
+    this.rotationTarget =
+        PoseUtils.getClosestAngle(
+            robotPose.getRotation(),
+            // Rotation2d.fromDegrees(0),
+            Rotation2d.fromDegrees(0),
+            Rotation2d.fromDegrees(90),
+            Rotation2d.fromDegrees(-90),
+            Rotation2d.fromDegrees(180));
 
     this.targetPose = trenchPose;
+    this.rotationTargetPose = new Pose2d(robotTranslation, this.rotationTarget);
   }
 }

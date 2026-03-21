@@ -8,6 +8,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -19,6 +20,8 @@ import frc.robot.autonomous.AutonomousManager;
 import frc.robot.bobot_state.BobotState;
 import frc.robot.bobot_state.dashboard.TeleopShiftManager;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.DriveFieldRelativePerpendicularToPoseCommand;
+import frc.robot.commands.ShootOnTheMoveCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -76,6 +79,9 @@ public class RobotContainer {
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
   private final TeleopShiftManager teleopShiftManager;
+
+  // Shoot-on-the-move command — stored as a field so the operator binding can access its trigger
+  private ShootOnTheMoveCommand sotmCommand;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -300,14 +306,24 @@ public class RobotContainer {
                 intake.runRollersVoltageOut()))
         .onFalse(intake.stop());
 
-    controller
-        .b()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> BobotState.getShooterAlignmentVARC().getRotationTarget()));
+    sotmCommand =
+        new ShootOnTheMoveCommand(
+            drive,
+            () -> -controller.getLeftY(),
+            () -> -controller.getLeftX(),
+            () -> BobotState.getShooterAlignmentVARC().getRotationTarget());
+
+    controller.b().and(controller.rightBumper().negate()).whileTrue(sotmCommand);
+
+    // Use this to test shoot on the move while driving towards and aways from the hub
+    // controller
+    //     .b()
+    //     .and(controller.rightBumper())
+    //     .whileTrue(
+    //         new DriveRobotRelativePerpendicularToPoseCommand(
+    //             drive,
+    //             () -> -controller.getLeftY(),
+    //             () -> BobotState.getShooterAlignmentVARC().getTargetPose()));
 
     // controller
     //     .rightBumper()
@@ -317,12 +333,23 @@ public class RobotContainer {
 
     controller
         .x()
+        .and(controller.rightBumper().negate())
         .whileTrue(
             DriveCommands.joystickDriveAtAngle(
                 drive,
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX(),
                 () -> BobotState.getClosestTraversal().getRotationTarget()));
+
+    controller
+        .x()
+        .and(controller.rightBumper())
+        .whileTrue(
+            new DriveFieldRelativePerpendicularToPoseCommand(
+                drive,
+                () -> -controller.getLeftY(),
+                () -> BobotState.getTrenchVARC().getTargetPose(),
+                () -> BobotState.getTrenchVARC().getRotationTarget()));
 
     // controller
     //     .y()
@@ -332,6 +359,15 @@ public class RobotContainer {
     //             () -> -controller.getLeftY(),
     //             () -> -controller.getLeftX(),
     //             () -> BobotState.getOutpostVARC().getRotationTarget()));
+
+    controller
+        .x()
+        .and(controller.rightBumper())
+        .whileTrue(
+            DriveCommands.driveYAxie(
+                drive,
+                () -> -controller.getLeftY(),
+                () -> BobotState.getClosestTraversal().getRotationTargetPose()));
 
     // controller.rightTrigger().onTrue(shooter.runShooterToHub());
     // controller.rightTrigger().onFalse(shooter.stop());
@@ -351,6 +387,9 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureOperatorBindings(GarageCommandXboxController controller) {
+    // Rumble when the driver is actively aiming and within range of the SOTM target
+    sotmCommand.aimingReady(Rotation2d.fromDegrees(2.0)).onTrue(controller.rumble(0.5));
+
     // Deploy the Intake as soon as Teleop starts
     teleopActive.onTrue(intake.endeffectorDeploy());
 

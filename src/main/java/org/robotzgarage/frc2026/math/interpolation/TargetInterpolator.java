@@ -12,6 +12,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Time;
+import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.function.Supplier;
 import lombok.Builder;
@@ -30,6 +31,10 @@ public abstract class TargetInterpolator {
   @Getter private InterpolatedCalculation calculation;
   /** Converged shooter position at the moment the ball is predicted to reach the target. */
   @Getter private Translation2d lookaheadTranslation = null;
+
+  // Hysteresis state for the overshoot guard — prevents rapid flipping between
+  // SOTM-adjusted aim and direct aim when near the dot=0 boundary.
+  private boolean wasOvershot = false;
 
   private final int lookaheadIterations;
   // Stored as a primitive double because it is allowed to be zero (no delay).
@@ -90,10 +95,38 @@ public abstract class TargetInterpolator {
         lookaheadDistanceMeters = lookaheadTranslation.getDistance(target);
       }
 
-      this.lookaheadTranslation = lookaheadTranslation;
+      // If the converged lookahead has overshot past the target (robot moving toward
+      // target faster than ball flight time allows), the aim angle would flip ~180°. Detect
+      // this with a dot-product sign check and fall back to direct aim in that case.
+      Translation2d currentToTarget = target.minus(shooterTranslation);
+      Translation2d lookaheadToTarget = target.minus(lookaheadTranslation);
+      double dot =
+          currentToTarget.getX() * lookaheadToTarget.getX()
+              + currentToTarget.getY() * lookaheadToTarget.getY();
+
+      // Enter overshot when dot <= 0; don't exit until dot exceeds 10% of
+      // |currentToTarget|^2 so the flag doesn't chatter at the boundary and cause PID spikes.
+      double exitThreshold =
+          wasOvershot
+              ? 0.1
+                  * (currentToTarget.getX() * currentToTarget.getX()
+                      + currentToTarget.getY() * currentToTarget.getY())
+              : 0.0;
+      boolean lookaheadOvershot = dot <= exitThreshold;
+      wasOvershot = lookaheadOvershot;
+
+      if (lookaheadOvershot) {
+        this.lookaheadTranslation = null;
+        lookaheadDistanceMeters = currentDistanceMeters;
+      } else {
+        this.lookaheadTranslation = lookaheadTranslation;
+      }
+
       Logger.recordOutput(
           logKey + "LookaheadPose",
-          new Pose2d(lookaheadTranslation, robotPose.get().getRotation()));
+          new Pose2d(
+              lookaheadOvershot ? shooterTranslation : lookaheadTranslation,
+              robotPose.get().getRotation()));
       Logger.recordOutput(
           logKey + "LookaheadDistanceFeet", Units.metersToFeet(lookaheadDistanceMeters));
       Logger.recordOutput(
@@ -101,6 +134,7 @@ public abstract class TargetInterpolator {
       Logger.recordOutput(
           logKey + "LookaheadCorrectionFeet",
           Units.metersToFeet(lookaheadDistanceMeters - currentDistanceMeters));
+      Logger.recordOutput(logKey + "LookaheadOvershot", lookaheadOvershot);
     }
 
     this.calculation = interpolator.calculateInterpolation(Meters.of(lookaheadDistanceMeters));
@@ -113,5 +147,14 @@ public abstract class TargetInterpolator {
    */
   public Distance getDistanceFromTarget() {
     return PoseUtils.getDistanceBetweenPoses(robotPose.get(), targetPose.get());
+  }
+
+  /**
+   * Raw interpolated time-of-flight at {@code distanceMeters} with no lookahead applied. Used
+   * externally to compute geometry-based drive speed limits.
+   */
+  public Optional<Time> getNaiveTOF(Distance distance) {
+    OptionalDouble raw = interpolator.getTOF(distance.in(Meters));
+    return raw.isPresent() ? Optional.of(Seconds.of(raw.getAsDouble())) : Optional.empty();
   }
 }
