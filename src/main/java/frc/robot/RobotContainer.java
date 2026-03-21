@@ -21,7 +21,6 @@ import frc.robot.bobot_state.BobotState;
 import frc.robot.bobot_state.dashboard.TeleopShiftManager;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.DriveFieldRelativePerpendicularToPoseCommand;
-import frc.robot.commands.DriveRobotRelativePerpendicularToPoseCommand;
 import frc.robot.commands.ShootOnTheMoveCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
