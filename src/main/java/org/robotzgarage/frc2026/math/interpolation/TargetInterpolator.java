@@ -12,6 +12,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Time;
+import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.function.Supplier;
 import lombok.Builder;
@@ -94,7 +95,7 @@ public abstract class TargetInterpolator {
         lookaheadDistanceMeters = lookaheadTranslation.getDistance(target);
       }
 
-      // Guard: if the converged lookahead has overshot past the target (robot moving toward
+      // If the converged lookahead has overshot past the target (robot moving toward
       // target faster than ball flight time allows), the aim angle would flip ~180°. Detect
       // this with a dot-product sign check and fall back to direct aim in that case.
       Translation2d currentToTarget = target.minus(shooterTranslation);
@@ -102,8 +103,9 @@ public abstract class TargetInterpolator {
       double dot =
           currentToTarget.getX() * lookaheadToTarget.getX()
               + currentToTarget.getY() * lookaheadToTarget.getY();
-      // Hysteresis: enter overshot when dot ≤ 0; don't exit until dot exceeds 10% of
-      // |currentToTarget|² so the flag doesn't chatter at the boundary and cause PID spikes.
+      
+      // Enter overshot when dot <= 0; don't exit until dot exceeds 10% of
+      // |currentToTarget|^2 so the flag doesn't chatter at the boundary and cause PID spikes.
       double exitThreshold =
           wasOvershot
               ? 0.1
@@ -145,5 +147,14 @@ public abstract class TargetInterpolator {
    */
   public Distance getDistanceFromTarget() {
     return PoseUtils.getDistanceBetweenPoses(robotPose.get(), targetPose.get());
+  }
+
+  /**
+   * Raw interpolated time-of-flight at {@code distanceMeters} with no lookahead applied. Used
+   * externally to compute geometry-based drive speed limits.
+   */
+  public Optional<Time> getNaiveTOF(Distance distance) {
+    OptionalDouble raw = interpolator.getTOF(distance.in(Meters));
+    return raw.isPresent() ? Optional.of(Seconds.of(raw.getAsDouble())) : Optional.empty();
   }
 }

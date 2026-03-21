@@ -34,13 +34,11 @@ import org.littletonrobotics.LoggedTunableNumber;
 
 public class DriveCommands {
   private static final double DEADBAND = 0.1;
-  private static final LoggedTunableNumber ANGLE_KP =
-      new LoggedTunableNumber("DriveCommands/kP", 15.0);
-  private static final LoggedTunableNumber ANGLE_KD =
-      new LoggedTunableNumber("DriveCommands/kD", 0.2);
-  private static final LoggedTunableNumber ANGLE_MAX_VELOCITY =
+  static final LoggedTunableNumber ANGLE_KP = new LoggedTunableNumber("DriveCommands/kP", 5.0);
+  static final LoggedTunableNumber ANGLE_KD = new LoggedTunableNumber("DriveCommands/kD", 0.2);
+  static final LoggedTunableNumber ANGLE_MAX_VELOCITY =
       new LoggedTunableNumber("DriveCommands/AngleMaxVelocity", 24.0);
-  private static final LoggedTunableNumber ANGLE_MAX_ACCELERATION =
+  static final LoggedTunableNumber ANGLE_MAX_ACCELERATION =
       new LoggedTunableNumber("DriveCommands/AngleMaxAcceleration", 96.0);
   private static final double FF_START_DELAY = 2.0; // Secs
   private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
@@ -124,7 +122,7 @@ public class DriveCommands {
     angleController.enableContinuousInput(-Math.PI, Math.PI);
 
     // Mutable holder for previous rotation target so the profiled PID can receive the
-    // setpoint's rate of change as a goal velocity. Without this the controller always
+    // setpoint's rate of change as a goal velocity. Without this the controller
     // plans to stop at the goal (velocity=0), causing lag on a moving SOTM setpoint and
     // overshoot when the setpoint stabilises.
     double[] prevTarget = {0.0};
