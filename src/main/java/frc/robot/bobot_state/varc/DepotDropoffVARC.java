@@ -4,26 +4,32 @@ import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.bobot_state.BobotState;
 import org.littletonrobotics.AllianceFlipUtil;
-import org.littletonrobotics.FieldConstants.Depot;
+import org.littletonrobotics.FieldConstants;
 import org.littletonrobotics.LoggedTunableNumber;
 import org.robotzgarage.frc2026.math.distance_calc.PoseUtils;
 import org.robotzgarage.frc2026.math.varc.TargetAngleTracker;
 
 public class DepotDropoffVARC extends TargetAngleTracker {
   public static final LoggedTunableNumber parallelOffsetFeet =
-      new LoggedTunableNumber("DepotDropoffParallelOffsetFeet", 1.0);
+      new LoggedTunableNumber("DepotDropoffParallelOffsetFeet", 23.0);
   public static final LoggedTunableNumber perpendicularOffsetFeet =
-      new LoggedTunableNumber("DepotDropoffPerpendicularOffsetFeet", 4.0);
+      new LoggedTunableNumber("DepotDropoffPerpendicularOffsetFeet", 6.0);
 
   public void update() {
     Pose2d robotPose = BobotState.getGlobalPose();
+    // Pose2d depotPose =
+    //     AllianceFlipUtil.apply(
+    //         PoseUtils.getOffsetPose(
+    //             new Pose2d(Depot.depotCenter.toTranslation2d(), Rotation2d.kZero),
+    //             Feet.of(parallelOffsetFeet.get()),
+    //             Feet.of(perpendicularOffsetFeet.get())));
+
     Pose2d depotPose =
         AllianceFlipUtil.apply(
             PoseUtils.getOffsetPose(
-                new Pose2d(Depot.depotCenter.toTranslation2d(), Rotation2d.kZero),
+                FieldConstants.origin,
                 Feet.of(parallelOffsetFeet.get()),
                 Feet.of(perpendicularOffsetFeet.get())));
 

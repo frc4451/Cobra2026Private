@@ -7,7 +7,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.measure.Distance;
 import frc.robot.bobot_state.BobotState;
 import org.littletonrobotics.AllianceFlipUtil;
-import org.littletonrobotics.FieldConstants.Outpost;
+import org.littletonrobotics.FieldConstants;
 import org.littletonrobotics.LoggedTunableNumber;
 import org.robotzgarage.frc2026.math.distance_calc.PoseUtils;
 import org.robotzgarage.frc2026.math.varc.TargetAngleTracker;
@@ -28,7 +28,7 @@ public class OutpostDropoffVARC extends TargetAngleTracker {
     Pose2d dropoffPose =
         AllianceFlipUtil.apply(
             PoseUtils.getOffsetPose(
-                Outpost.outpostPose2d,
+                FieldConstants.origin,
                 Feet.of(parallelOffsetFeet.get()),
                 Feet.of(perpendicularOffsetFeet.get())));
 

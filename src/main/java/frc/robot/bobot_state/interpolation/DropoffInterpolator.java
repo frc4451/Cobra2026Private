@@ -23,50 +23,88 @@ public class DropoffInterpolator extends TargetInterpolator {
     interpolator.addEntries(
         // Start of entries
         DistanceAngleSpeedEntry.builder()
-            .distanceToTarget(Feet.of(7))
-            .primaryVelocity(RotationsPerSecond.of(47))
-            .pitch(interpolatorDefaultPitch)
-            .build(),
-        DistanceAngleSpeedEntry.builder()
-            .distanceToTarget(Feet.of(8))
+            .distanceToTarget(Feet.of(13))
             .primaryVelocity(RotationsPerSecond.of(48))
             .pitch(interpolatorDefaultPitch)
+            .timeOfFlight(Seconds.of(1.33))
             .build(),
         DistanceAngleSpeedEntry.builder()
-            .distanceToTarget(Feet.of(9))
-            .primaryVelocity(RotationsPerSecond.of(50))
+            .distanceToTarget(Feet.of(14))
+            .primaryVelocity(RotationsPerSecond.of(52))
             .pitch(interpolatorDefaultPitch)
+            .timeOfFlight(Seconds.of(1.733))
             .build(),
         DistanceAngleSpeedEntry.builder()
-            .distanceToTarget(Feet.of(10))
-            .primaryVelocity(RotationsPerSecond.of(51))
+            .distanceToTarget(Feet.of(15))
+            .primaryVelocity(RotationsPerSecond.of(54))
             .pitch(interpolatorDefaultPitch)
+            .timeOfFlight(Seconds.of(1.33))
             .build(),
         DistanceAngleSpeedEntry.builder()
-            .distanceToTarget(Feet.of(11))
-            .primaryVelocity(RotationsPerSecond.of(53))
+            .distanceToTarget(Feet.of(16))
+            .primaryVelocity(RotationsPerSecond.of(56))
             .pitch(interpolatorDefaultPitch)
-            .build(),
-        DistanceAngleSpeedEntry.builder()
-            .distanceToTarget(Feet.of(12))
-            .primaryVelocity(RotationsPerSecond.of(55))
-            .pitch(interpolatorDefaultPitch)
-            .build(),
-        DistanceAngleSpeedEntry.builder()
-            .distanceToTarget(Feet.of(13))
-            .primaryVelocity(RotationsPerSecond.of(56.5))
-            .pitch(interpolatorDefaultPitch)
+            .timeOfFlight(Seconds.of(1.33))
             .build(),
         DistanceAngleSpeedEntry.builder()
             .distanceToTarget(Feet.of(17))
-            .primaryVelocity(RotationsPerSecond.of(63.5))
+            .primaryVelocity(RotationsPerSecond.of(58))
             .pitch(interpolatorDefaultPitch)
+            .timeOfFlight(Seconds.of(1.33))
             .build(),
         DistanceAngleSpeedEntry.builder()
-            .distanceToTarget(Feet.of(47))
-            .primaryVelocity(RotationsPerSecond.of(92.4))
+            .distanceToTarget(Feet.of(18))
+            .primaryVelocity(RotationsPerSecond.of(60))
             .pitch(interpolatorDefaultPitch)
+            .timeOfFlight(Seconds.of(1.34))
+            .build(),
+        DistanceAngleSpeedEntry.builder()
+            .distanceToTarget(Feet.of(19))
+            .primaryVelocity(RotationsPerSecond.of(61.5))
+            .pitch(interpolatorDefaultPitch)
+            .timeOfFlight(Seconds.of(1.37))
+            .build(),
+        DistanceAngleSpeedEntry.builder()
+            .distanceToTarget(Feet.of(20))
+            .primaryVelocity(RotationsPerSecond.of(63))
+            .pitch(interpolatorDefaultPitch)
+            .timeOfFlight(Seconds.of(1.39))
+            .build(),
+        DistanceAngleSpeedEntry.builder()
+            .distanceToTarget(Feet.of(21))
+            .primaryVelocity(RotationsPerSecond.of(64.75))
+            .pitch(interpolatorDefaultPitch)
+            .timeOfFlight(Seconds.of(1.44))
+            .build(),
+        DistanceAngleSpeedEntry.builder()
+            .distanceToTarget(Feet.of(22))
+            .primaryVelocity(RotationsPerSecond.of(67))
+            .pitch(interpolatorDefaultPitch)
+            .timeOfFlight(Seconds.of(1.50))
+            .build(),
+        DistanceAngleSpeedEntry.builder()
+            .distanceToTarget(Feet.of(23))
+            .primaryVelocity(RotationsPerSecond.of(70))
+            .pitch(interpolatorDefaultPitch)
+            .timeOfFlight(Seconds.of(1.55))
+            .build(),
+        DistanceAngleSpeedEntry.builder()
+            .distanceToTarget(Feet.of(24))
+            .primaryVelocity(RotationsPerSecond.of(74))
+            .pitch(interpolatorDefaultPitch)
+            .timeOfFlight(Seconds.of(1.60))
+            .build(),
+        DistanceAngleSpeedEntry.builder()
+            .distanceToTarget(Feet.of(25))
+            .primaryVelocity(RotationsPerSecond.of(78))
+            .pitch(interpolatorDefaultPitch)
+            .timeOfFlight(Seconds.of(1.76))
             .build());
+    // DistanceAngleSpeedEntry.builder()
+    //     .distanceToTarget(Feet.of(47))
+    //     .primaryVelocity(RotationsPerSecond.of(92.4))
+    //     .pitch(interpolatorDefaultPitch)
+    //     .build());
   }
 
   public DropoffInterpolator() {

@@ -384,14 +384,14 @@ public class RobotContainer {
 
     controller.leftBumper().whileTrue(shooter.runShooterToPoop()).onFalse(shooter.stop());
 
-    // override for shooter for BAD things
+    controller.a().onTrue(feeder.runFeederVoltage()).onFalse(feeder.stop());
+    controller.y().onTrue(feeder.runSpindexerReverse()).onFalse(feeder.stop());
+
+    // override for shooter, for BAD things
     controller
         .leftTrigger()
         .whileTrue(shooter.runShooterVelocityTorqueCurrent())
         .onFalse(shooter.stop());
-
-    controller.a().onTrue(feeder.runFeederVoltage()).onFalse(feeder.stop());
-    controller.y().onTrue(feeder.runSpindexerReverse()).onFalse(feeder.stop());
   }
 
   /**
