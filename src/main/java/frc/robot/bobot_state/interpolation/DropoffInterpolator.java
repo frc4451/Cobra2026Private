@@ -32,7 +32,7 @@ public class DropoffInterpolator extends TargetInterpolator {
             .distanceToTarget(Feet.of(14))
             .primaryVelocity(RotationsPerSecond.of(52))
             .pitch(interpolatorDefaultPitch)
-            .timeOfFlight(Seconds.of(1.733))
+            .timeOfFlight(Seconds.of(1.33))
             .build(),
         DistanceAngleSpeedEntry.builder()
             .distanceToTarget(Feet.of(15))
@@ -111,7 +111,7 @@ public class DropoffInterpolator extends TargetInterpolator {
     super(
         TargetInterpolatorConfig.builder()
             .logKey("BobotState/Interpolation/Dropoff")
-            .targetPose(() -> BobotState.getHubVARC().getTargetPose())
+            .targetPose(() -> BobotState.getClosestDropoff().getTargetPose())
             .robotPose(() -> BobotState.getGlobalPose())
             .robotVelocity(() -> BobotState.getRobotVelocity())
             .lookaheadIterations(20)

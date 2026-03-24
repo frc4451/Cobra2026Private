@@ -171,6 +171,44 @@ public class ShootOnTheMoveCommand extends Command {
       }
     }
 
+    if (BobotState.getCurrentFieldZone() != BobotState.FieldZone.NEAR_ALLIANCE
+        && linearMagnitude > 0.0) {
+      Distance dropoffDistance = BobotState.getHubVARC().getDistance();
+
+      // Look up ball TOF at the current (non-lookahead) distance from the interpolation table.
+      Optional<Time> maybeTOF = BobotState.getDropoffInterpolator().getNaiveTOF(dropoffDistance);
+
+      if (maybeTOF.isPresent()) {
+        double tof = maybeTOF.get().in(Seconds);
+
+        // Angle at H: how many radians the hub "sees" the robot sweep in one TOF.
+        double dropoffAngle = MAX_POLAR_VELOCITY_RAD_PER_SEC.get() * tof;
+
+        // Angle at R: difference between where we're driving and the direction toward the hub.
+        // Using the absolute value because we only care about the magnitude of the deviation.
+        Translation2d robotToDropoff =
+            BobotState.getClosestDropoff()
+                .getTargetPose()
+                .getTranslation()
+                .minus(BobotState.getGlobalPose().getTranslation());
+        double robotAngle =
+            Math.abs(
+                MathUtil.angleModulus(
+                    robotToDropoff.getAngle().minus(linearDirection).getRadians()));
+
+        // Remaining angle at P (triangle must sum to π).
+        double lookaheadAngle = Math.PI - robotAngle - dropoffAngle;
+        if (lookaheadAngle > 0) {
+          // Sine rule → max distance the robot may travel in one TOF.
+          double maxDistanceMeters =
+              dropoffDistance.in(Meters) * Math.sin(dropoffAngle) / Math.sin(lookaheadAngle);
+          // Convert to a normalized magnitude (0–1) relative to the drive's top speed.
+          double maxMagnitude = (maxDistanceMeters / tof) / drive.getMaxLinearSpeedMetersPerSec();
+          linearMagnitude = Math.min(linearMagnitude, maxMagnitude);
+        }
+      }
+    }
+
     // ── Step 3: Reconstruct the velocity vector from clamped magnitude + original direction ─
     Translation2d linearVelocity =
         new Pose2d(Translation2d.kZero, linearDirection)

@@ -23,6 +23,7 @@ import lombok.Setter;
 import org.littletonrobotics.AllianceFlipUtil;
 import org.littletonrobotics.FieldConstants;
 import org.littletonrobotics.junction.Logger;
+import org.robotzgarage.frc2026.math.interpolation.TargetInterpolator;
 import org.robotzgarage.frc2026.math.varc.TargetAngleTracker;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.PoseObservation;
 import org.robotzgarage.frc2026.util.VirtualSubsystem;
@@ -43,7 +44,7 @@ public class BobotState extends VirtualSubsystem {
   @Getter private static final OutpostDropoffVARC outpostVARC = new OutpostDropoffVARC();
   @Getter private static final DepotDropoffVARC depotVARC = new DepotDropoffVARC();
   @Getter private static final FuelClusterVARC fuelClusterVARC = new FuelClusterVARC();
-  @Getter private static TargetAngleTracker closestDropoff;
+  @Getter private static TargetAngleTracker closestDropoff = outpostVARC;
   @Getter private static TargetAngleTracker closestTraversal;
 
   @Getter @Setter private static List<Pose3d> knownFuelPoses = List.of();
@@ -114,6 +115,13 @@ public class BobotState extends VirtualSubsystem {
     return switch (BobotState.getCurrentFieldZone()) {
       case NEAR_ALLIANCE -> BobotState.getHubVARC();
       default -> BobotState.getClosestDropoff();
+    };
+  }
+
+  public static TargetInterpolator getShooterInterpolator() {
+    return switch (BobotState.getCurrentFieldZone()) {
+      case NEAR_ALLIANCE -> BobotState.hubInterpolator;
+      default -> BobotState.dropoffInterpolator;
     };
   }
 

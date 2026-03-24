@@ -367,7 +367,7 @@ public class RobotContainer {
 
     controller.povLeft().onTrue(intake.endeffectorStart());
     controller.povUp().onTrue(intake.endeffectorSqueeze());
-    // controller.povRight().onTrue(intake.endeffectorLift());
+    controller.povRight().onTrue(intake.endeffectorLift());
     controller.povDown().onTrue(intake.endeffectorDeploy());
 
     controller
