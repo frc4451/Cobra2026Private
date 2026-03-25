@@ -7,9 +7,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.bobot_state.BobotState;
 import org.littletonrobotics.AllianceFlipUtil;
 import org.littletonrobotics.FieldConstants.Hub;
-import org.robotzgarage.frc2026.math.varc.TargetAngleTracker;
+import org.robotzgarage.frc2026.math.varc.TargetVARC;
 
-public class HubVARC extends TargetAngleTracker {
+public class HubVARC extends TargetVARC {
   public void update() {
     Pose2d robotPose = BobotState.getGlobalPose();
 

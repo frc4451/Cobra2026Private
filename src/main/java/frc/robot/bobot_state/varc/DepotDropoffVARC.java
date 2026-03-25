@@ -9,9 +9,9 @@ import org.littletonrobotics.AllianceFlipUtil;
 import org.littletonrobotics.FieldConstants;
 import org.littletonrobotics.LoggedTunableNumber;
 import org.robotzgarage.frc2026.math.distance_calc.PoseUtils;
-import org.robotzgarage.frc2026.math.varc.TargetAngleTracker;
+import org.robotzgarage.frc2026.math.varc.TargetVARC;
 
-public class DepotDropoffVARC extends TargetAngleTracker {
+public class DepotDropoffVARC extends TargetVARC {
   public static final LoggedTunableNumber parallelOffsetFeet =
       new LoggedTunableNumber("DepotDropoffParallelOffsetFeet", 23.0);
   public static final LoggedTunableNumber perpendicularOffsetFeet =

@@ -296,7 +296,8 @@ public class RobotContainer {
             drive,
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
-            () -> BobotState.getShooterAlignmentVARC().getRotationTarget());
+            () -> BobotState.getShooterAlignmentVARC(),
+            () -> BobotState.getShooterInterpolator());
 
     controller.b().and(controller.rightBumper().negate()).whileTrue(sotmCommand);
 

@@ -11,9 +11,9 @@ import org.littletonrobotics.AllianceFlipUtil;
 import org.littletonrobotics.FieldConstants.LeftTrench;
 import org.littletonrobotics.FieldConstants.RightTrench;
 import org.robotzgarage.frc2026.math.distance_calc.PoseUtils;
-import org.robotzgarage.frc2026.math.varc.TargetAngleTracker;
+import org.robotzgarage.frc2026.math.varc.TargetVARC;
 
-public class TrenchVARC extends TargetAngleTracker {
+public class TrenchVARC extends TargetVARC {
   private static final Translation2d leftTrench =
       LeftTrench.openingTopLeft.interpolate(LeftTrench.openingTopRight, 0.5).toTranslation2d();
   private static final Translation2d rightTrench =

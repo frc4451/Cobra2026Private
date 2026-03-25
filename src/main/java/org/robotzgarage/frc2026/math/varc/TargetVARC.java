@@ -7,7 +7,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Distance;
 import lombok.Getter;
 
-public abstract class TargetAngleTracker {
+public abstract class TargetVARC {
   @Getter protected Distance distance = Meters.zero();
   @Getter protected Rotation2d rotationTarget = Rotation2d.kZero;
   @Getter protected Pose2d targetPose;
