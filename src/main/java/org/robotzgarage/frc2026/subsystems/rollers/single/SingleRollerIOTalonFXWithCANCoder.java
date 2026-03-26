@@ -89,7 +89,8 @@ public class SingleRollerIOTalonFXWithCANCoder implements SingleRollerIO {
     velocitySetpointRotationsPerSec = talon.getClosedLoopReferenceSlope();
 
     CANcoderConfiguration encoderConfig = new CANcoderConfiguration();
-    encoderConfig.MagnetSensor.MagnetOffset = canCoderConfig.magnetOffset().in(Rotations);
+    encoderConfig.MagnetSensor.MagnetOffset =
+        canCoderConfig.magnetOffset().in(Rotations) * canCoderConfig.sensorToMechanismReduction();
     encoderConfig.MagnetSensor.SensorDirection =
         canCoderConfig.isClockwisePositive()
             ? SensorDirectionValue.Clockwise_Positive
