@@ -345,8 +345,11 @@ public class RobotContainer {
     // controller.leftTrigger().onTrue(shooter.runShooterVelocityTorqueCurrent());
     // controller.leftTrigger().onFalse(shooter.stop());
 
-    controller.leftBumper().onTrue(intake.runRollersVoltageOut());
-    controller.leftBumper().onFalse(intake.stop());
+    // controller.leftBumper().onTrue(intake.runRollersVoltageOut());
+    // controller.leftBumper().onFalse(intake.stop());
+
+    controller.leftTrigger().onTrue(intake.runRollersVoltageOut());
+    controller.leftTrigger().onFalse(intake.stop());
   }
 
   /**

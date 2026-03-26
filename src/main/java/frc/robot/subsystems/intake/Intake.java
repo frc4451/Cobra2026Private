@@ -29,12 +29,10 @@ public class Intake extends SubsystemBase {
       new LoggedTunableNumber(name + "/EndeffectorStart", 90.0);
   private static final LoggedTunableNumber endeffectorDeploy =
       new LoggedTunableNumber(name + "/EndeffectorDeploy", 0.0);
-  private static final LoggedTunableNumber endeffectorDeployVolts =
-      new LoggedTunableNumber(name + "/EndeffectorDeployVolts", 0.0);
   private static final LoggedTunableNumber endeffectorLift =
       new LoggedTunableNumber(name + "/EndeffectorLift", 20.0);
   private static final LoggedTunableNumber endeffectorSqueeze =
-      new LoggedTunableNumber(name + "/EndeffectorSqueeze", 75.0);
+      new LoggedTunableNumber(name + "/EndeffectorSqueeze", 80.0);
 
   // Subsystems
   private final Flywheel rollers;
