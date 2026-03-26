@@ -218,10 +218,10 @@ public class AutonomousManager {
   public Command himithy() {
     return Commands.sequence(
             this.deployIntake(),
-            BLineTrajectory("SnG-LT-1"),
-            BLineTrajectorywithIntake("LT-SimpleIntake-1"),
+            BLineTrajectory("OGHimithy-1"),
+            BLineTrajectorywithIntake("OGHimithy-2"),
             this.liftIntake(),
-            BLineTrajectory("LB-SimpleIntake-Shoot"),
+            BLineTrajectory("OGHimithy-3"),
             this.rotateToHub(),
             this.handleShotInterpolation("shot 1", 5.0, 2.0))
         .beforeStarting(Commands.print("Path start"))
@@ -231,10 +231,10 @@ public class AutonomousManager {
   public Command himithyy() {
     return Commands.sequence(
             this.deployIntake(),
-            BLineTrajectory("SnG-LT-1"),
-            BLineTrajectorywithIntake("LT-Intake-NeutralZone"),
+            BLineTrajectory("OGHimithy-1"),
+            BLineTrajectorywithIntake("OGHimithyy-2"),
             this.liftIntake(),
-            BLineTrajectory("RB-NeutralZone-Shoot"),
+            BLineTrajectory("OGHimithyy-3"),
             this.rotateToHub(),
             this.handleShotInterpolation("shot 1", 10.0, 2.0))
         .beforeStarting(Commands.print("Path start"))
@@ -244,10 +244,10 @@ public class AutonomousManager {
   public Command timithy() {
     return Commands.sequence(
             this.deployIntake(),
-            BLineTrajectory("SnG-RT-1"),
-            BLineTrajectorywithIntake("RT-SimpleIntake-1"),
+            BLineTrajectory("OGTimithy-1"),
+            BLineTrajectorywithIntake("OGTimithy-2"),
             this.liftIntake(),
-            BLineTrajectory("RB-SimpleIntake-Shoot"),
+            BLineTrajectory("OGTimithy-3"),
             this.rotateToHub(),
             this.handleShotInterpolation("shot 1", 8.0, 3.0))
         .beforeStarting(Commands.print("Path start"))
@@ -257,10 +257,10 @@ public class AutonomousManager {
   public Command timithyy() {
     return Commands.sequence(
             this.deployIntake(),
-            BLineTrajectory("SnG-RT-1"),
-            BLineTrajectorywithIntake("RT-Intake-NeutralZone"),
+            BLineTrajectory("OGTimithy-1"),
+            BLineTrajectorywithIntake("OGTimithyy-2"),
             this.liftIntake(),
-            BLineTrajectory("LB-NeutralZone-Shoot"),
+            BLineTrajectory("OGTimithyy-3"),
             this.rotateToHub(),
             this.handleShotInterpolation("shot 1", 10.0, 6.0))
         .beforeStarting(Commands.print("Path start"))
@@ -287,7 +287,7 @@ public class AutonomousManager {
     return Commands.sequence(
             this.deployIntake(),
             Commands.deadline(
-                    BLineTrajectory("himithy-1"),
+                    BLineTrajectory("Himithy-1"),
                     Commands.waitSeconds(1)
                         .andThen(
                             Commands.deadline(
