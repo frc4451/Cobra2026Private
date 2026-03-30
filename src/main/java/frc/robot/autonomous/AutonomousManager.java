@@ -23,7 +23,7 @@ public class AutonomousManager {
   private final Intake intake;
   private final Feeder feeder;
 
-  private static final double rotationToleranceDegrees = 1.0;
+  private static final double rotationToleranceDegrees = 3.0;
   private static final Time MAX_TIMEOUT = Seconds.of(20);
 
   public AutonomousManager(Drive drive, Shooter shooter, Intake intake, Feeder feeder) {
@@ -150,6 +150,22 @@ public class AutonomousManager {
                 .until(
                     // wait to start tower, until shooter is at velocity
                     shooter.isShooterFlywheelNearRPS(velocity, RotationsPerSecond.of(1.0))),
+            // shoots shooter for the estimated empty time
+            Commands.print(formattedPrefix + "start shooter"),
+            Commands.deadline(
+                shooter.runShooterToHub().withTimeout(Seconds.of(emptyTime)),
+                feeder.runFeederVoltage(),
+                Commands.waitSeconds(squeezeTime).andThen(intake.endeffectorSqueeze())),
+            feeder.stop(),
+            shooter.stop())
+        .beforeStarting(Commands.print(formattedPrefix + "start"))
+        .andThen(Commands.print(formattedPrefix + "end"));
+  }
+
+  private Command handleShotInterpolation2(String prefix, double emptyTime, double squeezeTime) {
+    String formattedPrefix = prefix + ": ";
+
+    return Commands.sequence(
             // shoots shooter for the estimated empty time
             Commands.print(formattedPrefix + "start shooter"),
             Commands.deadline(
