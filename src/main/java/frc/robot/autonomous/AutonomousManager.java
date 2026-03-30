@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.bobot_state.BobotState;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.ShootOnTheMoveCommand;
 import frc.robot.lib.BLine.Path;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
@@ -318,18 +317,26 @@ public class AutonomousManager {
         .andThen(Commands.print("Path end"));
   }
 
-  public Command himithy_1() {
+  public Command himithyTake1() {
     return Commands.sequence(
             this.deployIntake(),
-            Commands.deadline(
-                    BLineTrajectory("Himithy-1"),
-                    Commands.waitSeconds(1)
-                        .andThen(
-                            Commands.deadline(
-                                Commands.waitSeconds(5), intake.runRollersVoltageOut())))
-                .andThen(Commands.waitSeconds(1).andThen(intake.stop())),
+            BLineTrajectorywithIntake("Himithy-1"),
             this.rotateToHub(),
             this.handleShotInterpolation("shot 1", 10.0, 6.0))
+        .beforeStarting(Commands.print("Path start"))
+        .andThen(Commands.print("Path end"));
+  }
+
+  public Command himithyTake2() {
+    return Commands.sequence(
+            this.deployIntake(),
+            BLineTrajectorywithIntake("Himithy-1"),
+            this.rotateToHub(),
+            this.handleShotInterpolation("shot 1", 4.0, 2.0),
+            this.deployIntake(),
+            BLineTrajectorywithIntake("Himithy-2"),
+            this.rotateToHub(),
+            this.handleShotInterpolation("shot 2", 4.0, 2.0))
         .beforeStarting(Commands.print("Path start"))
         .andThen(Commands.print("Path end"));
   }
@@ -339,7 +346,7 @@ public class AutonomousManager {
             this.deployIntake(),
             BLineTrajectory("dimithy-1"),
             Commands.waitSeconds(4),
-            BLineTrajectory("dimithy-p2"),
+            BLineTrajectory("dimithy-2"),
             this.rotateToHub(),
             this.handleShotInterpolation("shot 1", 10.0, 5.0))
         .beforeStarting(Commands.print("Path start"))
