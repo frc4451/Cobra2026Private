@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.bobot_state.BobotState;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.ShootOnTheMoveCommand;
 import frc.robot.lib.BLine.Path;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
@@ -202,6 +203,40 @@ public class AutonomousManager {
         .beforeStarting(Commands.print("Intake rollers: stop"));
   }
 
+  // private Command strafeShoot(String name) {
+  //   return Commands.run(
+  //           () ->
+  //               new ShootOnTheMoveCommand(
+  //                   drive,
+  //                   () ->
+  //                       (drive.getChassisSpeeds().vyMetersPerSecond
+  //                           / drive.getMaxLinearSpeedMetersPerSec()),
+  //                   () ->
+  //                       (drive.getChassisSpeeds().vxMetersPerSecond
+  //                           / drive.getMaxLinearSpeedMetersPerSec()),
+  //                   () -> BobotState.getShooterAlignmentVARC(),
+  //                   () -> BobotState.getShooterInterpolator()))
+  //       .beforeStarting(Commands.print(name + ": Start Strafe Shoot"))
+  //       .andThen(Commands.print(name + ": End Strafe Shoot"));
+  // }
+
+  // private Command BLineStrafe(String name) {
+  //   return Commands.sequence(
+  //     drive.getBLineBuilder().build(new Path(name)),
+  //               new ShootOnTheMoveCommand(
+  //                   drive,
+  //                   () ->
+  //                       (drive.getChassisSpeeds().vyMetersPerSecond
+  //                           / drive.getMaxLinearSpeedMetersPerSec()),
+  //                   () ->
+  //                       (drive.getChassisSpeeds().vxMetersPerSecond
+  //                           / drive.getMaxLinearSpeedMetersPerSec()),
+  //                   () -> BobotState.getShooterAlignmentVARC(),
+  //                   () -> BobotState.getShooterInterpolator()))
+  //       .beforeStarting(Commands.print(name + ": Start Strafe Shoot"))
+  //       .andThen(Commands.print(name + ": End Strafe Shoot"));
+  // }
+
   private Command BLineTrajectory(String name) {
     return Commands.sequence(drive.getBLineBuilder().build(new Path(name)))
         .beforeStarting(Commands.print(name + ": start"))
@@ -318,4 +353,9 @@ public class AutonomousManager {
   public Command bline2ft() {
     return Commands.sequence(BLineTrajectory("2ft-bline"));
   }
+
+  // public Command strafeShot() {
+  //   return Commands.sequence(
+  //       Commands.deadline(BLineTrajectory("Strafe_Shoot"), strafeShoot("strafe 1")));
+  // }
 }
