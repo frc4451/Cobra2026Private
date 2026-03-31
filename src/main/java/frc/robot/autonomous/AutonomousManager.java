@@ -155,7 +155,10 @@ public class AutonomousManager {
             Commands.deadline(
                 shooter.runShooterToHub().withTimeout(Seconds.of(emptyTime)),
                 feeder.runFeederVoltage(),
-                Commands.waitSeconds(squeezeTime).andThen(intake.endeffectorSqueeze())),
+                Commands.waitSeconds(squeezeTime)
+                    .andThen(
+                        squeezeIntake()
+                            .andThen(Commands.waitSeconds(0.4).andThen(deployIntake())))),
             feeder.stop(),
             shooter.stop())
         .beforeStarting(Commands.print(formattedPrefix + "start"))
@@ -201,11 +204,15 @@ public class AutonomousManager {
   }
 
   /** Sqeeze intake for shooting */
-  private Command sqeezeIntake() {
+  private Command squeezeIntake() {
     return Commands.sequence(intake.endeffectorSqueeze())
         .until(intake.isNearGoal(Degrees.of(5)))
-        .beforeStarting(Commands.print("Sqeeze: start"))
-        .andThen(Commands.print("Sqeeze: end"));
+        .beforeStarting(Commands.print("Squeeze: start"))
+        .andThen(Commands.print("Squeeze: end"));
+  }
+
+  private Command wiggleWiggleWiggle() {
+    return Commands.sequence(squeezeIntake(), Commands.waitSeconds(1.0), deployIntake());
   }
 
   private Command runIntake() {
