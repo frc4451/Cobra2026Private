@@ -361,6 +361,8 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureOperatorBindings(GarageCommandXboxController controller) {
+    Trigger spindexerReverse = controller.y();
+
     // Rumble when the driver is actively aiming and within range of the SOTM target
     sotmCommand
         .aimingReady(Rotation2d.fromDegrees(8.0))
@@ -388,8 +390,21 @@ public class RobotContainer {
 
     controller.leftBumper().whileTrue(shooter.runShooterToPoop()).onFalse(shooter.stop());
 
-    controller.a().onTrue(feeder.runFeederVoltage()).onFalse(feeder.stop());
-    controller.y().onTrue(feeder.runSpindexerReverse()).onFalse(feeder.stop());
+    spindexerReverse.onTrue(feeder.runSpindexerReverse()).onFalse(feeder.stop());
+
+    // Should stop feeding when we are too close behind the HUB in the neutral zone
+    // or when we are directly in front of the HUB on the far alliance. Still allow
+    // spindexer reverse in case the shooter jams.
+    BobotState.shouldStopFeedingFuelToShooter()
+        .and(spindexerReverse.negate())
+        .whileTrue(feeder.stop());
+
+    // Controller should continue working when the BobotState Trigger is resolved
+    controller
+        .a()
+        .and(BobotState.shouldStopFeedingFuelToShooter().negate())
+        .onTrue(feeder.runFeederVoltage())
+        .onFalse(feeder.stop());
 
     // override for shooter, for BAD things
     controller
