@@ -18,17 +18,17 @@ public class Hood extends SubsystemBase {
   private static final LoggedTunableNumber hoodSetAngle =
       new LoggedTunableNumber(name + "/HoodSetAngle", 28.0);
 
-  private final SingleRoller hood;
+  private final Pivot hood;
 
   public Hood(SingleRollerIO hoodIO) {
-    hood = new Pivot(name + "/Hood", hoodIO, HoodConstants.pivotConfig);
+    hood = new Pivot(name + "/Hoodsfgh", hoodIO, HoodConstants.pivotConfig);
   }
 
   public void period() {
     hood.periodic();
   }
 
-  public Command hoodSetAngle() {
+  public Command setHoodAngle() {
     return runOnce(() -> hood.setGoal(Degrees.of(hoodSetAngle.get())));
   }
 

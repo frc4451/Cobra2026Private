@@ -11,6 +11,7 @@ import frc.robot.Constants;
 import org.robotzgarage.frc2026.subsystems.pivot.Pivot.PivotConfig;
 import org.robotzgarage.frc2026.util.MotorConfigs.CANCoderConfig;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXSConfig;
+import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXSConfigSim;
 
 public class HoodConstants {
 
@@ -35,7 +36,7 @@ public class HoodConstants {
 
   public static final CANCoderConfig cancoderConfig =
       CANCoderConfig.builder()
-          .canId(23)
+          .canId(24)
           .canBus(Constants.susBus)
           .rotorToSensorReduction(hoodReductionRotorToSensor)
           .sensorToMechanismReduction(hoodReductionSensorToMechanism)
@@ -54,7 +55,7 @@ public class HoodConstants {
 
   public static final TalonFXSConfig hoodConfig =
       TalonFXSConfig.builder()
-          .canId(22)
+          .canId(23)
           .canBus(Constants.susBus)
           .phoenixUpdateFreqHz(50)
           .reduction(hoodReduction)
@@ -82,5 +83,12 @@ public class HoodConstants {
                   .withMotionMagicCruiseVelocity(100.0 * hoodReduction)
                   .withMotionMagicAcceleration(400.0 * hoodReduction)
                   .withMotionMagicJerk(1600.0 * hoodReduction))
+          .build();
+
+  public static final TalonFXSConfigSim hoodConfigSim =
+      TalonFXSConfigSim.builder()
+          .hardware(hoodConfig)
+          .dcMotor(pivotConfig.gearbox())
+          .moi(pivotConfig.moi())
           .build();
 }
