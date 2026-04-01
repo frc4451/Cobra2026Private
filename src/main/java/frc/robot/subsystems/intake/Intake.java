@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.Degrees;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.LoggedTunableNumber;
@@ -122,6 +123,11 @@ public class Intake extends SubsystemBase {
   public Command endeffectorSqueeze() {
     return runOnce(() -> endeffector.setGoal(Degrees.of(endeffectorSqueeze.get())))
         .andThen(runRollersVoltageOut());
+  }
+
+  public Command wiggelsqueeze() {
+    return Commands.deadline(Commands.waitSeconds(0.75), endeffectorSqueeze())
+        .andThen(endeffectorDeploy());
   }
 
   // public Command endeffectorpush() {

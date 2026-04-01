@@ -68,7 +68,7 @@ public class VisionConstants {
       List.of(
           new AprilTagCameraConfig(
               new VisionSource(
-                  "RightRearView",
+                  "LilCamThatCould",
                   RobotRelativeTransform.builder()
                       .forwardPositive(Inches.of(5.632))
                       .leftPositive(Inches.of(-12.190))
@@ -83,7 +83,7 @@ public class VisionConstants {
               new VisionSource(
                   "ShooterCam",
                   RobotRelativeTransform.builder()
-                      .forwardPositive(Inches.of(8.456))
+                      .forwardPositive(Inches.of(6.456))
                       .leftPositive(Inches.of(3.625))
                       .upPositive(Inches.of(20.185))
                       .rollCCWPositive(Degrees.zero())
@@ -94,7 +94,33 @@ public class VisionConstants {
               List.of(
                   PoseEstimationMethod.MULTI_TAG,
                   PoseEstimationMethod.TRIG,
-                  PoseEstimationMethod.CONSTRAINED)));
+                  PoseEstimationMethod.CONSTRAINED)),
+          new AprilTagCameraConfig(
+              new VisionSource(
+                  "BigCamThatWont",
+                  RobotRelativeTransform.builder()
+                      .forwardPositive(Inches.of(1.132))
+                      .leftPositive(Inches.of(12.190))
+                      .upPositive(Inches.of(7.013))
+                      .rollCCWPositive(Degrees.zero())
+                      .pitchCCWPositive(Degrees.of(-20.0))
+                      .yawCCWPositive(Degrees.of(120))
+                      .build()),
+              SimCameraConfig.THRIFTY_CAM_95_720p,
+              List.of(PoseEstimationMethod.MULTI_TAG)),
+          new AprilTagCameraConfig(
+              new VisionSource(
+                  "EanCam",
+                  RobotRelativeTransform.builder()
+                      .forwardPositive(Inches.of(6.210))
+                      .leftPositive(Inches.of(8.75))
+                      .upPositive(Inches.of(19.75))
+                      .rollCCWPositive(Degrees.zero())
+                      .pitchCCWPositive(Degrees.zero())
+                      .yawCCWPositive(Degrees.of(180))
+                      .build()),
+              SimCameraConfig.THRIFTY_CAM_95_720p,
+              List.of(PoseEstimationMethod.MULTI_TAG)));
 
   public static final int noAmbiguity = -100;
 

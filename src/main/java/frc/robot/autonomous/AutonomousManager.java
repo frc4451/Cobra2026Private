@@ -155,26 +155,7 @@ public class AutonomousManager {
             Commands.deadline(
                 shooter.runShooterToHub().withTimeout(Seconds.of(emptyTime)),
                 feeder.runFeederVoltage(),
-                Commands.waitSeconds(squeezeTime)
-                    .andThen(
-                        squeezeIntake()
-                            .andThen(Commands.waitSeconds(0.4).andThen(deployIntake())))),
-            feeder.stop(),
-            shooter.stop())
-        .beforeStarting(Commands.print(formattedPrefix + "start"))
-        .andThen(Commands.print(formattedPrefix + "end"));
-  }
-
-  private Command handleShotInterpolation2(String prefix, double emptyTime, double squeezeTime) {
-    String formattedPrefix = prefix + ": ";
-
-    return Commands.sequence(
-            // shoots shooter for the estimated empty time
-            Commands.print(formattedPrefix + "start shooter"),
-            Commands.deadline(
-                shooter.runShooterToHub().withTimeout(Seconds.of(emptyTime)),
-                feeder.runFeederVoltage(),
-                Commands.waitSeconds(squeezeTime).andThen(intake.endeffectorSqueeze())),
+                Commands.waitSeconds(squeezeTime).andThen(intake.wiggelsqueeze())),
             feeder.stop(),
             shooter.stop())
         .beforeStarting(Commands.print(formattedPrefix + "start"))
@@ -272,6 +253,15 @@ public class AutonomousManager {
         .andThen(Commands.sequence(Commands.print(name + ": end")), intake.stop());
   }
 
+  private Command BLineTrajectorywithSqueeze(String name, double intaketime) {
+    return Commands.deadline(
+            drive.getBLineBuilder().build(new Path(name)),
+            Commands.deadline(Commands.waitSeconds(intaketime), intake.runRollersVoltageOut())
+                .andThen(Commands.sequence(intake.stop(), intake.endeffectorLift())))
+        .beforeStarting(Commands.print(name + ": start"))
+        .andThen(Commands.sequence(Commands.print(name + ": end")), intake.stop());
+  }
+
   public Command himithy() {
     return Commands.sequence(
             this.deployIntake(),
@@ -353,7 +343,7 @@ public class AutonomousManager {
   public Command himithyTake2() {
     return Commands.sequence(
             this.deployIntake(),
-            BLineTrajectorywithIntake("Himithy-1"),
+            BLineTrajectorywithSqueeze("Himithy-1", 5.0),
             this.rotateToHub(),
             this.handleShotInterpolation("shot 1", 4.0, 2.0),
             this.deployIntake(),
