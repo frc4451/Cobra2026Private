@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.LoggedTunableNumber;
 import org.robotzgarage.frc2026.subsystems.pivot.Pivot;
-import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRoller;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
 import org.robotzgarage.frc2026.util.TuningUtils.TuningUnit;
 
@@ -24,7 +23,8 @@ public class Hood extends SubsystemBase {
     hood = new Pivot(name + "/Hoodsfgh", hoodIO, HoodConstants.pivotConfig);
   }
 
-  public void period() {
+  @Override
+  public void periodic() {
     hood.periodic();
   }
 

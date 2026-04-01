@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.ExternalFeedbackConfigs;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
@@ -108,10 +109,10 @@ public class SingleRollerIOTalonFXSWithCANCoder implements SingleRollerIO {
     cfg.MotionMagic = config.mmConfig();
     cfg.SoftwareLimitSwitch = config.softwareLimitSwitch();
     cfg.Commutation.MotorArrangement = config.motorJST();
-    // FeedbackConfigs are not supported with TalonFXS
-    // cfg.FeedbackConfigs = new FeedbackConfigs()
-    //   .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
-    //   .withSensorToMechanismRatio(reduction);
+    cfg.ExternalFeedback = new ExternalFeedbackConfigs()
+      .withFusedCANcoder(cancoder)
+      .withRotorToSensorRatio(canCoderConfig.rotorToSensorReduction())
+      .withSensorToMechanismRatio(canCoderConfig.sensorToMechanismReduction());
     // spotless:on
 
     BaseStatusSignal.setUpdateFrequencyForAll(
