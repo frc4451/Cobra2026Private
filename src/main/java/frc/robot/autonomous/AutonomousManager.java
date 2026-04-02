@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.Seconds;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.bobot_state.BobotState;
 import frc.robot.commands.DriveCommands;
@@ -162,6 +163,20 @@ public class AutonomousManager {
         .andThen(Commands.print(formattedPrefix + "end"));
   }
 
+  private Command handleShotInterpolation2(String prefix, double emptyTime, double squeezeTime) {
+    String formattedPrefix = prefix + ": ";
+
+    return Commands.sequence(
+            Commands.print(formattedPrefix + "start shooter"),
+            Commands.deadline(
+                shooter.runShooterToHub().withTimeout(Seconds.of(emptyTime)),
+                feeder.runFeederVoltage()).alongWith(Commands.waitSeconds(squeezeTime).andThen(intake.wiggelsqueeze())),
+            feeder.stop(),
+            shooter.stop())
+        .beforeStarting(Commands.print(formattedPrefix + "start"))
+        .andThen(Commands.print(formattedPrefix + "end"));
+  }
+
   /** deploys intake to set position to intake at */
   private Command deployIntake() {
     return Commands.sequence(intake.endeffectorDeploy().until(intake.isNearGoal(Degrees.of(3))))
@@ -253,11 +268,11 @@ public class AutonomousManager {
         .andThen(Commands.sequence(Commands.print(name + ": end")), intake.stop());
   }
 
-  private Command BLineTrajectorywithSqueeze(String name, double intaketime) {
+  private Command BLineTrajectorywithLift(String name, double intaketime) {
     return Commands.deadline(
             drive.getBLineBuilder().build(new Path(name)),
             Commands.deadline(Commands.waitSeconds(intaketime), intake.runRollersVoltageOut())
-                .andThen(Commands.sequence(intake.stop(), intake.endeffectorLift())))
+                .andThen(intake.endeffectorLift()))
         .beforeStarting(Commands.print(name + ": start"))
         .andThen(Commands.sequence(Commands.print(name + ": end")), intake.stop());
   }
@@ -342,14 +357,14 @@ public class AutonomousManager {
 
   public Command himithyTake2() {
     return Commands.sequence(
-            this.deployIntake(),
-            BLineTrajectorywithSqueeze("Himithy-1", 5.0),
+      Commands.sequence(this.deployIntake(),
+            BLineTrajectorywithLift("Himithy-1", 5.0),
             this.rotateToHub(),
-            this.handleShotInterpolation("shot 1", 4.0, 2.0),
+            this.handleShotInterpolation2("shot 1", 4.0, 2.0)),
             this.deployIntake(),
             BLineTrajectorywithIntake("Himithy-2"),
-            this.rotateToHub(),
-            this.handleShotInterpolation("shot 2", 4.0, 2.0))
+        this.rotateToHub(),
+        this.handleShotInterpolation2("shot 2", 4.0, 2.0))
         .beforeStarting(Commands.print("Path start"))
         .andThen(Commands.print("Path end"));
   }
@@ -374,6 +389,9 @@ public class AutonomousManager {
     return Commands.sequence(BLineTrajectory("2ft-bline"));
   }
 
+  public Command test() {
+    return Commands.sequence(BLineTrajectorywithIntake("Himithy-2"));
+  }
   // public Command strafeShot() {
   //   return Commands.sequence(
   //       Commands.deadline(BLineTrajectory("Strafe_Shoot"), strafeShoot("strafe 1")));

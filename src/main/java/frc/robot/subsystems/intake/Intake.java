@@ -127,7 +127,7 @@ public class Intake extends SubsystemBase {
 
   public Command wiggelsqueeze() {
     return Commands.deadline(Commands.waitSeconds(0.75), endeffectorSqueeze())
-        .andThen(endeffectorDeploy());
+        .andThen(Commands.sequence(stop(), endeffectorDeploy()));
   }
 
   // public Command endeffectorpush() {
