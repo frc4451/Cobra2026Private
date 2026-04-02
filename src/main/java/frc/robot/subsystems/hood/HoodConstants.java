@@ -15,7 +15,7 @@ import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXSConfigSim;
 
 public class HoodConstants {
 
-  public static final double hoodReductionRotorToSensor = 1.0;
+  public static final double hoodReductionRotorToSensor = 62.962962963;
   public static final double hoodReductionSensorToMechanism = 1.0;
 
   public static final double hoodReduction =
@@ -46,7 +46,7 @@ public class HoodConstants {
           //   .magnetOffset(Radians.of(0.75))
           .magnetOffset(Degrees.of(0))
           //   .calcOffset(Degrees.of(240))
-          .discontinuity(0.875)
+          .discontinuity(0.0)
           //   .discontinuity(MathUtil.inputModulus(Units.degreesToRotations(90), 0, 1) / 2.0)
           //   .magnetOffset(Rotations.of(0.1728515625).plus(Rotations.of(0.668945)))
           //   .minAngle(Degrees.of(0.0))
@@ -75,7 +75,7 @@ public class HoodConstants {
                   //   .withKV(MotionMagicHelpers.getRotationsVelocity(0.5))
                   // .withKA(MotionMagicHelpers.getRotationsAcceleration(0.12))
                   // feedback
-                  .withKP(1.0)
+                  .withKP(10.0)
                   // .withKI(MotionMagicHelpers.getRotationsVelocity(3.0))
                   .withKD(0.0))
           .mmConfig(

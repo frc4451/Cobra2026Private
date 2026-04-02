@@ -15,6 +15,8 @@ public class Hood extends SubsystemBase {
   private static final String name = "/Hood";
 
   private static final LoggedTunableNumber hoodSetAngle =
+      new LoggedTunableNumber(name + "/HoodSetAngle", 35.0);
+private static final LoggedTunableNumber hoodSetHome =
       new LoggedTunableNumber(name + "/HoodSetAngle", 28.0);
 
   private final Pivot hood;
@@ -30,6 +32,14 @@ public class Hood extends SubsystemBase {
 
   public Command setHoodAngle() {
     return runOnce(() -> hood.setGoal(Degrees.of(hoodSetAngle.get())));
+  }
+
+  public Command setHoodHome() {
+    return runOnce(() -> hood.setGoal(Degrees.of(hoodSetHome.get())));
+  }
+
+  public Command setHoodDropoff() {
+    return runOnce(() -> hood.setGoal(Degrees.of(hoodSetHome.get())));
   }
 
   public Trigger isNearGoal(Angle tolerance) {
