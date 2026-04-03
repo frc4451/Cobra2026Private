@@ -398,6 +398,7 @@ public class RobotContainer {
     // or when we are directly in front of the HUB on the far alliance. Still allow
     // spindexer reverse in case the shooter jams.
     BobotState.shouldStopFeedingFuelToShooter()
+        .and(teleopActive)
         .and(spindexerReverse.negate())
         .whileTrue(feeder.stop());
 
