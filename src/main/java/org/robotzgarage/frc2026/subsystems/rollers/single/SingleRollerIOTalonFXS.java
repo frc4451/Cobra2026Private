@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.ExternalFeedbackConfigs;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
@@ -76,10 +77,7 @@ public class SingleRollerIOTalonFXS implements SingleRollerIO {
     cfg.MotionMagic = config.mmConfig();
     cfg.SoftwareLimitSwitch = config.softwareLimitSwitch();
     cfg.Commutation.MotorArrangement = config.motorJST();
-    // FeedbackConfigs are not supported with TalonFXS
-    // cfg.FeedbackConfigs = new FeedbackConfigs()
-    //   .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
-    //   .withSensorToMechanismRatio(reduction);
+    cfg.ExternalFeedback = new ExternalFeedbackConfigs().withSensorToMechanismRatio(reduction);
     // spotless:on
 
     BaseStatusSignal.setUpdateFrequencyForAll(
@@ -111,8 +109,8 @@ public class SingleRollerIOTalonFXS implements SingleRollerIO {
                 velocitySetpointRotationsPerSec)
             .isOK();
 
-    inputs.position = position.getValue().div(reduction);
-    inputs.velocity = velocity.getValue().div(reduction);
+    inputs.position = position.getValue();
+    inputs.velocity = velocity.getValue();
 
     inputs.appliedVoltage = voltage.getValueAsDouble();
     inputs.supplyCurrentAmps = supplyCurrentAmps.getValueAsDouble();
@@ -120,9 +118,9 @@ public class SingleRollerIOTalonFXS implements SingleRollerIO {
     inputs.temperatureCelsius = tempCelsius.getValueAsDouble();
 
     inputs.positionGoal = positionGoal.div(reduction);
-    inputs.positionSetpoint = Rotations.of(positionSetpointRotations.getValue()).div(reduction);
+    inputs.positionSetpoint = Rotations.of(positionSetpointRotations.getValue());
     inputs.velocitySetpoint =
-        RotationsPerSecond.of(velocitySetpointRotationsPerSec.getValueAsDouble()).div(reduction);
+        RotationsPerSecond.of(velocitySetpointRotationsPerSec.getValueAsDouble());
   }
 
   @Override
@@ -142,7 +140,7 @@ public class SingleRollerIOTalonFXS implements SingleRollerIO {
 
   @Override
   public void setGoal(Angle position) {
-    positionGoal = position.times(reduction);
+    positionGoal = position;
     talon.setControl(mmVoltage.withPosition(positionGoal));
   }
 

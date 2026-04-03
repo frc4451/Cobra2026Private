@@ -57,7 +57,7 @@ public class Intake extends SubsystemBase {
   // Constructor to decide if it's real or sim
   public Intake(SingleRollerIO intakeIO, SingleRollerIO endeffectorIO) {
     rollers = new Flywheel(name + "/Intake", intakeIO, IntakeConstants.flywheelConfig);
-    endeffector = new Pivot(name + "/endeffector", endeffectorIO, IntakeConstants.pivotConfig);
+    endeffector = new Pivot(name + "/Endeffector", endeffectorIO, IntakeConstants.pivotConfig);
   }
 
   public void periodic() {
