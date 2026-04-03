@@ -7,7 +7,6 @@ import static edu.wpi.first.units.Units.Seconds;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.bobot_state.BobotState;
 import frc.robot.commands.DriveCommands;
@@ -169,8 +168,27 @@ public class AutonomousManager {
     return Commands.sequence(
             Commands.print(formattedPrefix + "start shooter"),
             Commands.deadline(
-                shooter.runShooterToHub().withTimeout(Seconds.of(emptyTime)),
-                feeder.runFeederVoltage()).alongWith(Commands.waitSeconds(squeezeTime).andThen(intake.wiggelsqueeze())),
+                    shooter.runShooterToHub().withTimeout(Seconds.of(emptyTime)),
+                    feeder.runFeederVoltage())
+                .alongWith(Commands.waitSeconds(squeezeTime).andThen(intake.wiggelsqueeze())),
+            feeder.stop(),
+            shooter.stop())
+        .beforeStarting(Commands.print(formattedPrefix + "start"))
+        .andThen(Commands.print(formattedPrefix + "end"));
+  }
+
+  private Command handleShotInterpolation3(String prefix, double emptyTime, double squeezeTime) {
+    String formattedPrefix = prefix + ": ";
+
+    return Commands.sequence(
+            Commands.print(formattedPrefix + "start shooter"),
+            Commands.parallel(
+                Commands.deadline(
+                    Commands.waitTime(Seconds.of(emptyTime)),
+                    shooter.runShooterToHub(),
+                    feeder.runFeederVoltage()),
+                Commands.sequence(
+                    Commands.waitTime(Seconds.of(squeezeTime)), intake.wiggelsqueeze())),
             feeder.stop(),
             shooter.stop())
         .beforeStarting(Commands.print(formattedPrefix + "start"))
@@ -357,14 +375,15 @@ public class AutonomousManager {
 
   public Command himithyTake2() {
     return Commands.sequence(
-      Commands.sequence(this.deployIntake(),
-            BLineTrajectorywithLift("Himithy-1", 5.0),
-            this.rotateToHub(),
-            this.handleShotInterpolation2("shot 1", 4.0, 2.0)),
+            Commands.sequence(
+                this.deployIntake(),
+                BLineTrajectorywithLift("Himithy-1", 5.0),
+                this.rotateToHub(),
+                this.handleShotInterpolation2("shot 1", 4.0, 2.0)),
             this.deployIntake(),
             BLineTrajectorywithIntake("Himithy-2"),
-        this.rotateToHub(),
-        this.handleShotInterpolation2("shot 2", 4.0, 2.0))
+            this.rotateToHub(),
+            this.handleShotInterpolation2("shot 2", 4.0, 2.0))
         .beforeStarting(Commands.print("Path start"))
         .andThen(Commands.print("Path end"));
   }
@@ -377,6 +396,22 @@ public class AutonomousManager {
             BLineTrajectory("dimithy-2"),
             this.rotateToHub(),
             this.handleShotInterpolation("shot 1", 10.0, 5.0))
+        .beforeStarting(Commands.print("Path start"))
+        .andThen(Commands.print("Path end"));
+  }
+
+  public Command bimithySmiley() {
+    return Commands.sequence(
+            Commands.sequence(
+                this.deployIntake(),
+                BLineTrajectorywithLift("Bimithy-1", 5.0),
+                this.rotateToHub(),
+                this.handleShotInterpolation2("shot 1", 4.0, 2.0)),
+            this.deployIntake(),
+            BLineTrajectorywithIntake("Bimithy-2"),
+            BLineTrajectorywithIntake("Bimithy-3"),
+            this.rotateToHub(),
+            this.handleShotInterpolation2("shot 2", 4.0, 2.0))
         .beforeStarting(Commands.print("Path start"))
         .andThen(Commands.print("Path end"));
   }
