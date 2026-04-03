@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import java.util.Optional;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NonNull;
 import org.littletonrobotics.junction.Logger;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRoller;
@@ -29,6 +30,13 @@ public class Flywheel extends SingleRoller {
   private final Optional<FlywheelSim> flywheelSim;
 
   private Angle lastPosition = Rotations.zero();
+
+  public enum FlywheelState {
+    IDLE,
+    SPINNING
+  }
+
+  @Getter private FlywheelState state = FlywheelState.IDLE;
 
   public Flywheel(String name, SingleRollerIO io, FlywheelConfig config) {
     super(name, io);
@@ -55,6 +63,10 @@ public class Flywheel extends SingleRoller {
     Logger.recordOutput(name + "/VelocityRPS", inputs.velocity.in(RotationsPerSecond));
     Logger.recordOutput(
         name + "/VelocitySetpointRPS", inputs.velocitySetpoint.in(RotationsPerSecond));
+
+    state =
+        inputs.velocity.gt(RotationsPerSecond.zero()) ? FlywheelState.SPINNING : FlywheelState.IDLE;
+    Logger.recordOutput(name + "/FlywheelState", state);
 
     lastPosition = inputs.position;
 
