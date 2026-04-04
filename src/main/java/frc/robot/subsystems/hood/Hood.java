@@ -16,7 +16,7 @@ public class Hood extends SubsystemBase {
 
   private static final LoggedTunableNumber hoodSetAngle =
       new LoggedTunableNumber(name + "/HoodSetAngle", 35.0);
-private static final LoggedTunableNumber hoodSetHome =
+  private static final LoggedTunableNumber hoodSetHome =
       new LoggedTunableNumber(name + "/HoodSetAngle", 28.0);
 
   private final Pivot hood;
