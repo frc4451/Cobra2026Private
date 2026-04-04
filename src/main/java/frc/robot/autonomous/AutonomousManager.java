@@ -295,24 +295,25 @@ public class AutonomousManager {
         .andThen(Commands.sequence(Commands.print(name + ": end")), intake.stop());
   }
 
-
-  /**
-   * Follows {@code name} with hub rotation override
-   */
+  /** Follows {@code name} with hub rotation override */
   private Command BLineTrajectoryWithHubRotation(String name) {
     return drive
-        .followPathWithRotationTarget(new Path(name), () -> BobotState.getHubVARC().getRotationTarget())
+        .followPathWithRotationTarget(
+            new Path(name), () -> BobotState.getHubVARC().getRotationTarget())
         .beforeStarting(Commands.print(name + ": start"))
         .andThen(Commands.print(name + ": end"));
   }
 
-  
   /**
-   * Follows {@code name} with hub rotation override, with rotation applied only after we're within threshold to start
+   * Follows {@code name} with hub rotation override, with rotation applied only after we're within
+   * threshold to start
    */
   private Command BLineTrajectoryWithHubRotation(String name, double hubRotationThresholdMeters) {
     return drive
-        .followPathWithRotationTarget(new Path(name), () -> BobotState.getHubVARC().getRotationTarget(), hubRotationThresholdMeters)
+        .followPathWithRotationTarget(
+            new Path(name),
+            () -> BobotState.getHubVARC().getRotationTarget(),
+            hubRotationThresholdMeters)
         .beforeStarting(Commands.print(name + ": start"))
         .andThen(Commands.print(name + ": end"));
   }
@@ -424,21 +425,18 @@ public class AutonomousManager {
 
   public Command simithySOTMDemo() {
     return Commands.sequence(
-      Commands.print("Starting  Simithy"),
-      BLineTrajectoryWithHubRotation("Simithy-1"),
-      Commands.print("Finishing Simithy")
-    );
+        Commands.print("Starting  Simithy"),
+        BLineTrajectoryWithHubRotation("Simithy-1"),
+        Commands.print("Finishing Simithy"));
   }
 
-  /**
-   * Fork of {@link #bimithySmiley} that overrides rotation to face the hub (or attempts to)
-   */
+  /** Fork of {@link #bimithySmiley} that overrides rotation to face the hub (or attempts to) */
   public Command bimithySmileyHubRotation() {
     return Commands.sequence(
             this.deployIntake(),
             BLineTrajectorywithLift("Bimithy-1-SOTM", 5.0),
             Commands.deadline(
-              Commands.waitTime(Seconds.of(5.0)),
+                Commands.waitTime(Seconds.of(5.0)),
                 BLineTrajectoryWithHubRotation("Bimithy-2-SOTM"),
                 this.handleShotInterpolation2("shot 1", 4.0, 2.0)),
             this.deployIntake(),

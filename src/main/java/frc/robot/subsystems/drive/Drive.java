@@ -89,12 +89,11 @@ public class Drive extends SubsystemBase {
 
   // Track active BLine generated path
   private FollowPath activeFollowPathCommand = null;
-  
+
   // BLine rotation overrides (VARC like it's Crescendo)
   private Supplier<Rotation2d> rotationOverrideSupplier = null;
   private double rotationOverrideDistanceThreshold = 0.0;
   private final PIDController rotationOverridePID = new PIDController(4.0, 0.0, 0.0);
-
 
   static final Lock odometryLock = new ReentrantLock();
   private final GyroIO gyroIO;
@@ -439,8 +438,8 @@ public class Drive extends SubsystemBase {
   }
 
   /**
-   * Update BLine's ChassisSpeeds to replace rotation with {@code rotationOverrideSupplier}
-   * once the remaining path distance drops below the configured threshold
+   * Update BLine's ChassisSpeeds to replace rotation with {@code rotationOverrideSupplier} once the
+   * remaining path distance drops below the configured threshold
    */
   private ChassisSpeeds applyRotationOverride(ChassisSpeeds input) {
     if (rotationOverrideSupplier == null || activeFollowPathCommand == null) {
@@ -467,9 +466,8 @@ public class Drive extends SubsystemBase {
   }
 
   /**
-   * Follows a BLine {@link Path} while overriding rotation toward a rotation target
-   * supplier once within {@code distanceThresholdMeters} of path end. BLine's translations 
-   * should not change
+   * Follows a BLine {@link Path} while overriding rotation toward a rotation target supplier once
+   * within {@code distanceThresholdMeters} of path end. BLine's translations should not change
    */
   public Command followPathWithRotationTarget(
       Path path, Supplier<Rotation2d> rotationTarget, double distanceThresholdMeters) {
@@ -494,8 +492,9 @@ public class Drive extends SubsystemBase {
 
   /**
    * Follow a BLine {@line Path} while overriding rotation towards a supplied rotation target
-   * supplier. This will override any rotations in the path and only follow the {@code rotationTarget}
-   * 
+   * supplier. This will override any rotations in the path and only follow the {@code
+   * rotationTarget}
+   *
    * @param path BLine path to follow
    * @param rotationTarget Robot Rotation to target when driving
    * @return BLine Path with all rotations overriden by what VARC wants to provide
@@ -503,7 +502,6 @@ public class Drive extends SubsystemBase {
   public Command followPathWithRotationTarget(Path path, Supplier<Rotation2d> rotationTarget) {
     return this.followPathWithRotationTarget(path, rotationTarget, Double.MAX_VALUE);
   }
-
 
   /** Returns an array of module translations. */
   public static Translation2d[] getModuleTranslations() {
