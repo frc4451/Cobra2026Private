@@ -19,6 +19,7 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -35,6 +36,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
@@ -42,9 +44,11 @@ import frc.robot.Constants.Mode;
 import frc.robot.bobot_state.BobotState;
 import frc.robot.generated.TunerConstants;
 import frc.robot.lib.BLine.FollowPath;
+import frc.robot.lib.BLine.Path;
 import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Supplier;
 import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -82,6 +86,15 @@ public class Drive extends SubsystemBase {
 
   // BLine Specific Configurations
   @Getter private final FollowPath.Builder bLineBuilder;
+
+  // Track active BLine generated path
+  private FollowPath activeFollowPathCommand = null;
+  
+  // BLine rotation overrides (VARC like it's Crescendo)
+  private Supplier<Rotation2d> rotationOverrideSupplier = null;
+  private double rotationOverrideDistanceThreshold = 0.0;
+  private final PIDController rotationOverridePID = new PIDController(4.0, 0.0, 0.0);
+
 
   static final Lock odometryLock = new ReentrantLock();
   private final GyroIO gyroIO;
@@ -173,7 +186,8 @@ public class Drive extends SubsystemBase {
                 this, // The drive subsystem to require
                 this::getGlobalPose, // Supplier for current robot pose
                 this::getChassisSpeeds, // Supplier for current speeds
-                this::runVelocity, // Consumer to drive the robot
+                (speeds) ->
+                    runVelocity(applyRotationOverride(speeds)), // Consumer to drive the robot
                 new PIDController(10.0, 0.0, 0.0), // Translation PID
                 new PIDController(3.0, 0.0, 0.0), // Rotation PID
                 new PIDController(2.0, 0.0, 0.0) // Cross-track PID
@@ -423,6 +437,73 @@ public class Drive extends SubsystemBase {
   public double getMaxAngularSpeedRadPerSec() {
     return getMaxLinearSpeedMetersPerSec() / DRIVE_BASE_RADIUS;
   }
+
+  /**
+   * Update BLine's ChassisSpeeds to replace rotation with {@code rotationOverrideSupplier}
+   * once the remaining path distance drops below the configured threshold
+   */
+  private ChassisSpeeds applyRotationOverride(ChassisSpeeds input) {
+    if (rotationOverrideSupplier == null || activeFollowPathCommand == null) {
+      return input;
+    }
+
+    double remainingDistance = activeFollowPathCommand.getRemainingPathDistanceMeters();
+    Logger.recordOutput("Drive/BLine/RotOverrideRemainingDist", remainingDistance);
+
+    if (remainingDistance > rotationOverrideDistanceThreshold) {
+      Logger.recordOutput("Drive/BLine/RotOverrideActive", false);
+      return input;
+    }
+
+    double targetAngle = rotationOverrideSupplier.get().getRadians();
+    double currentHeading = getGlobalPose().getRotation().getRadians();
+    double omega =
+        rotationOverridePID.calculate(MathUtil.angleModulus(currentHeading - targetAngle), 0.0);
+
+    Logger.recordOutput("Drive/BLine/RotOverrideActive", true);
+    Logger.recordOutput("Drive/BLine/RotOverrideOmega", omega);
+
+    return new ChassisSpeeds(input.vxMetersPerSecond, input.vyMetersPerSecond, omega);
+  }
+
+  /**
+   * Follows a BLine {@link Path} while overriding rotation toward a rotation target
+   * supplier once within {@code distanceThresholdMeters} of path end. BLine's translations 
+   * should not change
+   */
+  public Command followPathWithRotationTarget(
+      Path path, Supplier<Rotation2d> rotationTarget, double distanceThresholdMeters) {
+    FollowPath builtPath = bLineBuilder.build(path);
+    return Commands.sequence(
+            Commands.runOnce(
+                () -> {
+                  activeFollowPathCommand = builtPath;
+                  rotationOverrideSupplier = rotationTarget;
+                  rotationOverrideDistanceThreshold = distanceThresholdMeters;
+                  rotationOverridePID.reset();
+                }),
+            builtPath)
+        .finallyDo(
+            () -> {
+              activeFollowPathCommand = null;
+              rotationOverrideSupplier = null;
+              rotationOverrideDistanceThreshold = 0.0;
+              rotationOverridePID.reset();
+            });
+  }
+
+  /**
+   * Follow a BLine {@line Path} while overriding rotation towards a supplied rotation target
+   * supplier. This will override any rotations in the path and only follow the {@code rotationTarget}
+   * 
+   * @param path BLine path to follow
+   * @param rotationTarget Robot Rotation to target when driving
+   * @return BLine Path with all rotations overriden by what VARC wants to provide
+   */
+  public Command followPathWithRotationTarget(Path path, Supplier<Rotation2d> rotationTarget) {
+    return this.followPathWithRotationTarget(path, rotationTarget, Double.MAX_VALUE);
+  }
+
 
   /** Returns an array of module translations. */
   public static Translation2d[] getModuleTranslations() {
