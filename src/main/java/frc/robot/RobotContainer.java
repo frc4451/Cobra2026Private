@@ -31,8 +31,8 @@ import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.feeder.FeederConstants;
-import frc.robot.subsystems.hood.Hood;
-import frc.robot.subsystems.hood.HoodConstants;
+// import frc.robot.subsystems.hood.Hood;
+// import frc.robot.subsystems.hood.HoodConstants;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.shooter.Shooter;
@@ -45,9 +45,7 @@ import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOSimTalo
 import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOTalonFX;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFX;
-import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFXS;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFX;
-import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFXSWithCANCoder;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFXWithCANCoder;
 import org.robotzgarage.frc2026.subsystems.vision.AprilTagVision;
 import org.robotzgarage.frc2026.util.GarageCommandXboxController;
@@ -69,7 +67,7 @@ public class RobotContainer {
   private final Feeder feeder;
   private final Intake intake;
   private final Shooter shooter;
-  private final Hood hood;
+  //   private final Hood hood;
 
   // Vision testing
   private final AprilTagVision aprilTagVision;
@@ -110,9 +108,9 @@ public class RobotContainer {
             new SingleRollerIOTalonFXWithCANCoder(
                 IntakeConstants.endeffectorConfig, IntakeConstants.cancoderConfig);
 
-        hoodIO =
-            new SingleRollerIOTalonFXSWithCANCoder(
-                HoodConstants.hoodConfig, HoodConstants.cancoderConfig);
+        // hoodIO =
+        //     new SingleRollerIOTalonFXSWithCANCoder(
+        //         // HoodConstants.hoodConfig, HoodConstants.cancoderConfig);
 
         shooterIO = new FollowRollersIOTalonFX(ShooterConstants.flywheelFollowersConfig);
 
@@ -137,7 +135,7 @@ public class RobotContainer {
             //         IntakeConstants.endeffectorConfigSim, IntakeConstants.cancoderConfig);
             new SingleRollerIOSimTalonFX(IntakeConstants.endeffectorConfigSim);
 
-        hoodIO = new SingleRollerIOSimTalonFXS(HoodConstants.hoodConfigSim);
+        // hoodIO = new SingleRollerIOSimTalonFXS(HoodConstants.hoodConfigSim);
         shooterIO = new FollowRollersIOSimTalonFX(ShooterConstants.flywheelFollowersConfigSim);
 
         towerIO = new SingleRollerIOSimTalonFX(FeederConstants.towerConfigSim);
@@ -158,7 +156,7 @@ public class RobotContainer {
         intakeIO = new SingleRollerIO() {};
         endeffectorIO = new SingleRollerIO() {};
 
-        hoodIO = new SingleRollerIO() {};
+        // hoodIO = new SingleRollerIO() {};
         shooterIO = new FollowRollersIO() {};
 
         towerIO = new SingleRollerIO() {};
@@ -176,7 +174,7 @@ public class RobotContainer {
 
     feeder = new Feeder(towerIO, spindexerIO);
     intake = new Intake(intakeIO, endeffectorIO);
-    hood = new Hood(hoodIO);
+    // hood = new Hood(hoodIO);
     shooter = new Shooter(shooterIO);
     aprilTagVision = new AprilTagVision(VisionConstants.visionSubsystemConfig);
     objectDetectionVision = new ObjectDetectionVision();
@@ -208,6 +206,7 @@ public class RobotContainer {
     autoChooser.addOption("Bimithy :)", autonomousManager.bimithySmiley());
     autoChooser.addOption("Bimithy AutoRotateToHub", autonomousManager.bimithySmileyHubRotation());
     autoChooser.addOption("Simithy SOTM Demo", autonomousManager.simithySOTMDemo());
+    // autoChooser.addOption("Ean's Path", autonomousManager.eanDemo());
     autoChooser.addOption("Test", autonomousManager.test());
 
     // autoChooser.addOption("strafe test", autonomousManager.strafeShot());
@@ -416,7 +415,7 @@ public class RobotContainer {
     BobotState.shouldStopFeedingFuelToShooter()
         .and(teleopActive)
         .and(spindexerReverse.negate())
-        .whileTrue(feeder.stop());
+        .whileTrue(feeder.stopSpindexer());
 
     // Controller should continue working when the BobotState Trigger is resolved
     controller
@@ -424,7 +423,8 @@ public class RobotContainer {
         .and(BobotState.shouldStopFeedingFuelToShooter().negate())
         .onTrue(feeder.runFeederVoltage())
         .onFalse(feeder.stop());
-    controller.b().onTrue(hood.setHoodAngle());
+
+    // controller.b().onTrue(hood.setHoodAngle());
 
     // override for shooter, for BAD things
     controller

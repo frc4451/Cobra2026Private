@@ -456,13 +456,13 @@ public class Drive extends SubsystemBase {
 
     double targetAngle = rotationOverrideSupplier.get().getRadians();
     double currentHeading = getGlobalPose().getRotation().getRadians();
-    double omega =
+    double rotation =
         rotationOverridePID.calculate(MathUtil.angleModulus(currentHeading - targetAngle), 0.0);
 
     Logger.recordOutput("Drive/BLine/RotOverrideActive", true);
-    Logger.recordOutput("Drive/BLine/RotOverrideOmega", omega);
+    Logger.recordOutput("Drive/BLine/RotOverrideRotation", rotation);
 
-    return new ChassisSpeeds(input.vxMetersPerSecond, input.vyMetersPerSecond, omega);
+    return new ChassisSpeeds(input.vxMetersPerSecond, input.vyMetersPerSecond, rotation);
   }
 
   /**

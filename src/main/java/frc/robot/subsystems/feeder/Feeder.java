@@ -115,6 +115,13 @@ public class Feeder extends SubsystemBase {
         });
   }
 
+  public Command stopSpindexer() {
+    return runOnce(
+        () -> {
+          spindexer.stop();
+        });
+  }
+
   public Command towerFeedForwardCharacterization(TuningUnit unit) {
     return this.tower.quasistaticCharacterization(unit);
   }

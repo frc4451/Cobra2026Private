@@ -177,23 +177,37 @@ public class AutonomousManager {
         .andThen(Commands.print(formattedPrefix + "end"));
   }
 
-  private Command handleShotInterpolation3(String prefix, double emptyTime, double squeezeTime) {
+  private Command handleInterpolateShooter(String prefix, double emptyTime) {
     String formattedPrefix = prefix + ": ";
 
     return Commands.sequence(
             Commands.print(formattedPrefix + "start shooter"),
-            Commands.parallel(
-                Commands.deadline(
-                    Commands.waitTime(Seconds.of(emptyTime)),
-                    shooter.runShooterToHub(),
-                    feeder.runFeederVoltage()),
-                Commands.sequence(
-                    Commands.waitTime(Seconds.of(squeezeTime)), intake.wiggelsqueeze())),
-            feeder.stop(),
-            shooter.stop())
+            Commands.deadline(
+                shooter.runShooterToHub().withTimeout(Seconds.of(emptyTime)),
+                feeder.runFeederVoltage()),
+            shooter.stop(),
+            feeder.stop())
         .beforeStarting(Commands.print(formattedPrefix + "start"))
         .andThen(Commands.print(formattedPrefix + "end"));
   }
+
+  // private Command handleShotInterpolation3(String prefix, double emptyTime, double squeezeTime) {
+  //   String formattedPrefix = prefix + ": ";
+
+  //   return Commands.sequence(
+  //           Commands.print(formattedPrefix + "start shooter"),
+  //           Commands.parallel(
+  //               Commands.deadline(
+  //                   Commands.waitTime(Seconds.of(emptyTime)),
+  //                   shooter.runShooterToHub(),
+  //                   feeder.runFeederVoltage()),
+  //               Commands.sequence(
+  //                   Commands.waitTime(Seconds.of(squeezeTime)), intake.wiggelsqueeze())),
+  //           feeder.stop(),
+  //           shooter.stop())
+  //       .beforeStarting(Commands.print(formattedPrefix + "start"))
+  //       .andThen(Commands.print(formattedPrefix + "end"));
+  // }
 
   /** deploys intake to set position to intake at */
   private Command deployIntake() {
@@ -230,8 +244,7 @@ public class AutonomousManager {
   }
 
   private Command runIntake() {
-    return Commands.run(() -> intake.runRollersVoltageOut())
-        .beforeStarting(Commands.print("Intake rollers: start"));
+    return intake.runRollersVoltageOut().beforeStarting(Commands.print("Intake rollers: start"));
   }
 
   private Command stopIntake() {
@@ -411,6 +424,21 @@ public class AutonomousManager {
         .andThen(Commands.print("Path end"));
   }
 
+  // public Command eanDemo() {
+  //   return Commands.sequence(
+  //           this.deployIntake(),
+  //           Commands.waitSeconds(1).until(intake.isNearGoal(Degrees.of(8)),
+  //           BLineTrajectory("eanDemo-1"),
+  //           this.rotateToHub(),
+  //           this.handleShotInterpolation2("shot 1", 4.0, 2.0),
+  //           this.deployIntake(),
+  //           BLineTrajectoryWithHubRotation("eanDemo-2"),
+  //           this.rotateToHub(),
+  //           this.handleShotInterpolation2("shot 2", 4.0, 2.0))
+  //       .beforeStarting(Commands.print("Path start"))
+  //       .andThen(Commands.print("Path end")));
+  // }
+
   public Command dimithy_1() {
     return Commands.sequence(
             this.deployIntake(),
@@ -434,11 +462,13 @@ public class AutonomousManager {
   public Command bimithySmileyHubRotation() {
     return Commands.sequence(
             this.deployIntake(),
+            Commands.waitSeconds(1.0).until(intake.isNearGoal(Degrees.of(8.0))),
             BLineTrajectorywithLift("Bimithy-1-SOTM", 5.0),
             Commands.deadline(
-                Commands.waitTime(Seconds.of(5.0)),
+                Commands.waitTime(Seconds.of(4.0)),
                 BLineTrajectoryWithHubRotation("Bimithy-2-SOTM"),
-                this.handleShotInterpolation2("shot 1", 4.0, 2.0)),
+                this.handleInterpolateShooter("shot 1", 4.0),
+                this.runIntake()),
             this.deployIntake(),
             BLineTrajectorywithIntake("Bimithy-3-SOTM"),
             BLineTrajectorywithIntake("Bimithy-3"),

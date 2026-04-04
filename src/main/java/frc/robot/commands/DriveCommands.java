@@ -35,12 +35,12 @@ import org.robotzgarage.frc2026.math.distance_calc.PoseUtils;
 
 public class DriveCommands {
   private static final double DEADBAND = 0.1;
-  static final LoggedTunableNumber ANGLE_KP = new LoggedTunableNumber("DriveCommands/kP", 4.0);
+  static final LoggedTunableNumber ANGLE_KP = new LoggedTunableNumber("DriveCommands/kP", 5.0);
   static final LoggedTunableNumber ANGLE_KD = new LoggedTunableNumber("DriveCommands/kD", 0.2);
   static final LoggedTunableNumber ANGLE_MAX_VELOCITY =
-      new LoggedTunableNumber("DriveCommands/AngleMaxVelocity", 24.0);
+      new LoggedTunableNumber("DriveCommands/AngleMaxVelocity", 32.0);
   static final LoggedTunableNumber ANGLE_MAX_ACCELERATION =
-      new LoggedTunableNumber("DriveCommands/AngleMaxAcceleration", 96.0);
+      new LoggedTunableNumber("DriveCommands/AngleMaxAcceleration", 108.0);
   private static final double FF_START_DELAY = 2.0; // Secs
   private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
   private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec

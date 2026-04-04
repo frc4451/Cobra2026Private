@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.LoggedTunableNumber;
+import org.littletonrobotics.junction.Logger;
 import org.robotzgarage.frc2026.subsystems.flywheel.Flywheel;
 import org.robotzgarage.frc2026.subsystems.pivot.Pivot;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRoller;
@@ -81,6 +82,10 @@ public class Intake extends SubsystemBase {
     rollers.periodic();
     endeffector.periodic();
 
+    Logger.recordOutput(
+        name + "/Endeffector/IsNearGoal",
+        endeffector.isNear(endeffector.getGoalPosition(), Degrees.of(8.0)));
+
     // endeffector.setGoal(endeffector.getGoalPosition());
   }
 
@@ -95,8 +100,7 @@ public class Intake extends SubsystemBase {
   public Command runRollersTorqueCurrent() {
     return run(
         () -> {
-          double clampedAmps = MathUtil.clamp(intakeAmps.get(), 0.0, 40.0);
-          rollers.setTorque(Amps.of(clampedAmps));
+          rollers.setTorque(Amps.of(intakeAmps.get()));
         });
   }
 

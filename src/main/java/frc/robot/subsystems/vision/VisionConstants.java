@@ -72,7 +72,7 @@ public class VisionConstants {
                   RobotRelativeTransform.builder()
                       .forwardPositive(Inches.of(5.632))
                       .leftPositive(Inches.of(-12.190))
-                      .upPositive(Inches.of(8.013))
+                      .upPositive(Inches.of(7.013))
                       .rollCCWPositive(Degrees.zero())
                       .pitchCCWPositive(Degrees.of(-20.0))
                       .yawCCWPositive(Degrees.of(-120))
@@ -91,10 +91,7 @@ public class VisionConstants {
                       .yawCCWPositive(Degrees.zero())
                       .build()),
               SimCameraConfig.THRIFTY_CAM_80,
-              List.of(
-                  PoseEstimationMethod.MULTI_TAG,
-                  PoseEstimationMethod.TRIG,
-                  PoseEstimationMethod.CONSTRAINED)),
+              List.of(PoseEstimationMethod.MULTI_TAG)),
           new AprilTagCameraConfig(
               new VisionSource(
                   "BigCamThatWont",
@@ -107,20 +104,21 @@ public class VisionConstants {
                       .yawCCWPositive(Degrees.of(120))
                       .build()),
               SimCameraConfig.THRIFTY_CAM_95_720p,
-              List.of(PoseEstimationMethod.MULTI_TAG)),
-          new AprilTagCameraConfig(
-              new VisionSource(
-                  "EanCam",
-                  RobotRelativeTransform.builder()
-                      .forwardPositive(Inches.of(5.971))
-                      .leftPositive(Inches.of(8.750))
-                      .upPositive(Inches.of(19.750))
-                      .rollCCWPositive(Degrees.zero())
-                      .pitchCCWPositive(Degrees.zero())
-                      .yawCCWPositive(Degrees.of(180))
-                      .build()),
-              SimCameraConfig.THRIFTY_CAM_95_720p,
-              List.of(PoseEstimationMethod.MULTI_TAG)));
+              List.of(PoseEstimationMethod.MULTI_TAG))
+          //   new AprilTagCameraConfig(
+          //       new VisionSource(
+          //           "EanCam",
+          //           RobotRelativeTransform.builder()
+          //               .forwardPositive(Inches.of(5.971))
+          //               .leftPositive(Inches.of(8.750))
+          //               .upPositive(Inches.of(19.750))
+          //               .rollCCWPositive(Degrees.zero())
+          //               .pitchCCWPositive(Degrees.zero())
+          //               .yawCCWPositive(Degrees.of(180))
+          //               .build()),
+          //       SimCameraConfig.THRIFTY_CAM_95_720p,
+          //       List.of(PoseEstimationMethod.MULTI_TAG))
+          );
 
   public static final int noAmbiguity = -100;
 
