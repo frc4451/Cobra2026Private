@@ -1,11 +1,8 @@
 package frc.robot.autonomous;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.bobot_state.BobotState;
@@ -15,7 +12,6 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
-import org.robotzgarage.frc2026.math.interpolation.ShootingInterpolator.InterpolatedCalculation;
 
 public class AutonomousManager {
   private final Drive drive;
@@ -24,7 +20,7 @@ public class AutonomousManager {
   private final Feeder feeder;
 
   private static final double rotationToleranceDegrees = 3.0;
-  private static final Time MAX_TIMEOUT = Seconds.of(20);
+  // private static final Time MAX_TIMEOUT = Seconds.of(20);
 
   public AutonomousManager(Drive drive, Shooter shooter, Intake intake, Feeder feeder) {
     this.drive = drive;
@@ -49,120 +45,128 @@ public class AutonomousManager {
         drive, () -> BobotState.getHubVARC().getRotationTarget(), rotationToleranceDegrees);
   }
 
-  /**
-   * Full method to use to handle the shooting for the shooter
-   *
-   * <p>
-   *
-   * @param prefix uses a {@code String} to tie the steps of {@code handleShot} for easier reading
-   *     of the console in {@code AdvantageScope}
-   * @param velocity uses a {@code double} that goes into an {@code AngularVelocity(RPS)} for
-   *     shooter controll
-   * @param tolerance uses a {@code double} that goes into an {@code AngularVelocity(RPS)} to tell
-   *     the shooter to start shooting
-   * @param emptyTime uses a {@code double} that goes into a {@code TimeUnit(Seconds)} for the
-   *     estimated hopper empty time / when it stops the shooter
-   */
-  private Command handleShot(String prefix, double velocity, double tolerance, double emptyTime) {
-    String formattedPrefix = prefix + ": ";
-    AngularVelocity shooterVelocity = RotationsPerSecond.of(velocity);
+  // /**
+  //  * Full method to use to handle the shooting for the shooter
+  //  *
+  //  * <p>
+  //  *
+  //  * @param prefix uses a {@code String} to tie the steps of {@code handleShot} for easier
+  // reading
+  //  *     of the console in {@code AdvantageScope}
+  //  * @param velocity uses a {@code double} that goes into an {@code AngularVelocity(RPS)} for
+  //  *     shooter controll
+  //  * @param tolerance uses a {@code double} that goes into an {@code AngularVelocity(RPS)} to
+  // tell
+  //  *     the shooter to start shooting
+  //  * @param emptyTime uses a {@code double} that goes into a {@code TimeUnit(Seconds)} for the
+  //  *     estimated hopper empty time / when it stops the shooter
+  //  */
+  // private Command handleShot(String prefix, double velocity, double tolerance, double emptyTime)
+  // {
+  //   String formattedPrefix = prefix + ": ";
+  //   AngularVelocity shooterVelocity = RotationsPerSecond.of(velocity);
 
-    return Commands.sequence(
-            Commands.print(formattedPrefix + "Starting Shooter Flywheel"),
-            shooter
-                // set velocity to shooter at with torque current
-                .runShooterVelocityTorqueCurrent(shooterVelocity)
-                .until(
-                    // wait to start tower, until shooter is at velocity
-                    shooter.isShooterFlywheelNearRPS(
-                        shooterVelocity, RotationsPerSecond.of(tolerance))),
-            // shoots shooter for the estimated empty time
-            Commands.print(formattedPrefix + "start feeder"),
-            feeder.runFeederVoltage(),
-            Commands.print(formattedPrefix + "start shooter"),
-            shooter
-                .runShooterVelocityTorqueCurrent(shooterVelocity)
-                .withTimeout(Seconds.of(emptyTime)),
-            shooter.stop(),
-            feeder.stop())
-        .beforeStarting(Commands.print(formattedPrefix + "start"))
-        .andThen(Commands.print(formattedPrefix + "end"));
-  }
+  //   return Commands.sequence(
+  //           Commands.print(formattedPrefix + "Starting Shooter Flywheel"),
+  //           shooter
+  //               // set velocity to shooter at with torque current
+  //               .runShooterVelocityTorqueCurrent(shooterVelocity)
+  //               .until(
+  //                   // wait to start tower, until shooter is at velocity
+  //                   shooter.isShooterFlywheelNearRPS(
+  //                       shooterVelocity, RotationsPerSecond.of(tolerance))),
+  //           // shoots shooter for the estimated empty time
+  //           Commands.print(formattedPrefix + "start feeder"),
+  //           feeder.runFeederVoltage(),
+  //           Commands.print(formattedPrefix + "start shooter"),
+  //           shooter
+  //               .runShooterVelocityTorqueCurrent(shooterVelocity)
+  //               .withTimeout(Seconds.of(emptyTime)),
+  //           shooter.stop(),
+  //           feeder.stop())
+  //       .beforeStarting(Commands.print(formattedPrefix + "start"))
+  //       .andThen(Commands.print(formattedPrefix + "end"));
+  // }
 
-  /**
-   * Full method to use to handle the shooting for the shooter
-   *
-   * <p>
-   *
-   * @param prefix Uses a {@code String} to tie the steps of {@code handleShot} for easier reading
-   *     of the console in {@code AdvantageScope}
-   * @param velocity Uses a {@code double} that goes into an {@code AngularVelocity(RPS)} for
-   *     shooter controll
-   * @param emptyTime Uses a {@code double} that goes into a {@code TimeUnit(Seconds)} for the
-   *     estimated hopper empty time / when it stops the shooter @DefaultParameter Default Tolerance
-   *     of 1 RPS. Tolerance uses a {@code double} that goes into an {@code AngularVelocity(RPS)} to
-   *     tell the shooter to start shooting
-   */
-  private Command handleShot(String prefix, double velocity, double emptyTime) {
-    String formattedPrefix = prefix + ": ";
-    AngularVelocity shooterVelocity = RotationsPerSecond.of(velocity);
+  // /**
+  //  * Full method to use to handle the shooting for the shooter
+  //  *
+  //  * <p>
+  //  *
+  //  * @param prefix Uses a {@code String} to tie the steps of {@code handleShot} for easier
+  // reading
+  //  *     of the console in {@code AdvantageScope}
+  //  * @param velocity Uses a {@code double} that goes into an {@code AngularVelocity(RPS)} for
+  //  *     shooter controll
+  //  * @param emptyTime Uses a {@code double} that goes into a {@code TimeUnit(Seconds)} for the
+  //  *     estimated hopper empty time / when it stops the shooter @DefaultParameter Default
+  // Tolerance
+  //  *     of 1 RPS. Tolerance uses a {@code double} that goes into an {@code AngularVelocity(RPS)}
+  // to
+  //  *     tell the shooter to start shooting
+  //  */
+  // private Command handleShot(String prefix, double velocity, double emptyTime) {
+  //   String formattedPrefix = prefix + ": ";
+  //   AngularVelocity shooterVelocity = RotationsPerSecond.of(velocity);
 
-    return Commands.sequence(
-            Commands.print(formattedPrefix + "Starting Shooter Flywheel"),
-            shooter
-                // set velocity to shooter at with torque current
-                .runShooterVelocityTorqueCurrent(shooterVelocity)
-                .until(
-                    // wait to start tower, until shooter is at velocity
-                    shooter.isShooterFlywheelNearRPS(shooterVelocity, RotationsPerSecond.of(1.0))),
-            // shoots shooter for the estimated empty time
-            Commands.print(formattedPrefix + "start shooter"),
-            shooter
-                .runShooterVelocityTorqueCurrent(shooterVelocity)
-                .withTimeout(Seconds.of(emptyTime)),
-            shooter.stop())
-        .beforeStarting(Commands.print(formattedPrefix + "start"))
-        .andThen(Commands.print(formattedPrefix + "end"));
-  }
+  //   return Commands.sequence(
+  //           Commands.print(formattedPrefix + "Starting Shooter Flywheel"),
+  //           shooter
+  //               // set velocity to shooter at with torque current
+  //               .runShooterVelocityTorqueCurrent(shooterVelocity)
+  //               .until(
+  //                   // wait to start tower, until shooter is at velocity
+  //                   shooter.isShooterFlywheelNearRPS(shooterVelocity,
+  // RotationsPerSecond.of(1.0))),
+  //           // shoots shooter for the estimated empty time
+  //           Commands.print(formattedPrefix + "start shooter"),
+  //           shooter
+  //               .runShooterVelocityTorqueCurrent(shooterVelocity)
+  //               .withTimeout(Seconds.of(emptyTime)),
+  //           shooter.stop())
+  //       .beforeStarting(Commands.print(formattedPrefix + "start"))
+  //       .andThen(Commands.print(formattedPrefix + "end"));
+  // }
 
-  /**
-   * Full method to use to handle the shooting for the shooter
-   *
-   * <p>
-   *
-   * @param prefix Uses a {@code String} to tie the steps of {@code handleShot} for easier reading
-   *     of the console in {@code AdvantageScope}
-   * @param emptyTime Uses a {@code double} that goes into a {@code TimeUnit(Seconds)} for the
-   *     estimated hopper empty time / when it stops the shooter
-   */
+  // /**
+  //  * Full method to use to handle the shooting for the shooter
+  //  *
+  //  * <p>
+  //  *
+  //  * @param prefix Uses a {@code String} to tie the steps of {@code handleShot} for easier
+  // reading
+  //  *     of the console in {@code AdvantageScope}
+  //  * @param emptyTime Uses a {@code double} that goes into a {@code TimeUnit(Seconds)} for the
+  //  *     estimated hopper empty time / when it stops the shooter
+  //  */
+  // private Command handleShotInterpolation(String prefix, double emptyTime, double squeezeTime) {
+  //   String formattedPrefix = prefix + ": ";
+  //   InterpolatedCalculation calculation = BobotState.getHubInterpolator().getCalculation();
+  //   AngularVelocity velocity = calculation.primaryVelocity();
+
+  //   return Commands.sequence(
+  //           // Commands.print(formattedPrefix + "Starting Shooter Flywheel. Velocity: " +
+  //           // velocity.baseUnitMagnitude()),
+  //           Commands.print(formattedPrefix + "Starting Shooter Flywheel"),
+  //           shooter
+  //               // set velocity to shooter at with torque current
+  //               .runShooterVelocityTorqueCurrent(velocity)
+  //               .until(
+  //                   // wait to start tower, until shooter is at velocity
+  //                   shooter.isShooterFlywheelNearRPS(velocity, RotationsPerSecond.of(1.0))),
+  //           // shoots shooter for the estimated empty time
+  //           Commands.print(formattedPrefix + "start shooter"),
+  //           Commands.deadline(
+  //               shooter.runShooterToHub().withTimeout(Seconds.of(emptyTime)),
+  //               feeder.runFeederVoltage(),
+  //               Commands.waitSeconds(squeezeTime).andThen(intake.wiggelsqueeze())),
+  //           feeder.stop(),
+  //           shooter.stop())
+  //       .beforeStarting(Commands.print(formattedPrefix + "start"))
+  //       .andThen(Commands.print(formattedPrefix + "end"));
+  // }
+
   private Command handleShotInterpolation(String prefix, double emptyTime, double squeezeTime) {
-    String formattedPrefix = prefix + ": ";
-    InterpolatedCalculation calculation = BobotState.getHubInterpolator().getCalculation();
-    AngularVelocity velocity = calculation.primaryVelocity();
-
-    return Commands.sequence(
-            // Commands.print(formattedPrefix + "Starting Shooter Flywheel. Velocity: " +
-            // velocity.baseUnitMagnitude()),
-            Commands.print(formattedPrefix + "Starting Shooter Flywheel"),
-            shooter
-                // set velocity to shooter at with torque current
-                .runShooterVelocityTorqueCurrent(velocity)
-                .until(
-                    // wait to start tower, until shooter is at velocity
-                    shooter.isShooterFlywheelNearRPS(velocity, RotationsPerSecond.of(1.0))),
-            // shoots shooter for the estimated empty time
-            Commands.print(formattedPrefix + "start shooter"),
-            Commands.deadline(
-                shooter.runShooterToHub().withTimeout(Seconds.of(emptyTime)),
-                feeder.runFeederVoltage(),
-                Commands.waitSeconds(squeezeTime).andThen(intake.wiggelsqueeze())),
-            feeder.stop(),
-            shooter.stop())
-        .beforeStarting(Commands.print(formattedPrefix + "start"))
-        .andThen(Commands.print(formattedPrefix + "end"));
-  }
-
-  private Command handleShotInterpolation2(String prefix, double emptyTime, double squeezeTime) {
     String formattedPrefix = prefix + ": ";
 
     return Commands.sequence(
@@ -216,32 +220,35 @@ public class AutonomousManager {
         .andThen(Commands.print("deploy: end"));
   }
 
-  /** retracks intake to starting position */
-  private Command retrackIntake() {
-    return Commands.sequence(intake.endeffectorStart().until(intake.isNearGoal(Degrees.of(5))))
-        .beforeStarting(Commands.print("retrack: start"))
-        .andThen(Commands.print("retrack: end"));
+  /** deploys intake to set position to intake with time */
+  private Command timedDeployIntake(double time) {
+    return Commands.deadline(Commands.waitSeconds(time), intake.endeffectorDeploy())
+        .beforeStarting(Commands.print("deploy: start"))
+        .andThen(Commands.print("deploy: end"));
   }
 
-  /** lifts intake to an offset position for bump transversal */
-  private Command liftIntake() {
-    return Commands.sequence(intake.endeffectorLift())
-        .until(intake.isNearGoal(Degrees.of(5)))
-        .beforeStarting(Commands.print("lift: start"))
-        .andThen(Commands.print("lift: end"));
-  }
+  // /** retracks intake to starting position */
+  // private Command retrackIntake() {
+  //   return Commands.sequence(intake.endeffectorStart().until(intake.isNearGoal(Degrees.of(5))))
+  //       .beforeStarting(Commands.print("retrack: start"))
+  //       .andThen(Commands.print("retrack: end"));
+  // }
 
-  /** Sqeeze intake for shooting */
-  private Command squeezeIntake() {
-    return Commands.sequence(intake.endeffectorSqueeze())
-        .until(intake.isNearGoal(Degrees.of(5)))
-        .beforeStarting(Commands.print("Squeeze: start"))
-        .andThen(Commands.print("Squeeze: end"));
-  }
+  // /** lifts intake to an offset position for bump transversal */
+  // private Command liftIntake() {
+  //   return Commands.sequence(intake.endeffectorLift())
+  //       .until(intake.isNearGoal(Degrees.of(5)))
+  //       .beforeStarting(Commands.print("lift: start"))
+  //       .andThen(Commands.print("lift: end"));
+  // }
 
-  private Command wiggleWiggleWiggle() {
-    return Commands.sequence(squeezeIntake(), Commands.waitSeconds(1.0), deployIntake());
-  }
+  // /** Sqeeze intake for shooting */
+  // private Command squeezeIntake() {
+  //   return Commands.sequence(intake.endeffectorSqueeze())
+  //       .until(intake.isNearGoal(Degrees.of(5)))
+  //       .beforeStarting(Commands.print("Squeeze: start"))
+  //       .andThen(Commands.print("Squeeze: end"));
+  // }
 
   private Command runIntake() {
     return intake.runRollersVoltageOut().beforeStarting(Commands.print("Intake rollers: start"));
@@ -299,7 +306,7 @@ public class AutonomousManager {
         .andThen(Commands.sequence(Commands.print(name + ": end")), intake.stop());
   }
 
-  private Command BLineTrajectorywithLift(String name, double intaketime) {
+  private Command BLineTrajectorywithIntakeLift(String name, double intaketime) {
     return Commands.deadline(
             drive.getBLineBuilder().build(new Path(name)),
             Commands.deadline(Commands.waitSeconds(intaketime), intake.runRollersVoltageOut())
@@ -317,109 +324,120 @@ public class AutonomousManager {
         .andThen(Commands.print(name + ": end"));
   }
 
-  /**
-   * Follows {@code name} with hub rotation override, with rotation applied only after we're within
-   * threshold to start
-   */
-  private Command BLineTrajectoryWithHubRotation(String name, double hubRotationThresholdMeters) {
-    return drive
-        .followPathWithRotationTarget(
-            new Path(name),
-            () -> BobotState.getHubVARC().getRotationTarget(),
-            hubRotationThresholdMeters)
-        .beforeStarting(Commands.print(name + ": start"))
-        .andThen(Commands.print(name + ": end"));
+  /** Follows {@code name} with hub rotation override */
+  private Command BLineTrajectorySOTM(String name, double time, Command shootCommand) {
+    return Commands.deadline(
+        Commands.waitSeconds(time),
+        drive
+            .followPathWithRotationTarget(
+                new Path(name), () -> BobotState.getHubVARC().getRotationTarget())
+            .beforeStarting(Commands.print(name + ": start"))
+            .andThen(Commands.print(name + ": end")),
+        shootCommand);
   }
 
-  public Command himithy() {
-    return Commands.sequence(
-            this.deployIntake(),
-            BLineTrajectory("OGHimithy-1"),
-            BLineTrajectorywithIntake("OGHimithy-2"),
-            this.liftIntake(),
-            BLineTrajectory("OGHimithy-3"),
-            this.rotateToHub(),
-            this.handleShotInterpolation("shot 1", 5.0, 2.0))
-        .beforeStarting(Commands.print("Path start"))
-        .andThen(Commands.print("Path end"));
-  }
+  // /**
+  //  * Follows {@code name} with hub rotation override, with rotation applied only after we're
+  // within
+  //  * threshold to start
+  //  */
+  // private Command BLineTrajectoryWithHubRotation(String name, double hubRotationThresholdMeters)
+  // {
+  //   return drive
+  //       .followPathWithRotationTarget(
+  //           new Path(name),
+  //           () -> BobotState.getHubVARC().getRotationTarget(),
+  //           hubRotationThresholdMeters)
+  //       .beforeStarting(Commands.print(name + ": start"))
+  //       .andThen(Commands.print(name + ": end"));
+  // }
 
-  public Command himithyy() {
-    return Commands.sequence(
-            this.deployIntake(),
-            BLineTrajectory("OGHimithy-1"),
-            BLineTrajectorywithIntake("OGHimithyy-2"),
-            this.liftIntake(),
-            BLineTrajectory("OGHimithyy-3"),
-            this.rotateToHub(),
-            this.handleShotInterpolation("shot 1", 10.0, 2.0))
-        .beforeStarting(Commands.print("Path start"))
-        .andThen(Commands.print("Path end"));
-  }
+  // public Command himithy() {
+  //   return Commands.sequence(
+  //           this.deployIntake(),
+  //           BLineTrajectory("OGHimithy-1"),
+  //           BLineTrajectorywithIntake("OGHimithy-2"),
+  //           this.liftIntake(),
+  //           BLineTrajectory("OGHimithy-3"),
+  //           this.rotateToHub(),
+  //           this.handleShotInterpolation("shot 1", 5.0, 2.0))
+  //       .beforeStarting(Commands.print("Path start"))
+  //       .andThen(Commands.print("Path end"));
+  // }
 
-  public Command timithy() {
-    return Commands.sequence(
-            this.deployIntake(),
-            BLineTrajectory("OGTimithy-1"),
-            BLineTrajectorywithIntake("OGTimithy-2"),
-            this.liftIntake(),
-            BLineTrajectory("OGTimithy-3"),
-            this.rotateToHub(),
-            this.handleShotInterpolation("shot 1", 8.0, 3.0))
-        .beforeStarting(Commands.print("Path start"))
-        .andThen(Commands.print("Path end"));
-  }
+  // public Command himithyy() {
+  //   return Commands.sequence(
+  //           this.deployIntake(),
+  //           BLineTrajectory("OGHimithy-1"),
+  //           BLineTrajectorywithIntake("OGHimithyy-2"),
+  //           this.liftIntake(),
+  //           BLineTrajectory("OGHimithyy-3"),
+  //           this.rotateToHub(),
+  //           this.handleShotInterpolation("shot 1", 10.0, 2.0))
+  //       .beforeStarting(Commands.print("Path start"))
+  //       .andThen(Commands.print("Path end"));
+  // }
 
-  public Command timithyy() {
-    return Commands.sequence(
-            this.deployIntake(),
-            BLineTrajectory("OGTimithy-1"),
-            BLineTrajectorywithIntake("OGTimithyy-2"),
-            this.liftIntake(),
-            BLineTrajectory("OGTimithyy-3"),
-            this.rotateToHub(),
-            this.handleShotInterpolation("shot 1", 10.0, 6.0))
-        .beforeStarting(Commands.print("Path start"))
-        .andThen(Commands.print("Path end"));
-  }
+  // public Command timithy() {
+  //   return Commands.sequence(
+  //           this.deployIntake(),
+  //           BLineTrajectory("OGTimithy-1"),
+  //           BLineTrajectorywithIntake("OGTimithy-2"),
+  //           this.liftIntake(),
+  //           BLineTrajectory("OGTimithy-3"),
+  //           this.rotateToHub(),
+  //           this.handleShotInterpolation("shot 1", 8.0, 3.0))
+  //       .beforeStarting(Commands.print("Path start"))
+  //       .andThen(Commands.print("Path end"));
+  // }
 
-  public Command timithy_1() {
-    return Commands.sequence(
-            this.deployIntake(),
-            Commands.deadline(
-                    BLineTrajectory("timithy-1"),
-                    Commands.waitSeconds(1)
-                        .andThen(
-                            Commands.deadline(
-                                Commands.waitSeconds(5), intake.runRollersVoltageOut())))
-                .andThen(Commands.waitSeconds(1).andThen(intake.stop())),
-            this.rotateToHub(),
-            this.handleShotInterpolation("shot 1", 10.0, 6.0))
-        .beforeStarting(Commands.print("Path start"))
-        .andThen(Commands.print("Path end"));
-  }
+  // public Command timithyy() {
+  //   return Commands.sequence(
+  //           this.deployIntake(),
+  //           BLineTrajectory("OGTimithy-1"),
+  //           BLineTrajectorywithIntake("OGTimithyy-2"),
+  //           this.liftIntake(),
+  //           BLineTrajectory("OGTimithyy-3"),
+  //           this.rotateToHub(),
+  //           this.handleShotInterpolation("shot 1", 10.0, 6.0))
+  //       .beforeStarting(Commands.print("Path start"))
+  //       .andThen(Commands.print("Path end"));
+  // }
 
-  public Command himithyTake1() {
-    return Commands.sequence(
-            this.deployIntake(),
-            BLineTrajectorywithIntake("Himithy-1"),
-            this.rotateToHub(),
-            this.handleShotInterpolation("shot 1", 10.0, 6.0))
-        .beforeStarting(Commands.print("Path start"))
-        .andThen(Commands.print("Path end"));
-  }
+  // public Command timithy_1() {
+  //   return Commands.sequence(
+  //           this.deployIntake(),
+  //           Commands.deadline(
+  //                   BLineTrajectory("timithy-1"),
+  //                   Commands.waitSeconds(1)
+  //                       .andThen(
+  //                           Commands.deadline(
+  //                               Commands.waitSeconds(5), intake.runRollersVoltageOut())))
+  //               .andThen(Commands.waitSeconds(1).andThen(intake.stop())),
+  //           this.rotateToHub(),
+  //           this.handleShotInterpolation("shot 1", 10.0, 6.0))
+  //       .beforeStarting(Commands.print("Path start"))
+  //       .andThen(Commands.print("Path end"));
+  // }
+
+  // public Command himithyTake1() {
+  //   return Commands.sequence(
+  //           this.deployIntake(),
+  //           BLineTrajectorywithIntake("Himithy-1"),
+  //           this.rotateToHub(),
+  //           this.handleShotInterpolation("shot 1", 10.0, 6.0))
+  //       .beforeStarting(Commands.print("Path start"))
+  //       .andThen(Commands.print("Path end"));
+  // }
 
   public Command himithyTake2() {
     return Commands.sequence(
-            Commands.sequence(
-                this.deployIntake(),
-                BLineTrajectorywithLift("Himithy-1", 5.0),
-                this.rotateToHub(),
-                this.handleShotInterpolation2("shot 1", 4.0, 2.0)),
+            this.timedDeployIntake(0.8),
+            BLineTrajectorywithIntakeLift("Himithy-1", 3.0),
+            BLineTrajectorySOTM("Himithy-2", 5.0, handleShotInterpolation("shot 1", 5.0, 3.0)),
             this.deployIntake(),
-            BLineTrajectorywithIntake("Himithy-2"),
-            this.rotateToHub(),
-            this.handleShotInterpolation2("shot 2", 4.0, 2.0))
+            BLineTrajectorywithIntakeLift("Himithy-3", 3.5),
+            BLineTrajectorySOTM("Himithy-2", 5.0, handleShotInterpolation("shot 2", 5.0, 3.0)))
         .beforeStarting(Commands.print("Path start"))
         .andThen(Commands.print("Path end"));
   }
@@ -439,17 +457,17 @@ public class AutonomousManager {
   //       .andThen(Commands.print("Path end")));
   // }
 
-  public Command dimithy_1() {
-    return Commands.sequence(
-            this.deployIntake(),
-            BLineTrajectory("dimithy-1"),
-            Commands.waitSeconds(4),
-            BLineTrajectory("dimithy-2"),
-            this.rotateToHub(),
-            this.handleShotInterpolation("shot 1", 10.0, 5.0))
-        .beforeStarting(Commands.print("Path start"))
-        .andThen(Commands.print("Path end"));
-  }
+  // public Command dimithy_1() {
+  //   return Commands.sequence(
+  //           this.deployIntake(),
+  //           BLineTrajectory("dimithy-1"),
+  //           Commands.waitSeconds(4),
+  //           BLineTrajectory("dimithy-2"),
+  //           this.rotateToHub(),
+  //           this.handleShotInterpolation("shot 1", 10.0, 5.0))
+  //       .beforeStarting(Commands.print("Path start"))
+  //       .andThen(Commands.print("Path end"));
+  // }
 
   public Command simithySOTMDemo() {
     return Commands.sequence(
@@ -463,7 +481,7 @@ public class AutonomousManager {
     return Commands.sequence(
             this.deployIntake(),
             Commands.waitSeconds(1.0).until(intake.isNearGoal(Degrees.of(8.0))),
-            BLineTrajectorywithLift("Bimithy-1-SOTM", 3.0),
+            BLineTrajectorywithIntakeLift("Bimithy-1-SOTM", 3.0),
             this.deployIntake(),
             Commands.deadline(
                 Commands.waitTime(Seconds.of(4.0)),
@@ -471,9 +489,9 @@ public class AutonomousManager {
                 this.handleInterpolateShooter("shot 1", 3.0),
                 this.runIntake()),
             this.deployIntake(),
-            BLineTrajectorywithLift("Bimithy-3-SOTM", 4.25),
+            BLineTrajectorywithIntakeLift("Bimithy-3-SOTM", 4.25),
             this.rotateToHub(),
-            this.handleShotInterpolation2("shot 2", 4.0, 2.0))
+            this.handleShotInterpolation("shot 2", 4.0, 2.0))
         .beforeStarting(Commands.print("Path start"))
         .andThen(Commands.print("Path end"));
   }
@@ -482,14 +500,14 @@ public class AutonomousManager {
     return Commands.sequence(
             Commands.sequence(
                 this.deployIntake(),
-                BLineTrajectorywithLift("Bimithy-1", 5.0),
+                BLineTrajectorywithIntakeLift("Bimithy-1", 5.0),
                 this.rotateToHub(),
-                this.handleShotInterpolation2("shot 1", 4.0, 2.0)),
+                this.handleShotInterpolation("shot 1", 4.0, 2.0)),
             this.deployIntake(),
             BLineTrajectorywithIntake("Bimithy-2"),
             BLineTrajectorywithIntake("Bimithy-3"),
             this.rotateToHub(),
-            this.handleShotInterpolation2("shot 2", 4.0, 2.0))
+            this.handleShotInterpolation("shot 2", 4.0, 2.0))
         .beforeStarting(Commands.print("Path start"))
         .andThen(Commands.print("Path end"));
   }

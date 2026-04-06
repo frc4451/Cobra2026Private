@@ -195,19 +195,19 @@ public class RobotContainer {
   private void configureAutonomousRoutines() {
     AutonomousManager autonomousManager = new AutonomousManager(drive, shooter, intake, feeder);
 
-    autoChooser.addOption("Himithy", autonomousManager.himithy());
-    autoChooser.addOption("Himithyy", autonomousManager.himithyy());
-    autoChooser.addOption("Timithy", autonomousManager.timithy());
-    autoChooser.addOption("Timithyy", autonomousManager.timithyy());
-    autoChooser.addOption("Timithy-1", autonomousManager.timithy_1());
-    autoChooser.addOption("Himithy take 1", autonomousManager.himithyTake1());
+    // autoChooser.addOption("Himithy", autonomousManager.himithy());
+    // autoChooser.addOption("Himithyy", autonomousManager.himithyy());
+    // autoChooser.addOption("Timithy", autonomousManager.timithy());
+    // autoChooser.addOption("Timithyy", autonomousManager.timithyy());
+    // autoChooser.addOption("Timithy-1", autonomousManager.timithy_1());
+    // autoChooser.addOption("Himithy take 1", autonomousManager.himithyTake1());
     autoChooser.addOption("Himithy take 2", autonomousManager.himithyTake2());
-    autoChooser.addOption("Dimithy-1", autonomousManager.dimithy_1());
-    autoChooser.addOption("Bimithy :)", autonomousManager.bimithySmiley());
+    // autoChooser.addOption("Dimithy-1", autonomousManager.dimithy_1());
+    // autoChooser.addOption("Bimithy :)", autonomousManager.bimithySmiley());
     autoChooser.addOption("Bimithy AutoRotateToHub", autonomousManager.bimithySmileyHubRotation());
     autoChooser.addOption("Simithy SOTM Demo", autonomousManager.simithySOTMDemo());
     // autoChooser.addOption("Ean's Path", autonomousManager.eanDemo());
-    autoChooser.addOption("Test", autonomousManager.test());
+    // autoChooser.addOption("Test", autonomousManager.test());
 
     // autoChooser.addOption("strafe test", autonomousManager.strafeShot());
 
