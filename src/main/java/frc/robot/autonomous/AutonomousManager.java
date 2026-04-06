@@ -463,15 +463,15 @@ public class AutonomousManager {
     return Commands.sequence(
             this.deployIntake(),
             Commands.waitSeconds(1.0).until(intake.isNearGoal(Degrees.of(8.0))),
-            BLineTrajectorywithLift("Bimithy-1-SOTM", 5.0),
+            BLineTrajectorywithLift("Bimithy-1-SOTM", 3.0),
+            this.deployIntake(),
             Commands.deadline(
                 Commands.waitTime(Seconds.of(4.0)),
                 BLineTrajectoryWithHubRotation("Bimithy-2-SOTM"),
-                this.handleInterpolateShooter("shot 1", 4.0),
+                this.handleInterpolateShooter("shot 1", 3.0),
                 this.runIntake()),
             this.deployIntake(),
-            BLineTrajectorywithIntake("Bimithy-3-SOTM"),
-            BLineTrajectorywithIntake("Bimithy-3"),
+            BLineTrajectorywithLift("Bimithy-3-SOTM", 4.25),
             this.rotateToHub(),
             this.handleShotInterpolation2("shot 2", 4.0, 2.0))
         .beforeStarting(Commands.print("Path start"))

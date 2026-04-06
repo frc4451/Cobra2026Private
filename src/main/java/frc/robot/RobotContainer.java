@@ -305,7 +305,7 @@ public class RobotContainer {
                     () -> controller.getLeftY(),
                     () -> controller.getLeftX(),
                     () -> BobotState.getFuelClusterVARC().getRotationTarget()),
-                intake.runRollersVoltageOut()))
+                intake.runRollersTorqueCurrent()))
         .onFalse(intake.stop());
 
     sotmCommand =

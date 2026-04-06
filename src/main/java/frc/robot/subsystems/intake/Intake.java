@@ -35,6 +35,8 @@ public class Intake extends SubsystemBase {
       new LoggedTunableNumber(name + "/EndeffectorLift", 20.0);
   private static final LoggedTunableNumber endeffectorSqueeze =
       new LoggedTunableNumber(name + "/EndeffectorSqueeze", 80.0);
+  private static final LoggedTunableNumber endeffectorAmps =
+      new LoggedTunableNumber(name + "/EndeffectorAmps", 20.0);
 
   // Subsystems
   private final Flywheel rollers;
@@ -101,6 +103,13 @@ public class Intake extends SubsystemBase {
     return run(
         () -> {
           rollers.setTorque(Amps.of(intakeAmps.get()));
+        });
+  }
+
+  public Command runEndeffectorTorqueCurrent() {
+    return run(
+        () -> {
+          endeffector.runTorqueCurrent(Amps.of(endeffectorAmps.get()));
         });
   }
 
