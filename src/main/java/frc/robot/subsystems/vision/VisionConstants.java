@@ -109,7 +109,7 @@ public class VisionConstants {
               new VisionSource(
                   "EanCam",
                   RobotRelativeTransform.builder()
-                      .forwardPositive(Inches.of(5.971))
+                      .forwardPositive(Inches.of(6.081))
                       .leftPositive(Inches.of(8.750))
                       .upPositive(Inches.of(19.750))
                       .rollCCWPositive(Degrees.zero())

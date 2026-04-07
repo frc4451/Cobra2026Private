@@ -39,7 +39,7 @@ public final class Constants {
   public static final double controllerDeadband = 0.25;
 
   public static final boolean focEnabled = true;
-  public static final boolean tuningMode = true;
+  public static final boolean tuningMode = false;
   public static final boolean disableHAL = false;
   public static final double tuningFFRampRate = 0.5;
 }

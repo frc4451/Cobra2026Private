@@ -33,7 +33,7 @@
     {
       "type": "rotation",
       "rotation_radians": -1.4835298641951802,
-      "t_ratio": 0.5571051506819116,
+      "t_ratio": 0.4490124870218644,
       "profiled_rotation": true
     },
     {
@@ -70,9 +70,9 @@
   "constraints": {
     "max_velocity_meters_per_sec": [
       {
-        "value": 4.000000000000002,
-        "start_ordinal": 2,
-        "end_ordinal": 2
+        "value": 2.999999999999999,
+        "start_ordinal": 1,
+        "end_ordinal": 3
       }
     ]
   }

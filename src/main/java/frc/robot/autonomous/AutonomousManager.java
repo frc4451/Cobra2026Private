@@ -436,7 +436,7 @@ public class AutonomousManager {
             BLineTrajectorywithIntakeLift("Himithy-1", 3.0),
             BLineTrajectorySOTM("Himithy-2", 5.0, handleShotInterpolation("shot 1", 5.0, 3.0)),
             this.deployIntake(),
-            BLineTrajectorywithIntakeLift("Himithy-3", 3.5),
+            BLineTrajectorywithIntakeLift("Himithy-3", 4.0),
             BLineTrajectorySOTM("Himithy-2", 5.0, handleShotInterpolation("shot 2", 5.0, 3.0)))
         .beforeStarting(Commands.print("Path start"))
         .andThen(Commands.print("Path end"));
