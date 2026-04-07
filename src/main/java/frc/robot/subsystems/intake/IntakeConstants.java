@@ -120,7 +120,7 @@ public class IntakeConstants {
           // Set the Pivot to "DEPLOYED", keep this as Zero, then assign
           // the Absolute Position of the CANCoder to this magnetOffset
           //   .magnetOffset(Radians.of(0.75))
-          .magnetOffset(Degrees.of(92.5))
+          .magnetOffset(Degrees.of(11.42))
           //   .calcOffset(Degrees.of(240))
           .discontinuity(0.875)
           //   .discontinuity(MathUtil.inputModulus(Units.degreesToRotations(90), 0, 1) / 2.0)
