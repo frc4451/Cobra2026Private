@@ -121,7 +121,6 @@ public class IntakeConstants {
           // the Absolute Position of the CANCoder to this magnetOffset
           //   .magnetOffset(Radians.of(0.75))
           .magnetOffset(Degrees.of(92.5))
-          //   .calcOffset(Degrees.of(240))
           .discontinuity(0.875)
           //   .discontinuity(MathUtil.inputModulus(Units.degreesToRotations(90), 0, 1) / 2.0)
           //   .magnetOffset(Rotations.of(0.1728515625).plus(Rotations.of(0.668945)))
@@ -135,7 +134,6 @@ public class IntakeConstants {
           .canBus(Constants.susBus)
           .phoenixUpdateFreqHz(50)
           .reduction(endeffectorReduction)
-          .currentLimitAmps(40)
           .currentLimitConfig(
               new CurrentLimitsConfigs()
                   .withStatorCurrentLimit(endeffectorStatorCurrentLimit)
@@ -143,7 +141,11 @@ public class IntakeConstants {
                   .withSupplyCurrentLimit(endeffectorSupplyCurrentLimit)
                   .withSupplyCurrentLimitEnable(true)
                   .withSupplyCurrentLowerLimit(endeffectorSupplyCurrentLimit)
-                  .withSupplyCurrentLowerTime(0.1))
+                  .withSupplyCurrentLowerTime(0.25))
+          .torqueCurrentConfigs(
+              new TorqueCurrentConfigs()
+                  .withPeakForwardTorqueCurrent(endeffectorStatorCurrentLimit)
+                  .withPeakReverseTorqueCurrent(endeffectorStatorCurrentLimit.unaryMinus()))
           .invert(false)
           .isBrakeMode(true)
           .foc(true)

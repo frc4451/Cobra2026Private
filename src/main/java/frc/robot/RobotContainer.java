@@ -367,7 +367,7 @@ public class RobotContainer {
     // controller.leftBumper().onTrue(intake.runRollersVoltageOut());
     // controller.leftBumper().onFalse(intake.stop());
 
-    controller.leftTrigger().onTrue(intake.runRollersVoltageOut());
+    controller.leftTrigger().onTrue(intake.runRollersTorqueCurrent());
     controller.leftTrigger().onFalse(intake.stop());
   }
 
