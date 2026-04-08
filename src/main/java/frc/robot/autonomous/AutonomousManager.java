@@ -226,10 +226,14 @@ public class AutonomousManager {
             Commands.deadline(
                 Commands.waitTime(Seconds.of(20.0)),
                 this.handleInterpolateShooter("shot 2", 20.0),
-                intake.flickIntakeNumberOfTimes(
-                    Degrees.of(20.0), Degrees.of(80.0), Degrees.of(0.0), Degrees.of(5.0), 3)))
+                intake.flickIntakeRepeatedly(
+                    Degrees.of(0.0),
+                    Degrees.of(45.0),
+                    Degrees.of(0.0),
+                    Degrees.of(5.0),
+                    Seconds.of(4.0)))
         .beforeStarting(Commands.print("Path start"))
-        .andThen(Commands.print("Path end"));
+        .andThen(Commands.print("Path end")));
   }
 
   public Command blazikenTheMegaEvolution() {
