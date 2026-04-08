@@ -3,10 +3,12 @@ package frc.robot.autonomous;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Seconds;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.bobot_state.BobotState;
 import frc.robot.commands.DriveCommands;
+import frc.robot.lib.BLine.FollowPath;
 import frc.robot.lib.BLine.Path;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
@@ -35,14 +37,13 @@ public class AutonomousManager {
    * <p>This uses "snapToAngle" to lock the rotation of the robot to the hub
    */
   private Command rotateToHub() {
-    // return drive.getBLineBuilder().build(
-    //   new Path(
-    //     new Path.Waypoint(null)
-    //   )
-    // )
-
     return DriveCommands.snapToAngle(
         drive, () -> BobotState.getHubVARC().getRotationTarget(), rotationToleranceDegrees);
+  }
+
+  /** This uses "snapToAngle" to lock the rotation of the intake towards fuel in the neutral zone */
+  private Command rotateDrivebaseToAngle(Rotation2d angle) {
+    return DriveCommands.snapToAngle(drive, () -> angle, rotationToleranceDegrees);
   }
 
   private Command handleShotInterpolation(String prefix, double emptyTime, double squeezeTime) {
@@ -142,6 +143,26 @@ public class AutonomousManager {
         .andThen(Commands.sequence(Commands.print(name + ": end")), intake.stop());
   }
 
+  /**
+   * Follows a BLine path with rollers active, but after {@code segmentNumber}, lift the intake
+   *
+   * <p>Use `segment number` as the index in BLine GUI for translation/waypoint markers. We may multiply
+   * it by 2 because I think it's counting both X and Y?
+   *
+   * <p>This _should_ help get over the bump more consistently
+   */
+  private Command BLineTrajectoryIntakeAndLiftAfterTranslationSegment(
+      String name, int segmentNumber) {
+    FollowPath followCommand = (FollowPath) drive.getBLineBuilder().build(new Path(name));
+
+    return Commands.parallel(
+        followCommand,
+        intake
+            .runRollersTorqueCurrent()
+            .until(() -> followCommand.getCurrentTranslationElementIndex() >= (segmentNumber))
+            .andThen(intake.endeffectorLift()));
+  }
+
   /** Follows {@code name} with hub rotation override */
   private Command BLineTrajectoryWithHubRotation(String name) {
     return drive
@@ -209,6 +230,37 @@ public class AutonomousManager {
                     Degrees.of(20.0), Degrees.of(80.0), Degrees.of(0.0), Degrees.of(5.0), 3)))
         .beforeStarting(Commands.print("Path start"))
         .andThen(Commands.print("Path end"));
+  }
+
+  public Command blazikenTheMegaEvolution() {
+    return Commands.sequence(
+        intake.endeffectorDeploy(),
+        Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
+        BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-1", 14),
+        Commands.deadline(
+            Commands.waitTime(Seconds.of(4.0)),
+            BLineTrajectoryWithHubRotation("Blaziken-2"),
+            this.handleInterpolateShooter("Shot 1", 4.0),
+            intake.flickIntakeRepeatedly(
+                Degrees.of(20.0),
+                Degrees.of(80.0),
+                Degrees.of(0.0),
+                Degrees.of(5.0),
+                Seconds.of(4.0))),
+        this.feeder.stop(),
+        intake.endeffectorDeploy(),
+        Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
+        // this.rotateDrivebaseToAngle(Rotation2d.kCW_90deg),
+        BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-3-Alt", 18),
+        this.rotateToHub(),
+        Commands.deadline(
+            this.handleInterpolateShooter("Shot 2", 20.0),
+            intake.flickIntakeRepeatedly(
+                Degrees.of(20.0),
+                Degrees.of(80.0),
+                Degrees.of(0.0),
+                Degrees.of(5.0),
+                Seconds.of(20.0))));
   }
 
   public Command bimithySmiley() {

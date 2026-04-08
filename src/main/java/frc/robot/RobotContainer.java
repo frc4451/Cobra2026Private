@@ -206,6 +206,7 @@ public class RobotContainer {
     // autoChooser.addOption("Bimithy :)", autonomousManager.bimithySmiley());
     autoChooser.addOption("Bimithy AutoRotateToHub", autonomousManager.bimithySmileyHubRotation());
     autoChooser.addOption("Simithy SOTM Demo", autonomousManager.simithySOTMDemo());
+    autoChooser.addOption("Blaziken", autonomousManager.blazikenTheMegaEvolution());
     // autoChooser.addOption("Ean's Path", autonomousManager.eanDemo());
     // autoChooser.addOption("Test", autonomousManager.test());
 

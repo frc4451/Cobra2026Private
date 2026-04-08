@@ -1,0 +1,157 @@
+{
+  "path_elements": [
+    {
+      "type": "waypoint",
+      "translation_target": {
+        "x_meters": 3.5,
+        "y_meters": 0.75,
+        "intermediate_handoff_radius_meters": 0.1
+      },
+      "rotation_target": {
+        "rotation_radians": 1.5707963267948966,
+        "profiled_rotation": true
+      }
+    },
+    {
+      "type": "waypoint",
+      "translation_target": {
+        "x_meters": 6.391226765799257,
+        "y_meters": 0.75,
+        "intermediate_handoff_radius_meters": 0.7000000000000002
+      },
+      "rotation_target": {
+        "rotation_radians": 1.5707963267948966,
+        "profiled_rotation": true
+      }
+    },
+    {
+      "type": "waypoint",
+      "translation_target": {
+        "x_meters": 6.178740027866052,
+        "y_meters": 1.1991862866584055,
+        "intermediate_handoff_radius_meters": 0.8000000000000002
+      },
+      "rotation_target": {
+        "rotation_radians": 3.141592653589793,
+        "profiled_rotation": true
+      }
+    },
+    {
+      "type": "waypoint",
+      "translation_target": {
+        "x_meters": 6.065692950023335,
+        "y_meters": 1.6733038525949642,
+        "intermediate_handoff_radius_meters": 0.6000000000000001
+      },
+      "rotation_target": {
+        "rotation_radians": -1.5707963267948966,
+        "profiled_rotation": true
+      }
+    },
+    {
+      "type": "waypoint",
+      "translation_target": {
+        "x_meters": 5.983,
+        "y_meters": 3.667,
+        "intermediate_handoff_radius_meters": 0.6000000000000001
+      },
+      "rotation_target": {
+        "rotation_radians": -1.5707963267948966,
+        "profiled_rotation": true
+      }
+    },
+    {
+      "type": "waypoint",
+      "translation_target": {
+        "x_meters": 7.487,
+        "y_meters": 4.236,
+        "intermediate_handoff_radius_meters": 0.6
+      },
+      "rotation_target": {
+        "rotation_radians": 2.6179938779914944,
+        "profiled_rotation": true
+      }
+    },
+    {
+      "type": "waypoint",
+      "translation_target": {
+        "x_meters": 8.066467575382076,
+        "y_meters": 3.6205303593556373,
+        "intermediate_handoff_radius_meters": 0.49999999999999994
+      },
+      "rotation_target": {
+        "rotation_radians": 1.5707963267948966,
+        "profiled_rotation": true
+      }
+    },
+    {
+      "type": "waypoint",
+      "translation_target": {
+        "x_meters": 7.506078893019415,
+        "y_meters": 2.9362247005369664,
+        "intermediate_handoff_radius_meters": 0.6500000000000001
+      },
+      "rotation_target": {
+        "rotation_radians": 0.6108652381980153,
+        "profiled_rotation": true
+      }
+    },
+    {
+      "type": "translation",
+      "x_meters": 6.684489913258984,
+      "y_meters": 2.5,
+      "intermediate_handoff_radius_meters": 0.6000000000000001
+    },
+    {
+      "type": "translation",
+      "x_meters": 6.064335811648079,
+      "y_meters": 2.5,
+      "intermediate_handoff_radius_meters": 0.49999999999999994
+    },
+    {
+      "type": "translation",
+      "x_meters": 5.5,
+      "y_meters": 2.5,
+      "intermediate_handoff_radius_meters": 0.44999999999999996
+    },
+    {
+      "type": "translation",
+      "x_meters": 3.8,
+      "y_meters": 2.5,
+      "intermediate_handoff_radius_meters": 0.39999999999999997
+    },
+    {
+      "type": "waypoint",
+      "translation_target": {
+        "x_meters": 2.550000000000002,
+        "y_meters": 2.5,
+        "intermediate_handoff_radius_meters": 0.1
+      },
+      "rotation_target": {
+        "rotation_radians": 0.7853981633974483,
+        "profiled_rotation": true
+      }
+    }
+  ],
+  "constraints": {
+    "max_velocity_meters_per_sec": [
+      {
+        "value": 3.0,
+        "start_ordinal": 9,
+        "end_ordinal": 9
+      },
+      {
+        "value": 3.0,
+        "start_ordinal": 0,
+        "end_ordinal": 1
+      }
+    ],
+    "max_acceleration_meters_per_sec2": [
+      {
+        "value": 9.0,
+        "start_ordinal": 0,
+        "end_ordinal": 10
+      }
+    ]
+  }
+}
