@@ -113,19 +113,19 @@ public class Intake extends SubsystemBase {
   // }
 
   public Command endeffectorStart() {
-    return runOnce(() -> endeffector.setGoalTorque(Degrees.of(endeffectorStart.get())));
+    return runOnce(() -> endeffector.setGoal(Degrees.of(endeffectorStart.get())));
   }
 
   public Command endeffectorDeploy() {
-    return runOnce(() -> endeffector.setGoalTorque(Degrees.of(endeffectorDeploy.get())));
+    return runOnce(() -> endeffector.setGoal(Degrees.of(endeffectorDeploy.get())));
   }
 
   public Command endeffectorLift() {
-    return runOnce(() -> endeffector.setGoalTorque(Degrees.of(endeffectorLift.get())));
+    return runOnce(() -> endeffector.setGoal(Degrees.of(endeffectorLift.get())));
   }
 
   public Command endeffectorSqueeze() {
-    return runOnce(() -> endeffector.setGoalTorque(Degrees.of(endeffectorSqueeze.get())))
+    return runOnce(() -> endeffector.setGoal(Degrees.of(endeffectorSqueeze.get())))
         .andThen(runRollersTorqueCurrent());
   }
 

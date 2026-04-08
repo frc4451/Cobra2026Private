@@ -41,7 +41,7 @@ public class IntakeConstants {
   public static final Current rollerStatorCurrentLimit = Amps.of(80.0);
 
   public static final Current endeffectorSupplyCurrentLimit = Amps.of(40.0);
-  public static final Current endeffectorStatorCurrentLimit = Amps.of(80.0);
+  public static final Current endeffectorStatorCurrentLimit = Amps.of(100.0);
 
   public static final FlywheelConfig flywheelConfig =
       FlywheelConfig.builder()
@@ -120,7 +120,7 @@ public class IntakeConstants {
           // Set the Pivot to "DEPLOYED", keep this as Zero, then assign
           // the Absolute Position of the CANCoder to this magnetOffset
           //   .magnetOffset(Radians.of(0.75))
-          .magnetOffset(Degrees.of(92.5))
+          .magnetOffset(Degrees.of(11.42))
           .discontinuity(0.875)
           //   .discontinuity(MathUtil.inputModulus(Units.degreesToRotations(90), 0, 1) / 2.0)
           //   .magnetOffset(Rotations.of(0.1728515625).plus(Rotations.of(0.668945)))
@@ -141,7 +141,7 @@ public class IntakeConstants {
                   .withSupplyCurrentLimit(endeffectorSupplyCurrentLimit)
                   .withSupplyCurrentLimitEnable(true)
                   .withSupplyCurrentLowerLimit(endeffectorSupplyCurrentLimit)
-                  .withSupplyCurrentLowerTime(0.25))
+                  .withSupplyCurrentLowerTime(1.0))
           .torqueCurrentConfigs(
               new TorqueCurrentConfigs()
                   .withPeakForwardTorqueCurrent(endeffectorStatorCurrentLimit)

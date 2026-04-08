@@ -255,11 +255,11 @@ public class AutonomousManager {
             BLineTrajectoryWithHubRotation("Bimithy-2-SOTM"),
             this.handleInterpolateShooter("shot 1", 4.0),
             intake.flickIntakeRepeatedly(
-                Degrees.of(0.0),
+                Degrees.of(20.0),
                 Degrees.of(45.0),
                 Degrees.of(0.0),
                 Degrees.of(5.0),
-                Seconds.of(4.0))),
+                Seconds.of(10.0))),
         this.deployIntake(),
         BLineTrajectorywithIntakeLift("Bimithy-3-SOTM", 4.25),
         this.rotateToHub(),
@@ -281,16 +281,18 @@ public class AutonomousManager {
         intake.endeffectorDeploy(),
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
         BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-1", 14),
+        intake.endeffectorDeploy(),
         Commands.deadline(
             Commands.waitTime(Seconds.of(4.0)),
             BLineTrajectoryWithHubRotation("Blaziken-2"),
             this.handleInterpolateShooter("Shot 1", 4.0),
-            intake.flickIntakeRepeatedly(
-                Degrees.of(20.0),
-                Degrees.of(80.0),
-                Degrees.of(0.0),
-                Degrees.of(5.0),
-                Seconds.of(4.0))),
+            // intake.flickIntakeRepeatedly(
+            //     Degrees.of(20.0),
+            //     Degrees.of(60.0),
+            //     Degrees.of(0.0),
+            //     Degrees.of(5.0),
+            //     Seconds.of(4.0))
+            intake.runRollersTorqueCurrent()),
         this.feeder.stop(),
         intake.endeffectorDeploy(),
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
@@ -301,7 +303,7 @@ public class AutonomousManager {
             this.handleInterpolateShooter("Shot 2", 20.0),
             intake.flickIntakeRepeatedly(
                 Degrees.of(20.0),
-                Degrees.of(80.0),
+                Degrees.of(70.0),
                 Degrees.of(0.0),
                 Degrees.of(5.0),
                 Seconds.of(20.0))));
@@ -316,12 +318,13 @@ public class AutonomousManager {
             Commands.waitTime(Seconds.of(4.0)),
             BLineTrajectoryWithHubRotation("Blaziken-2", true),
             this.handleInterpolateShooter("Shot 1", 4.0),
-            intake.flickIntakeRepeatedly(
-                Degrees.of(20.0),
-                Degrees.of(80.0),
-                Degrees.of(0.0),
-                Degrees.of(5.0),
-                Seconds.of(4.0))),
+            // intake.flickIntakeRepeatedly(
+            //     Degrees.of(20.0),
+            //     Degrees.of(60.0),
+            //     Degrees.of(0.0),
+            //     Degrees.of(5.0),
+            //     Seconds.of(4.0))
+            intake.runRollersTorqueCurrent()),
         this.feeder.stop(),
         intake.endeffectorDeploy(),
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
@@ -332,7 +335,7 @@ public class AutonomousManager {
             this.handleInterpolateShooter("Shot 2", 20.0),
             intake.flickIntakeRepeatedly(
                 Degrees.of(20.0),
-                Degrees.of(80.0),
+                Degrees.of(70.0),
                 Degrees.of(0.0),
                 Degrees.of(5.0),
                 Seconds.of(20.0))));

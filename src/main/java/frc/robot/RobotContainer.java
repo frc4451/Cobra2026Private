@@ -7,6 +7,9 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Seconds;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -391,7 +394,19 @@ public class RobotContainer {
     teleopActive.onTrue(intake.endeffectorDeploy());
 
     controller.povLeft().onTrue(intake.endeffectorStart());
-    controller.povUp().onTrue(intake.endeffectorSqueeze());
+    // controller.povUp().onTrue(intake.endeffectorSqueeze());
+
+    controller
+        .povUp()
+        .onTrue(
+            intake.flickIntakeRepeatedly(
+                Degrees.of(20.0),
+                Degrees.of(70.0),
+                Degrees.of(0.0),
+                Degrees.of(5.0),
+                Seconds.of(10.0)))
+        .onFalse(intake.endeffectorDeploy());
+
     controller.povRight().onTrue(intake.endeffectorLift());
     controller.povDown().onTrue(intake.endeffectorDeploy());
 

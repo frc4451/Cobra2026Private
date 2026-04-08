@@ -53,9 +53,9 @@ public class TrenchVARC extends TargetVARC {
     double yOffsetIntakeCompensation = 0;
     double rotDeg = this.rotationTarget.getDegrees();
     if (Math.abs(rotDeg - 90) < 1.0) {
-      yOffsetIntakeCompensation = Units.inchesToMeters(12);
+      yOffsetIntakeCompensation = Units.inchesToMeters(3);
     } else if (Math.abs(rotDeg + 90) < 1.0) {
-      yOffsetIntakeCompensation = -Units.inchesToMeters(12);
+      yOffsetIntakeCompensation = -Units.inchesToMeters(3);
     }
 
     this.targetPose =

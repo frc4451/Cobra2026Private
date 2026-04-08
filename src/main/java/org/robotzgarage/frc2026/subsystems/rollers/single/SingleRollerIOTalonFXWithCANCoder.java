@@ -10,7 +10,7 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.MotionMagicExpoTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
@@ -51,7 +51,7 @@ public class SingleRollerIOTalonFXWithCANCoder implements SingleRollerIO {
   protected final StatusSignal<Double> positionSetpointRotations;
   protected final StatusSignal<Double> velocitySetpointRotationsPerSec;
   protected final MotionMagicVoltage mmVoltage;
-  protected final MotionMagicTorqueCurrentFOC mmTorque;
+  protected final MotionMagicExpoTorqueCurrentFOC mmTorque;
   protected final PositionTorqueCurrentFOC positionTorqueCurrentFOC;
 
   protected final VoltageOut voltageOut;
@@ -76,7 +76,7 @@ public class SingleRollerIOTalonFXWithCANCoder implements SingleRollerIO {
 
     voltageOut = new VoltageOut(0.0).withEnableFOC(config.foc());
     mmVoltage = new MotionMagicVoltage(0.0).withSlot(0).withEnableFOC(config.foc());
-    mmTorque = new MotionMagicTorqueCurrentFOC(0.0).withSlot(0);
+    mmTorque = new MotionMagicExpoTorqueCurrentFOC(0.0).withSlot(0);
     positionTorqueCurrentFOC = new PositionTorqueCurrentFOC(0).withSlot(0);
     dutyCycleOut = new DutyCycleOut(0.0).withEnableFOC(config.foc());
     torqueCurrentFOC = new TorqueCurrentFOC(Amps.of(0.0));
