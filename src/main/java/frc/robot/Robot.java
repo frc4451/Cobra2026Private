@@ -19,6 +19,7 @@ import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.rlog.RLOGServer;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.photonvision.estimation.TargetModel;
@@ -56,10 +57,12 @@ public class Robot extends LoggedRobot {
       case REAL:
         // Running on a real robot, log to a USB stick ("/U/logs")
         Logger.addDataReceiver(new WPILOGWriter());
-        Logger.addDataReceiver(new NT4Publisher());
+        // This may help reduce CPU utilization at the cost of bandwidth, could be worth it?
+        Logger.addDataReceiver(new RLOGServer());
+        // Logger.addDataReceiver(new NT4Publisher());
         break;
-
       case SIM:
+        // Logger.addDataReceiver(new RLOGServer());
         // Running a physics simulator, log to NT
         Logger.addDataReceiver(new NT4Publisher());
         break;
