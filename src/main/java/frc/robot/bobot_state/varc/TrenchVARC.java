@@ -1,6 +1,5 @@
 package frc.robot.bobot_state.varc;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -49,7 +48,7 @@ public class TrenchVARC extends TargetVARC {
             Rotation2d.fromDegrees(-90),
             Rotation2d.fromDegrees(180));
 
-    // Offset the robot by the length of the intake if we are auto-aligning 
+    // Offset the robot by the length of the intake if we are auto-aligning
     // with the shooter/intake facing parallel of the trench
     double yOffsetIntakeCompensation = 0;
     double rotDeg = this.rotationTarget.getDegrees();
