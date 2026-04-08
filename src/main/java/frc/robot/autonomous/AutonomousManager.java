@@ -135,8 +135,22 @@ public class AutonomousManager {
   }
 
   private Command BLineTrajectorywithIntakeLift(String name, double intaketime) {
+    return this.BLineTrajectorywithIntakeLift(name, intaketime, false);
+  }
+
+  private Command BLineTrajectorywithIntakeLift(
+      String name, double intaketime, boolean mirrorVertically) {
+    Path path = new Path(name);
+
+    // Mirror the Path vertically to handle both sides of the driver station POV
+    if (mirrorVertically) {
+      path.mirror();
+    }
+
+    FollowPath followCommand = (FollowPath) drive.getBLineBuilder().build(path);
+
     return Commands.deadline(
-            drive.getBLineBuilder().build(new Path(name)),
+            followCommand,
             Commands.deadline(Commands.waitSeconds(intaketime), intake.runRollersTorqueCurrent())
                 .andThen(intake.endeffectorLift()))
         .beforeStarting(Commands.print(name + ": start"))
@@ -144,16 +158,32 @@ public class AutonomousManager {
   }
 
   /**
+   * Calls {@link #BLineTrajectoryIntakeAndLiftAfterTranslationSegment(String, int, boolean)}
+   * without mirroring the original BLine path
+   */
+  private Command BLineTrajectoryIntakeAndLiftAfterTranslationSegment(
+      String name, int segmentNumber) {
+    return this.BLineTrajectoryIntakeAndLiftAfterTranslationSegment(name, segmentNumber, false);
+  }
+
+  /**
    * Follows a BLine path with rollers active, but after {@code segmentNumber}, lift the intake
    *
-   * <p>Use `segment number` as the index in BLine GUI for translation/waypoint markers. We may multiply
-   * it by 2 because I think it's counting both X and Y?
+   * <p>Use `segment number` as the index in BLine GUI for translation/waypoint markers. We may
+   * multiply it by 2 because I think it's counting both X and Y?
    *
    * <p>This _should_ help get over the bump more consistently
    */
   private Command BLineTrajectoryIntakeAndLiftAfterTranslationSegment(
-      String name, int segmentNumber) {
-    FollowPath followCommand = (FollowPath) drive.getBLineBuilder().build(new Path(name));
+      String name, int segmentNumber, boolean mirrorVertically) {
+    Path path = new Path(name);
+
+    // Mirror the Path vertically to handle both sides of the driver station POV
+    if (mirrorVertically) {
+      path.mirror();
+    }
+
+    FollowPath followCommand = (FollowPath) drive.getBLineBuilder().build(path);
 
     return Commands.parallel(
         followCommand,
@@ -163,11 +193,21 @@ public class AutonomousManager {
             .andThen(intake.endeffectorLift()));
   }
 
-  /** Follows {@code name} with hub rotation override */
   private Command BLineTrajectoryWithHubRotation(String name) {
+    return this.BLineTrajectoryWithHubRotation(name, false);
+  }
+
+  /** Follows {@code name} with hub rotation override */
+  private Command BLineTrajectoryWithHubRotation(String name, boolean mirrorVertically) {
+    Path path = new Path(name);
+
+    // Mirror the Path vertically to handle both sides of the driver station POV
+    if (mirrorVertically) {
+      path.mirror();
+    }
+
     return drive
-        .followPathWithRotationTarget(
-            new Path(name), () -> BobotState.getHubVARC().getRotationTarget())
+        .followPathWithRotationTarget(path, () -> BobotState.getHubVARC().getRotationTarget())
         .beforeStarting(Commands.print(name + ": start"))
         .andThen(Commands.print(name + ": end"));
   }
@@ -206,24 +246,24 @@ public class AutonomousManager {
   /** Fork of {@link #bimithySmiley} that overrides rotation to face the hub (or attempts to) */
   public Command bimithySmileyHubRotation() {
     return Commands.sequence(
-            this.deployIntake(),
-            Commands.waitSeconds(1.0).until(intake.isNearGoal(Degrees.of(8.0))),
-            BLineTrajectorywithIntakeLift("Bimithy-1-SOTM", 3.0),
-            this.deployIntake(),
-            Commands.deadline(
-                Commands.waitTime(Seconds.of(4.0)),
-                BLineTrajectoryWithHubRotation("Bimithy-2-SOTM"),
-                this.handleInterpolateShooter("shot 1", 4.0),
-                intake.flickIntakeRepeatedly(
-                    Degrees.of(0.0),
-                    Degrees.of(45.0),
-                    Degrees.of(0.0),
-                    Degrees.of(5.0),
-                    Seconds.of(4.0))),
-            this.deployIntake(),
-            BLineTrajectorywithIntakeLift("Bimithy-3-SOTM", 4.25),
-            this.rotateToHub(),
-            Commands.deadline(
+        this.deployIntake(),
+        Commands.waitSeconds(1.0).until(intake.isNearGoal(Degrees.of(8.0))),
+        BLineTrajectorywithIntakeLift("Bimithy-1-SOTM", 3.0),
+        this.deployIntake(),
+        Commands.deadline(
+            Commands.waitTime(Seconds.of(4.0)),
+            BLineTrajectoryWithHubRotation("Bimithy-2-SOTM"),
+            this.handleInterpolateShooter("shot 1", 4.0),
+            intake.flickIntakeRepeatedly(
+                Degrees.of(0.0),
+                Degrees.of(45.0),
+                Degrees.of(0.0),
+                Degrees.of(5.0),
+                Seconds.of(4.0))),
+        this.deployIntake(),
+        BLineTrajectorywithIntakeLift("Bimithy-3-SOTM", 4.25),
+        this.rotateToHub(),
+        Commands.deadline(
                 Commands.waitTime(Seconds.of(20.0)),
                 this.handleInterpolateShooter("shot 2", 20.0),
                 intake.flickIntakeRepeatedly(
@@ -232,8 +272,8 @@ public class AutonomousManager {
                     Degrees.of(0.0),
                     Degrees.of(5.0),
                     Seconds.of(4.0)))
-        .beforeStarting(Commands.print("Path start"))
-        .andThen(Commands.print("Path end")));
+            .beforeStarting(Commands.print("Path start"))
+            .andThen(Commands.print("Path end")));
   }
 
   public Command blazikenTheMegaEvolution() {
@@ -256,6 +296,37 @@ public class AutonomousManager {
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
         // this.rotateDrivebaseToAngle(Rotation2d.kCW_90deg),
         BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-3-Alt", 18),
+        this.rotateToHub(),
+        Commands.deadline(
+            this.handleInterpolateShooter("Shot 2", 20.0),
+            intake.flickIntakeRepeatedly(
+                Degrees.of(20.0),
+                Degrees.of(80.0),
+                Degrees.of(0.0),
+                Degrees.of(5.0),
+                Seconds.of(20.0))));
+  }
+
+  public Command swampertTheMegaEvolution() {
+    return Commands.sequence(
+        intake.endeffectorDeploy(),
+        Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
+        BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-1", 14, true),
+        Commands.deadline(
+            Commands.waitTime(Seconds.of(4.0)),
+            BLineTrajectoryWithHubRotation("Blaziken-2", true),
+            this.handleInterpolateShooter("Shot 1", 4.0),
+            intake.flickIntakeRepeatedly(
+                Degrees.of(20.0),
+                Degrees.of(80.0),
+                Degrees.of(0.0),
+                Degrees.of(5.0),
+                Seconds.of(4.0))),
+        this.feeder.stop(),
+        intake.endeffectorDeploy(),
+        Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
+        // this.rotateDrivebaseToAngle(Rotation2d.kCW_90deg),
+        BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-3-Alt", 18, true),
         this.rotateToHub(),
         Commands.deadline(
             this.handleInterpolateShooter("Shot 2", 20.0),
