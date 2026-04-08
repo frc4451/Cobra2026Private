@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.autonomous.AutonomousManager;
 import frc.robot.bobot_state.BobotState;
+import frc.robot.bobot_state.BobotState.FieldZone;
 import frc.robot.bobot_state.dashboard.TeleopShiftManager;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.DriveFieldRelativePerpendicularToPoseCommand;
@@ -32,6 +33,7 @@ import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.feeder.FeederConstants;
 import frc.robot.subsystems.hood.Hood;
+import frc.robot.subsystems.hood.Hood.HoodState;
 import frc.robot.subsystems.hood.HoodConstants;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeConstants;
@@ -188,6 +190,7 @@ public class RobotContainer {
     // Configure the button bindings
     configureDriverBindings(drivercontroller);
     configureOperatorBindings(operatorcontroller);
+    configureHoodBindings(hood);
     configureAutonomousRoutines();
     configureTuningRoutines();
 
@@ -270,6 +273,30 @@ public class RobotContainer {
           "Tune Tower Flywheels (Amps)",
           this.feeder.towerFeedForwardCharacterization(TuningUnit.AMPS));
     }
+  }
+
+  /**
+   * Configures automatic hood angle adjustments based on field zone and trench proximity.
+   *
+   * Each zone trigger is ANDed with {@code isNearTrench().negate()} so that exiting the trench
+   * re-fires the zone trigger and restores the correct state.
+   */
+  private void configureHoodBindings(Hood hood) {
+    Trigger nearTrench = BobotState.isNearTrench();
+
+    BobotState.inNearAllianceZone()
+        .and(nearTrench.negate())
+        .onTrue(hood.setHoodState(HoodState.DOWN));
+
+    new Trigger(() -> BobotState.getCurrentFieldZone() == FieldZone.NEUTRAL)
+        .and(nearTrench.negate())
+        .onTrue(hood.setHoodState(HoodState.MID));
+
+    new Trigger(() -> BobotState.getCurrentFieldZone() == FieldZone.FAR_ALLIANCE)
+        .and(nearTrench.negate())
+        .onTrue(hood.setHoodState(HoodState.UP));
+
+    nearTrench.onTrue(hood.setHoodState(HoodState.DOWN));
   }
 
   /**
