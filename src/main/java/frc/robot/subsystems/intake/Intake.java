@@ -148,12 +148,13 @@ public class Intake extends SubsystemBase {
 
     return Commands.deadline(
         Commands.sequence(
-            // Determine which setpoint intake should go to first
+            // Go to the furthest angle first so you can capitalize on
+            // acceleration gains from Motion Magic
             Commands.runOnce(
                 () -> {
                   double distA = Math.abs(endeffector.getPosition().minus(angleA).in(Degrees));
                   double distB = Math.abs(endeffector.getPosition().minus(angleB).in(Degrees));
-                  endeffector.setGoal(distA <= distB ? angleA : angleB);
+                  endeffector.setGoal(distA >= distB ? angleA : angleB);
                 }),
             // Force the command to stop within timeout
             // Run the flick continuously until the deadline closes the group
