@@ -180,6 +180,11 @@ public class BobotState extends VirtualSubsystem {
         });
   }
 
+  public static Trigger isTooCloseToHubToScore() {
+    return new Trigger(() -> BobotState.hubVARC.getDistance().lt(Feet.of(7.5)))
+        .and(BobotState.inNearAllianceZone());
+  }
+
   public void periodic() {
     // VARCs must update before the hub interpolator so that HubVARC can read
     // hubInterpolator.getLookaheadTranslation() from the previous cycle. The one-loop
@@ -210,6 +215,9 @@ public class BobotState extends VirtualSubsystem {
               : BobotState.getClosestDropoff() instanceof DepotDropoffVARC ? "DEPOT" : "OUTPOST");
       Logger.recordOutput(
           subLogTitle + "ShouldStopFeeding", BobotState.shouldStopFeedingFuelToShooter());
+
+      Logger.recordOutput(
+          subLogTitle + "TooCloseToHubToScore", BobotState.isTooCloseToHubToScore());
     }
 
     // {
