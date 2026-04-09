@@ -231,25 +231,6 @@ public class AutonomousManager {
         shootCommand);
   }
 
-  public Command himithyTake2() {
-    return Commands.sequence(
-            this.timedDeployIntake(0.8),
-            BLineTrajectorywithIntakeLift("Himithy-1", 3.0),
-            BLineTrajectorySOTM("Himithy-2", 5.0, handleShotInterpolation("shot 1", 5.0, 3.0)),
-            this.deployIntake(),
-            BLineTrajectorywithIntakeLift("Himithy-3", 3.5),
-            BLineTrajectorySOTM("Himithy-2", 5.0, handleShotInterpolation("shot 2", 5.0, 3.0)))
-        .beforeStarting(Commands.print("Path start"))
-        .andThen(Commands.print("Path end"));
-  }
-
-  public Command simithySOTMDemo() {
-    return Commands.sequence(
-        Commands.print("Starting  Simithy"),
-        BLineTrajectoryWithHubRotation("Simithy-1"),
-        Commands.print("Finishing Simithy"));
-  }
-
   /** Fork of {@link #bimithySmiley} that overrides rotation to face the hub (or attempts to) */
   public Command bimithySmileyHubRotation() {
     return Commands.sequence(
@@ -314,18 +295,22 @@ public class AutonomousManager {
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
         // this.rotateDrivebaseToAngle(Rotation2d.kCW_90deg),
         BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-3-Alt", 18, mirrorVertically),
-        this.rotateToHub(),
         Commands.deadline(
-            this.handleInterpolateShooter("Shot 2", 20.0),
-            // this.handleInterpolateShooter("Shot 2", 20.0),
-            intake.flickIntakeRepeatedly(
-                Degrees.of(20.0),
-                Degrees.of(70.0),
-                Degrees.of(0.0),
-                Degrees.of(5.0),
-                Seconds.of(20.0))));
+            Commands.waitTime(Seconds.of(3.5)),
+            BLineTrajectoryWithHubRotation("Blaziken-4", mirrorVertically),
+            this.handleInterpolateShooter("Shot 1", 3.5),
+            intake.runRollersTorqueCurrent()),
+        this.feeder.stop(),
+        intake.endeffectorDeploy(),
+        Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
+        BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-5", 18, mirrorVertically));
   }
 
+  /**
+   * Implementation of Blaziken and Swampert that flips based on which Trench it starts from
+   *
+   * @param mirrorVertically whether to flip the path over the vertical center of the field
+   */
   public Command bimithySmiley() {
     return Commands.sequence(
             Commands.sequence(
@@ -348,9 +333,5 @@ public class AutonomousManager {
 
   public Command bline2ft() {
     return Commands.sequence(BLineTrajectory("2ft-bline"));
-  }
-
-  public Command test() {
-    return Commands.sequence(BLineTrajectorywithIntake("Himithy-2"));
   }
 }

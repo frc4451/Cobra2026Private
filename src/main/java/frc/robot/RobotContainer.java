@@ -204,11 +204,9 @@ public class RobotContainer {
     // autoChooser.addOption("Timithyy", autonomousManager.timithyy());
     // autoChooser.addOption("Timithy-1", autonomousManager.timithy_1());
     // autoChooser.addOption("Himithy take 1", autonomousManager.himithyTake1());
-    autoChooser.addOption("Himithy take 2", autonomousManager.himithyTake2());
     // autoChooser.addOption("Dimithy-1", autonomousManager.dimithy_1());
     // autoChooser.addOption("Bimithy :)", autonomousManager.bimithySmiley());
     autoChooser.addOption("Bimithy AutoRotateToHub", autonomousManager.bimithySmileyHubRotation());
-    autoChooser.addOption("Simithy SOTM Demo", autonomousManager.simithySOTMDemo());
     autoChooser.addOption("Blaziken", autonomousManager.blazikenTheMegaEvolution());
     autoChooser.addOption("Swampert", autonomousManager.swampertTheMegaEvolution());
     // autoChooser.addOption("Ean's Path", autonomousManager.eanDemo());
