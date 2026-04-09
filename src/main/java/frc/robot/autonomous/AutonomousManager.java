@@ -1,6 +1,7 @@
 package frc.robot.autonomous;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -68,7 +69,13 @@ public class AutonomousManager {
             Commands.print(formattedPrefix + "start shooter"),
             Commands.deadline(
                 shooter.runShooterToHub().withTimeout(Seconds.of(emptyTime)),
-                feeder.runFeederVoltage()),
+                // Don't start shooting until you know you can actually score
+                // in the hub
+                Commands.waitUntil(
+                        BobotState.isTooCloseToHubToScore()
+                            .negate()
+                            .and(shooter.isNearHubVelocity(RotationsPerSecond.of(1.0))))
+                    .andThen(feeder.runFeederVoltage())),
             shooter.stop(),
             feeder.stop())
         .beforeStarting(Commands.print(formattedPrefix + "start"))
@@ -276,63 +283,41 @@ public class AutonomousManager {
             .andThen(Commands.print("Path end")));
   }
 
+  /** Driver Station Right Trench Auto */
   public Command blazikenTheMegaEvolution() {
-    return Commands.sequence(
-        intake.endeffectorDeploy(),
-        Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
-        BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-1", 14),
-        intake.endeffectorDeploy(),
-        Commands.deadline(
-            Commands.waitTime(Seconds.of(4.0)),
-            BLineTrajectoryWithHubRotation("Blaziken-2"),
-            this.handleInterpolateShooter("Shot 1", 4.0),
-            // intake.flickIntakeRepeatedly(
-            //     Degrees.of(20.0),
-            //     Degrees.of(60.0),
-            //     Degrees.of(0.0),
-            //     Degrees.of(5.0),
-            //     Seconds.of(4.0))
-            intake.runRollersTorqueCurrent()),
-        this.feeder.stop(),
-        intake.endeffectorDeploy(),
-        Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
-        // this.rotateDrivebaseToAngle(Rotation2d.kCW_90deg),
-        BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-3-Alt", 18),
-        this.rotateToHub(),
-        Commands.deadline(
-            this.handleInterpolateShooter("Shot 2", 20.0),
-            intake.flickIntakeRepeatedly(
-                Degrees.of(20.0),
-                Degrees.of(70.0),
-                Degrees.of(0.0),
-                Degrees.of(5.0),
-                Seconds.of(20.0))));
+    return blazikenMegaEvolutionImpl(false);
   }
 
+  /** Driver Station Left Trench Auto */
   public Command swampertTheMegaEvolution() {
+    return blazikenMegaEvolutionImpl(true);
+  }
+
+  /**
+   * Implementation of Blaziken and Swampert that flips based on which Trench it starts from
+   *
+   * @param mirrorVertically whether to flip the path over the vertical center of the field
+   */
+  private Command blazikenMegaEvolutionImpl(boolean mirrorVertically) {
     return Commands.sequence(
         intake.endeffectorDeploy(),
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
-        BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-1", 14, true),
+        BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-1", 14, mirrorVertically),
+        intake.endeffectorDeploy(),
         Commands.deadline(
             Commands.waitTime(Seconds.of(4.0)),
-            BLineTrajectoryWithHubRotation("Blaziken-2", true),
+            BLineTrajectoryWithHubRotation("Blaziken-2", mirrorVertically),
             this.handleInterpolateShooter("Shot 1", 4.0),
-            // intake.flickIntakeRepeatedly(
-            //     Degrees.of(20.0),
-            //     Degrees.of(60.0),
-            //     Degrees.of(0.0),
-            //     Degrees.of(5.0),
-            //     Seconds.of(4.0))
             intake.runRollersTorqueCurrent()),
         this.feeder.stop(),
         intake.endeffectorDeploy(),
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
         // this.rotateDrivebaseToAngle(Rotation2d.kCW_90deg),
-        BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-3-Alt", 18, true),
+        BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-3-Alt", 18, mirrorVertically),
         this.rotateToHub(),
         Commands.deadline(
             this.handleInterpolateShooter("Shot 2", 20.0),
+            // this.handleInterpolateShooter("Shot 2", 20.0),
             intake.flickIntakeRepeatedly(
                 Degrees.of(20.0),
                 Degrees.of(70.0),
