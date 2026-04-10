@@ -108,7 +108,7 @@ public class SingleRollerIOTalonFXWithCANCoder implements SingleRollerIO {
     //         canCoderConfig.maxAngle().in(Rotations) + canCoderConfig.minAngle().in(Rotations), 0,
     // 1)
     // / 2.0
-    ;
+
     PhoenixUtil.tryUntilOk(5, () -> cancoder.getConfigurator().apply(encoderConfig, 0.25));
 
     cfg = new TalonFXConfiguration();

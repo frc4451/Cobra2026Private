@@ -300,7 +300,7 @@ public class AutonomousManager {
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
         BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-5", 18, mirrorVertically));
   }
-  
+
   /**
    * Implementation of Blaziken and Swampert that flips based on which Trench it starts from
    *
