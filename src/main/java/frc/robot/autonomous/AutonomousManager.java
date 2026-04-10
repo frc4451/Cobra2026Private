@@ -282,8 +282,7 @@ public class AutonomousManager {
                 Degrees.of(45.0),
                 Degrees.of(0.0),
                 Degrees.of(5.0),
-                Seconds.of(6.0))
-                ),
+                Seconds.of(6.0))),
         // this.deployIntake(),
         // intake.runRollersTorqueCurrent(),
         this.feeder.stop(),
@@ -301,7 +300,7 @@ public class AutonomousManager {
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
         BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-5", 18, mirrorVertically));
   }
-
+  
   /**
    * Implementation of Blaziken and Swampert that flips based on which Trench it starts from
    *
