@@ -279,7 +279,7 @@ public class AutonomousManager {
             this.handleInterpolateShooter("Shot 1", 6.0),
             intake.flickIntakeRepeatedly(
                 Degrees.of(20.0),
-                Degrees.of(45.0),
+                Degrees.of(35.0),
                 Degrees.of(0.0),
                 Degrees.of(5.0),
                 Seconds.of(6.0))),
