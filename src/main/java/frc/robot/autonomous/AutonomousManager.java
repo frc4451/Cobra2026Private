@@ -74,7 +74,7 @@ public class AutonomousManager {
                 Commands.waitUntil(
                         BobotState.isTooCloseToHubToScore()
                             .negate()
-                            .and(shooter.isNearHubVelocity(RotationsPerSecond.of(1.0))))
+                            .and(shooter.isNearHubVelocity(RotationsPerSecond.of(2.0))))
                     .andThen(feeder.runFeederVoltage())),
             shooter.stop(),
             feeder.stop())
@@ -296,7 +296,7 @@ public class AutonomousManager {
                 Degrees.of(5.0),
                 Seconds.of(10.0))),
         this.deployIntake(),
-            intake.runRollersTorqueCurrent(),
+        intake.runRollersTorqueCurrent(),
         this.feeder.stop(),
         intake.endeffectorDeploy(),
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
