@@ -181,7 +181,7 @@ public class BobotState extends VirtualSubsystem {
   }
 
   public static Trigger isTooCloseToHubToScore() {
-    return new Trigger(() -> BobotState.hubVARC.getDistance().lt(Feet.of(6.0)))
+    return new Trigger(() -> BobotState.hubVARC.getDistance().lt(Feet.of(7.4)))
         .and(BobotState.inNearAllianceZone());
   }
 
