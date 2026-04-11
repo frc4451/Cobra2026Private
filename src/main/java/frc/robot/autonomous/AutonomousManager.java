@@ -282,7 +282,7 @@ public class AutonomousManager {
         BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-1", 14, mirrorVertically),
         intake.endeffectorDeploy(),
         Commands.deadline(
-            Commands.waitTime(Seconds.of(5.0)),
+            Commands.waitTime(Seconds.of(6.0)),
             BLineTrajectoryWithHubRotation("Blaziken-2", mirrorVertically),
             this.handleInterpolateShooter("Shot 1", 6.0),
             intake.flickIntakeRepeatedly(
