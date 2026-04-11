@@ -262,6 +262,14 @@ public class AutonomousManager {
     return blazikenMegaEvolutionImpl(true);
   }
 
+  public Command combusken() {
+    return combusken(false);
+  }
+
+  public Command marshtomp() {
+    return combusken(true);
+  }
+
   /**
    * Implementation of Blaziken and Swampert that flips based on which Trench it starts from
    *
@@ -274,7 +282,7 @@ public class AutonomousManager {
         BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-1", 14, mirrorVertically),
         intake.endeffectorDeploy(),
         Commands.deadline(
-            Commands.waitTime(Seconds.of(4.0)),
+            Commands.waitTime(Seconds.of(5.0)),
             BLineTrajectoryWithHubRotation("Blaziken-2", mirrorVertically),
             this.handleInterpolateShooter("Shot 1", 6.0),
             intake.flickIntakeRepeatedly(
@@ -303,7 +311,50 @@ public class AutonomousManager {
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
         BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-5", 18, mirrorVertically));
   }
-
+  
+/**
+   * Implementation of Blaziken and Swampert that flips based on which Trench it starts from
+   *
+   * @param mirrorVertically whether to flip the path over the vertical center of the field
+   */
+  
+  private Command combusken(boolean mirrorVertically) {
+    return Commands.sequence(
+        intake.endeffectorDeploy(),
+        Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
+        BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Combusken", 4, mirrorVertically),
+        this.rotateToHub(),
+        intake.endeffectorDeploy(),
+        Commands.deadline(
+            Commands.waitTime(Seconds.of(5.0)),
+            BLineTrajectoryWithHubRotation("Blaziken-2", mirrorVertically),
+            this.handleInterpolateShooter("Shot 1", 6.0),
+            intake.flickIntakeRepeatedly(
+                Degrees.of(20.0),
+                Degrees.of(35.0),
+                Degrees.of(0.0),
+                Degrees.of(5.0),
+                Seconds.of(6.0))),
+        // this.deployIntake(),
+        // intake.runRollersTorqueCurrent(),
+        this.feeder.stop(),
+        this.intake.stop(),
+        this.intake.stopPivot(),
+        this.shooter.stop(),
+        intake.endeffectorDeploy(),
+        Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
+        // this.rotateDrivebaseToAngle(Rotation2d.kCW_90deg),
+        BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-3-Alt", 18, mirrorVertically),
+        Commands.deadline(
+            Commands.waitTime(Seconds.of(3.5)),
+            BLineTrajectoryWithHubRotation("Blaziken-4", mirrorVertically),
+            this.handleInterpolateShooter("Shot 1", 3.5),
+            intake.runRollersTorqueCurrent()),
+        this.feeder.stop(),
+        intake.endeffectorDeploy(),
+        Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
+        BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-5", 18, mirrorVertically));
+  }
   /**
    * Implementation of Blaziken and Swampert that flips based on which Trench it starts from
    *
