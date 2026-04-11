@@ -311,18 +311,17 @@ public class AutonomousManager {
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
         BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-5", 18, mirrorVertically));
   }
-  
-/**
+
+  /**
    * Implementation of Blaziken and Swampert that flips based on which Trench it starts from
    *
    * @param mirrorVertically whether to flip the path over the vertical center of the field
    */
-  
   private Command combusken(boolean mirrorVertically) {
     return Commands.sequence(
         intake.endeffectorDeploy(),
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
-        BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Combusken", 4, mirrorVertically),
+        BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Combusken", 5, mirrorVertically),
         this.rotateToHub(),
         intake.endeffectorDeploy(),
         Commands.deadline(

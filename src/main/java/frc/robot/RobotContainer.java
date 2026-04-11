@@ -323,7 +323,7 @@ public class RobotContainer {
             () -> BobotState.getShooterInterpolator());
 
     controller.b().and(controller.rightBumper().negate()).whileTrue(sotmCommand);
-
+    controller.b().and(controller.rightBumper()).onTrue(Commands.runOnce(drive::stopWithX, drive));
     // Use this to test shoot on the move while driving towards and aways from the hub
     // controller
     //     .b()
@@ -333,6 +333,8 @@ public class RobotContainer {
     //             drive,
     //             () -> -controller.getLeftY(),
     //             () -> BobotState.getShooterAlignmentVARC().getTargetPose()));
+
+    controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
     controller
         .x()
@@ -353,6 +355,8 @@ public class RobotContainer {
                 () -> -controller.getLeftY(),
                 () -> BobotState.getTrenchVARC().getTargetPose(),
                 () -> BobotState.getTrenchVARC().getRotationTarget()));
+
+    // controller.y().whileTrue(Drive.)
 
     // controller
     //     .y()
