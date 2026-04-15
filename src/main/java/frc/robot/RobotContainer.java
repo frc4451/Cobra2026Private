@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.autonomous.AutonomousManager;
 import frc.robot.bobot_state.BobotState;
+import frc.robot.bobot_state.BobotState.FieldZone;
 import frc.robot.bobot_state.dashboard.TeleopShiftManager;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.DriveFieldRelativePerpendicularToPoseCommand;
@@ -36,6 +37,9 @@ import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.feeder.FeederConstants;
 // import frc.robot.subsystems.hood.Hood;
 // import frc.robot.subsystems.hood.HoodConstants;
+import frc.robot.subsystems.hood.Hood;
+import frc.robot.subsystems.hood.Hood.HoodState;
+import frc.robot.subsystems.hood.HoodConstants;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.shooter.Shooter;
@@ -48,7 +52,9 @@ import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOSimTalo
 import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOTalonFX;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFX;
+import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFXS;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFX;
+import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFXSWithCANCoder;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFXWithCANCoder;
 import org.robotzgarage.frc2026.subsystems.vision.AprilTagVision;
 import org.robotzgarage.frc2026.util.GarageCommandXboxController;
@@ -70,7 +76,7 @@ public class RobotContainer {
   private final Feeder feeder;
   private final Intake intake;
   private final Shooter shooter;
-  //   private final Hood hood;
+  private final Hood hood;
 
   // Vision testing
   private final AprilTagVision aprilTagVision;
@@ -111,9 +117,9 @@ public class RobotContainer {
             new SingleRollerIOTalonFXWithCANCoder(
                 IntakeConstants.endeffectorConfig, IntakeConstants.cancoderConfig);
 
-        // hoodIO =
-        //     new SingleRollerIOTalonFXSWithCANCoder(
-        //         // HoodConstants.hoodConfig, HoodConstants.cancoderConfig);
+        hoodIO =
+            new SingleRollerIOTalonFXSWithCANCoder(
+                HoodConstants.hoodConfig, HoodConstants.cancoderConfig);
 
         shooterIO = new FollowRollersIOTalonFX(ShooterConstants.flywheelFollowersConfig);
 
@@ -138,7 +144,7 @@ public class RobotContainer {
             //         IntakeConstants.endeffectorConfigSim, IntakeConstants.cancoderConfig);
             new SingleRollerIOSimTalonFX(IntakeConstants.endeffectorConfigSim);
 
-        // hoodIO = new SingleRollerIOSimTalonFXS(HoodConstants.hoodConfigSim);
+        hoodIO = new SingleRollerIOSimTalonFXS(HoodConstants.hoodConfigSim);
         shooterIO = new FollowRollersIOSimTalonFX(ShooterConstants.flywheelFollowersConfigSim);
 
         towerIO = new SingleRollerIOSimTalonFX(FeederConstants.towerConfigSim);
@@ -159,7 +165,7 @@ public class RobotContainer {
         intakeIO = new SingleRollerIO() {};
         endeffectorIO = new SingleRollerIO() {};
 
-        // hoodIO = new SingleRollerIO() {};
+        hoodIO = new SingleRollerIO() {};
         shooterIO = new FollowRollersIO() {};
 
         towerIO = new SingleRollerIO() {};
@@ -177,7 +183,7 @@ public class RobotContainer {
 
     feeder = new Feeder(towerIO, spindexerIO);
     intake = new Intake(intakeIO, endeffectorIO);
-    // hood = new Hood(hoodIO);
+    hood = new Hood(hoodIO);
     shooter = new Shooter(shooterIO);
     aprilTagVision = new AprilTagVision(VisionConstants.visionSubsystemConfig);
     objectDetectionVision = new ObjectDetectionVision();
@@ -189,6 +195,7 @@ public class RobotContainer {
     // Configure the button bindings
     configureDriverBindings(drivercontroller);
     configureOperatorBindings(operatorcontroller);
+    configureHoodBindings(hood);
     configureAutonomousRoutines();
     configureTuningRoutines();
 
@@ -271,6 +278,30 @@ public class RobotContainer {
           "Tune Tower Flywheels (Amps)",
           this.feeder.towerFeedForwardCharacterization(TuningUnit.AMPS));
     }
+  }
+
+  /**
+   * Configures automatic hood angle adjustments based on field zone and trench proximity.
+   *
+   * <p>Each zone trigger is ANDed with {@code isNearTrench().negate()} so that exiting the trench
+   * re-fires the zone trigger and restores the correct state.
+   */
+  private void configureHoodBindings(Hood hood) {
+    Trigger nearTrench = BobotState.isNearTrench();
+
+    BobotState.inNearAllianceZone()
+        .and(nearTrench.negate())
+        .onTrue(hood.setHoodState(HoodState.DOWN));
+
+    new Trigger(() -> BobotState.getCurrentFieldZone() == FieldZone.NEUTRAL)
+        .and(nearTrench.negate())
+        .onTrue(hood.setHoodState(HoodState.MID));
+
+    new Trigger(() -> BobotState.getCurrentFieldZone() == FieldZone.FAR_ALLIANCE)
+        .and(nearTrench.negate())
+        .onTrue(hood.setHoodState(HoodState.UP));
+
+    nearTrench.onTrue(hood.setHoodState(HoodState.DOWN));
   }
 
   /**

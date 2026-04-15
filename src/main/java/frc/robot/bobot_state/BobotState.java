@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.bobot_state.interpolation.DropoffInterpolator;
@@ -25,6 +26,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.littletonrobotics.AllianceFlipUtil;
 import org.littletonrobotics.FieldConstants;
+import org.littletonrobotics.FieldConstants.LeftTrench;
+import org.littletonrobotics.FieldConstants.RightTrench;
 import org.littletonrobotics.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 import org.robotzgarage.frc2026.math.interpolation.TargetInterpolator;
@@ -75,6 +78,9 @@ public class BobotState extends VirtualSubsystem {
 
   private static final LoggedTunableNumber neutralZoneFeedingXDistanceFeet =
       new LoggedTunableNumber("NeutralZoneFeedingXDistanceFeet", 5.0);
+
+  private static final LoggedTunableNumber trenchProximityFeet =
+      new LoggedTunableNumber("BobotState/TrenchProximityFeet", 3.0);
 
   public static void offerGlobalVisionObservation(PoseObservation observation) {
     BobotState.globalPoseObservations.offer(observation);
@@ -137,6 +143,59 @@ public class BobotState extends VirtualSubsystem {
   }
 
   /**
+   * Returns a Trigger that is true when the robot is within {@code trenchProximityMeters} of a
+   * trench opening and within the Y gap of that opening.
+   *
+   * <p>Use {@code .negate()} to allow actions only when clear of the trench.
+   */
+  public static Trigger isNearTrench() {
+    return new Trigger(
+        () -> {
+          Pose2d robotPose = BobotState.getGlobalPose();
+          double robotX = robotPose.getX();
+          double robotY = robotPose.getY();
+          double proximity = Feet.of(trenchProximityFeet.get()).in(Meters);
+
+          return isInTrenchZone(
+                  robotX,
+                  robotY,
+                  AllianceFlipUtil.apply(LeftTrench.openingTopLeft),
+                  AllianceFlipUtil.apply(LeftTrench.openingTopRight),
+                  proximity)
+              || isInTrenchZone(
+                  robotX,
+                  robotY,
+                  AllianceFlipUtil.apply(LeftTrench.oppOpeningTopLeft),
+                  AllianceFlipUtil.apply(LeftTrench.oppOpeningTopRight),
+                  proximity)
+              || isInTrenchZone(
+                  robotX,
+                  robotY,
+                  AllianceFlipUtil.apply(RightTrench.openingTopLeft),
+                  AllianceFlipUtil.apply(RightTrench.openingTopRight),
+                  proximity)
+              || isInTrenchZone(
+                  robotX,
+                  robotY,
+                  AllianceFlipUtil.apply(RightTrench.oppOpeningTopLeft),
+                  AllianceFlipUtil.apply(RightTrench.oppOpeningTopRight),
+                  proximity);
+        });
+  }
+
+  private static boolean isInTrenchZone(
+      double robotX,
+      double robotY,
+      Translation3d openingCorner1,
+      Translation3d openingCorner2,
+      double proximity) {
+    double trenchX = openingCorner1.getX();
+    double yMin = Math.min(openingCorner1.getY(), openingCorner2.getY());
+    double yMax = Math.max(openingCorner1.getY(), openingCorner2.getY());
+    return Math.abs(robotX - trenchX) <= proximity && robotY >= yMin && robotY <= yMax;
+  }
+
+  /**
    * Returns a {@link Trigger} that is {@code true} when the robot should stop feeding fuel to the
    * shooter based on its field zone and position relative to the Hub.
    */
@@ -156,6 +215,9 @@ public class BobotState extends VirtualSubsystem {
           double shooterX = shooterTranslation.getX();
           double shooterY = shooterTranslation.getY();
 
+          // Hood will be down always when near the trench, this will break shots
+          boolean isNearTrench = BobotState.isNearTrench().getAsBoolean();
+
           double minHubY = FieldConstants.Hub.farRightCorner.getY();
           double maxHubY = FieldConstants.Hub.farLeftCorner.getY();
           boolean shooterInHubYSpan = shooterY >= minHubY && shooterY <= maxHubY;
@@ -172,11 +234,11 @@ public class BobotState extends VirtualSubsystem {
                 AllianceFlipUtil.shouldFlip()
                     ? shooterX >= hubBlockXThreshold
                     : shooterX <= hubBlockXThreshold;
-            return shooterInHubYSpan && shooterPastHubFarFaceXThreshold;
+            return (shooterInHubYSpan && shooterPastHubFarFaceXThreshold) || isNearTrench;
           }
 
           // 3) Far Alliance
-          return shooterInHubYSpan;
+          return shooterInHubYSpan || isNearTrench;
         });
   }
 
@@ -218,6 +280,8 @@ public class BobotState extends VirtualSubsystem {
 
       Logger.recordOutput(
           subLogTitle + "TooCloseToHubToScore", BobotState.isTooCloseToHubToScore());
+
+      Logger.recordOutput(subLogTitle + "IsNearTrench", BobotState.isNearTrench());
     }
 
     // {
