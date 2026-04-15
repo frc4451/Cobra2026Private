@@ -14,13 +14,14 @@ import org.robotzgarage.frc2026.math.distance_calc.PoseUtils;
 import org.robotzgarage.frc2026.math.varc.TargetVARC;
 
 public class BumpVARC extends TargetVARC {
-  private static final Translation2d leftBumpCenter = AllianceFlipUtil.apply(LeftBump.bumpCenter);
-  private static final Translation2d rightBumpCenter = AllianceFlipUtil.apply(RightBump.bumpCenter);
 
   public void update() {
     Pose2d robotPose = BobotState.getGlobalPose();
-
     Translation2d robotTranslation = robotPose.getTranslation();
+
+    Translation2d leftBumpCenter = AllianceFlipUtil.apply(LeftBump.bumpCenter);
+    Translation2d rightBumpCenter = AllianceFlipUtil.apply(RightBump.bumpCenter);
+
     Distance distanceToLeftBump = Meters.of(robotTranslation.getDistance(leftBumpCenter));
     Distance distanceToRightBump = Meters.of(robotTranslation.getDistance(rightBumpCenter));
 
