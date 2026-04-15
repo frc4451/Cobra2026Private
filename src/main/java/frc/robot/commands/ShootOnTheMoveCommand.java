@@ -14,8 +14,6 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Time;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.bobot_state.BobotState;
@@ -23,8 +21,11 @@ import frc.robot.subsystems.drive.Drive;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+import org.littletonrobotics.AllianceFlipUtil;
 import org.littletonrobotics.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
+import org.robotzgarage.frc2026.math.interpolation.TargetInterpolator;
+import org.robotzgarage.frc2026.math.varc.TargetVARC;
 
 /**
  * Field-relative drive command that continuously tracks a shoot-on-the-move rotation target.
@@ -48,7 +49,8 @@ public class ShootOnTheMoveCommand extends Command {
   private final Drive drive;
   private final DoubleSupplier xSupplier;
   private final DoubleSupplier ySupplier;
-  private final Supplier<Rotation2d> rotationSupplier;
+  private final Supplier<TargetVARC> targetVarc;
+  private final Supplier<TargetInterpolator> targetInterpolator;
 
   // Shared angle controller. Gains are read from DriveCommands tunables so both the
   // regular joystickDriveAtAngle command and this command stay in sync when gains are tuned.
@@ -69,17 +71,18 @@ public class ShootOnTheMoveCommand extends Command {
    * @param drive the drive subsystem
    * @param xSupplier field-relative X input (forward positive, pre-negated from joystick)
    * @param ySupplier field-relative Y input (left positive, pre-negated from joystick)
-   * @param rotationSupplier target heading supplier (e.g. VARC::getRotationTarget)
    */
   public ShootOnTheMoveCommand(
       Drive drive,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
-      Supplier<Rotation2d> rotationSupplier) {
+      Supplier<TargetVARC> targetVARC,
+      Supplier<TargetInterpolator> targetInterpolator) {
     this.drive = drive;
     this.xSupplier = xSupplier;
     this.ySupplier = ySupplier;
-    this.rotationSupplier = rotationSupplier;
+    this.targetVarc = targetVARC;
+    this.targetInterpolator = targetInterpolator;
 
     // Wrap-around so the controller always takes the short path around 0/360.
     angleController.enableContinuousInput(-Math.PI, Math.PI);
@@ -92,7 +95,7 @@ public class ShootOnTheMoveCommand extends Command {
   public void initialize() {
     // Seed prevTargetRad to the current target so the first-loop velocity estimate is 0
     // (not a huge spike from 0 → wherever the target happens to be).
-    prevTargetRad = rotationSupplier.get().getRadians();
+    prevTargetRad = targetVarc.get().getRotationTarget().getRadians();
     // Reset the controller to the robot's actual heading so it doesn't try to unwind a
     // stale accumulated error from a previous activation.
     angleController.reset(BobotState.getGlobalPose().getRotation().getRadians());
@@ -134,36 +137,37 @@ public class ShootOnTheMoveCommand extends Command {
     // → maxVelocity = maxDistance / TOF
     //
     // If lookaheadAngle <= 0 the triangle is degenerate (driving away from hub).
-    if (BobotState.getCurrentFieldZone() == BobotState.FieldZone.NEAR_ALLIANCE
-        && linearMagnitude > 0.0) {
-      Distance hubDistance = BobotState.getHubVARC().getDistance();
+    if (linearMagnitude > 0.0) {
+      Distance targetDistance = this.targetVarc.get().getDistance();
 
       // Look up ball TOF at the current (non-lookahead) distance from the interpolation table.
-      Optional<Time> maybeTOF = BobotState.getHubInterpolator().getNaiveTOF(hubDistance);
+      Optional<Time> maybeTOF = this.targetInterpolator.get().getNaiveTOF(targetDistance);
 
       if (maybeTOF.isPresent()) {
         double tof = maybeTOF.get().in(Seconds);
 
         // Angle at H: how many radians the hub "sees" the robot sweep in one TOF.
-        double hubAngle = MAX_POLAR_VELOCITY_RAD_PER_SEC.get() * tof;
+        double targetAngle = MAX_POLAR_VELOCITY_RAD_PER_SEC.get() * tof;
 
         // Angle at R: difference between where we're driving and the direction toward the hub.
         // Using the absolute value because we only care about the magnitude of the deviation.
-        Translation2d robotToHub =
-            BobotState.getHubVARC()
+        Translation2d robotToTarget =
+            this.targetVarc
+                .get()
                 .getTargetPose()
                 .getTranslation()
                 .minus(BobotState.getGlobalPose().getTranslation());
         double robotAngle =
             Math.abs(
-                MathUtil.angleModulus(robotToHub.getAngle().minus(linearDirection).getRadians()));
+                MathUtil.angleModulus(
+                    robotToTarget.getAngle().minus(linearDirection).getRadians()));
 
         // Remaining angle at P (triangle must sum to π).
-        double lookaheadAngle = Math.PI - robotAngle - hubAngle;
+        double lookaheadAngle = Math.PI - robotAngle - targetAngle;
         if (lookaheadAngle > 0) {
           // Sine rule → max distance the robot may travel in one TOF.
           double maxDistanceMeters =
-              hubDistance.in(Meters) * Math.sin(hubAngle) / Math.sin(lookaheadAngle);
+              targetDistance.in(Meters) * Math.sin(targetAngle) / Math.sin(lookaheadAngle);
           // Convert to a normalized magnitude (0–1) relative to the drive's top speed.
           double maxMagnitude = (maxDistanceMeters / tof) / drive.getMaxLinearSpeedMetersPerSec();
           linearMagnitude = Math.min(linearMagnitude, maxMagnitude);
@@ -183,7 +187,7 @@ public class ShootOnTheMoveCommand extends Command {
     // setpoint is moving. Instead we estimate how fast the target is rotating this loop
     // (finite difference over 20 ms) and pass that as the goal velocity, so the controller
     // plans to *follow* the target at its current rate.
-    double currentTarget = rotationSupplier.get().getRadians();
+    double currentTarget = targetVarc.get().getRotationTarget().getRadians();
     double targetVelocity = MathUtil.angleModulus(currentTarget - prevTargetRad) / 0.02;
     prevTargetRad = currentTarget;
 
@@ -193,20 +197,12 @@ public class ShootOnTheMoveCommand extends Command {
             // TrapezoidProfile.State(position, velocity) — the velocity here is the feed-forward.
             new TrapezoidProfile.State(currentTarget, targetVelocity));
 
-    // ── Step 5: Convert to field-relative chassis speeds and send to drive ──────────────────
-    // On Red alliance the driver's "forward" is flipped 180°, so rotate the field frame.
-    boolean isFlipped =
-        DriverStation.getAlliance().isPresent()
-            && DriverStation.getAlliance().get() == Alliance.Red;
-
     drive.runVelocity(
         ChassisSpeeds.fromFieldRelativeSpeeds(
             linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
             linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
             omega,
-            isFlipped
-                ? BobotState.getGlobalPose().getRotation().plus(Rotation2d.kPi)
-                : BobotState.getGlobalPose().getRotation()));
+            AllianceFlipUtil.apply(BobotState.getGlobalPose().getRotation())));
 
     // ── Logging ─────────────────────────────────────────────────────────────────────────────
     Logger.recordOutput(

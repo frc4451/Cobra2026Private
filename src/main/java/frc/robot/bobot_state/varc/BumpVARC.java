@@ -11,9 +11,9 @@ import org.littletonrobotics.AllianceFlipUtil;
 import org.littletonrobotics.FieldConstants.LeftBump;
 import org.littletonrobotics.FieldConstants.RightBump;
 import org.robotzgarage.frc2026.math.distance_calc.PoseUtils;
-import org.robotzgarage.frc2026.math.varc.TargetAngleTracker;
+import org.robotzgarage.frc2026.math.varc.TargetVARC;
 
-public class BumpVARC extends TargetAngleTracker {
+public class BumpVARC extends TargetVARC {
   private static final Translation2d leftBumpCenter = AllianceFlipUtil.apply(LeftBump.bumpCenter);
   private static final Translation2d rightBumpCenter = AllianceFlipUtil.apply(RightBump.bumpCenter);
 

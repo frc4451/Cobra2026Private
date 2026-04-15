@@ -1,10 +1,12 @@
 package frc.robot.bobot_state;
 
 import static edu.wpi.first.units.Units.Feet;
+import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.bobot_state.interpolation.DropoffInterpolator;
@@ -15,6 +17,7 @@ import frc.robot.bobot_state.varc.FuelClusterVARC;
 import frc.robot.bobot_state.varc.HubVARC;
 import frc.robot.bobot_state.varc.OutpostDropoffVARC;
 import frc.robot.bobot_state.varc.TrenchVARC;
+import frc.robot.subsystems.shooter.ShooterConstants;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -22,8 +25,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.littletonrobotics.AllianceFlipUtil;
 import org.littletonrobotics.FieldConstants;
+import org.littletonrobotics.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
-import org.robotzgarage.frc2026.math.varc.TargetAngleTracker;
+import org.robotzgarage.frc2026.math.interpolation.TargetInterpolator;
+import org.robotzgarage.frc2026.math.varc.TargetVARC;
 import org.robotzgarage.frc2026.subsystems.vision.VisionTypes.PoseObservation;
 import org.robotzgarage.frc2026.util.VirtualSubsystem;
 
@@ -43,8 +48,8 @@ public class BobotState extends VirtualSubsystem {
   @Getter private static final OutpostDropoffVARC outpostVARC = new OutpostDropoffVARC();
   @Getter private static final DepotDropoffVARC depotVARC = new DepotDropoffVARC();
   @Getter private static final FuelClusterVARC fuelClusterVARC = new FuelClusterVARC();
-  @Getter private static TargetAngleTracker closestDropoff;
-  @Getter private static TargetAngleTracker closestTraversal;
+  @Getter private static TargetVARC closestDropoff = outpostVARC;
+  @Getter private static TargetVARC closestTraversal;
 
   @Getter @Setter private static List<Pose3d> knownFuelPoses = List.of();
   @Getter private static HubInterpolator hubInterpolator = new HubInterpolator();
@@ -67,6 +72,9 @@ public class BobotState extends VirtualSubsystem {
   @Getter @Setter private static Pose2d constrainedPose = new Pose2d();
   @Getter @Setter private static Rotation2d rawGyroHeading = new Rotation2d();
   @Getter @Setter private static ChassisSpeeds robotVelocity = new ChassisSpeeds();
+
+  private static final LoggedTunableNumber neutralZoneFeedingXDistanceFeet =
+      new LoggedTunableNumber("NeutralZoneFeedingXDistanceFeet", 5.0);
 
   public static void offerGlobalVisionObservation(PoseObservation observation) {
     BobotState.globalPoseObservations.offer(observation);
@@ -110,15 +118,71 @@ public class BobotState extends VirtualSubsystem {
    *
    * @return
    */
-  public static TargetAngleTracker getShooterAlignmentVARC() {
+  public static TargetVARC getShooterAlignmentVARC() {
     return switch (BobotState.getCurrentFieldZone()) {
       case NEAR_ALLIANCE -> BobotState.getHubVARC();
       default -> BobotState.getClosestDropoff();
     };
   }
 
+  public static TargetInterpolator getShooterInterpolator() {
+    return switch (BobotState.getCurrentFieldZone()) {
+      case NEAR_ALLIANCE -> BobotState.hubInterpolator;
+      default -> BobotState.dropoffInterpolator;
+    };
+  }
+
   public static Trigger inNearAllianceZone() {
     return new Trigger(() -> BobotState.getCurrentFieldZone() == FieldZone.NEAR_ALLIANCE);
+  }
+
+  /**
+   * Returns a {@link Trigger} that is {@code true} when the robot should stop feeding fuel to the
+   * shooter based on its field zone and position relative to the Hub.
+   */
+  public static Trigger shouldStopFeedingFuelToShooter() {
+    return new Trigger(
+        () -> {
+          // 1) Near Alliance
+          if (BobotState.getCurrentFieldZone() == FieldZone.NEAR_ALLIANCE) {
+            return false;
+          }
+
+          Translation2d shooterTranslation =
+              BobotState.getGlobalPose()
+                  .transformBy(ShooterConstants.robotToShooter)
+                  .getTranslation();
+
+          double shooterX = shooterTranslation.getX();
+          double shooterY = shooterTranslation.getY();
+
+          double minHubY = FieldConstants.Hub.farRightCorner.getY();
+          double maxHubY = FieldConstants.Hub.farLeftCorner.getY();
+          boolean shooterInHubYSpan = shooterY >= minHubY && shooterY <= maxHubY;
+
+          // 2) Neutral Zone
+          if (BobotState.getCurrentFieldZone() == FieldZone.NEUTRAL) {
+            // In the neutral zone the net obstructs shots that are both laterally
+            // behind the Hub and far enough past its far face. The X threshold is tunable.
+            double hubBlockXThreshold =
+                AllianceFlipUtil.applyX(
+                    Feet.of(neutralZoneFeedingXDistanceFeet.get()).in(Meters)
+                        + FieldConstants.Hub.farFace.getX());
+            boolean shooterPastHubFarFaceXThreshold =
+                AllianceFlipUtil.shouldFlip()
+                    ? shooterX >= hubBlockXThreshold
+                    : shooterX <= hubBlockXThreshold;
+            return shooterInHubYSpan && shooterPastHubFarFaceXThreshold;
+          }
+
+          // 3) Far Alliance
+          return shooterInHubYSpan;
+        });
+  }
+
+  public static Trigger isTooCloseToHubToScore() {
+    return new Trigger(() -> BobotState.hubVARC.getDistance().lt(Feet.of(7.4)))
+        .and(BobotState.inNearAllianceZone());
   }
 
   public void periodic() {
@@ -149,6 +213,11 @@ public class BobotState extends VirtualSubsystem {
           BobotState.getCurrentFieldZone() == FieldZone.NEAR_ALLIANCE
               ? "HUB"
               : BobotState.getClosestDropoff() instanceof DepotDropoffVARC ? "DEPOT" : "OUTPOST");
+      Logger.recordOutput(
+          subLogTitle + "ShouldStopFeeding", BobotState.shouldStopFeedingFuelToShooter());
+
+      Logger.recordOutput(
+          subLogTitle + "TooCloseToHubToScore", BobotState.isTooCloseToHubToScore());
     }
 
     // {

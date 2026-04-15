@@ -140,6 +140,17 @@ public class Shooter extends SubsystemBase {
         () -> this.shooter.getInputs().leaderVelocity.isNear(taretVelocity, tolerance));
   }
 
+  /** Returns true when the shooter is within 1 RPS of the current hub interpolator target */
+  public Trigger isNearHubVelocity(AngularVelocity tolerance) {
+    return new Trigger(
+        () ->
+            this.shooter
+                .getInputs()
+                .leaderVelocity
+                .isNear(
+                    BobotState.getHubInterpolator().getCalculation().primaryVelocity(), tolerance));
+  }
+
   public Command stop() {
     return runOnce(
         () -> {

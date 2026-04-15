@@ -7,9 +7,12 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Volts;
+
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -56,10 +59,12 @@ public class Robot extends LoggedRobot {
       case REAL:
         // Running on a real robot, log to a USB stick ("/U/logs")
         Logger.addDataReceiver(new WPILOGWriter());
+        // This may help reduce CPU utilization at the cost of bandwidth, could be worth it?
+        // Logger.addDataReceiver(new RLOGServer());
         Logger.addDataReceiver(new NT4Publisher());
         break;
-
       case SIM:
+        // Logger.addDataReceiver(new RLOGServer());
         // Running a physics simulator, log to NT
         Logger.addDataReceiver(new NT4Publisher());
         break;
@@ -75,6 +80,9 @@ public class Robot extends LoggedRobot {
 
     // Start AdvantageKit logger
     Logger.start();
+
+    // Safety brownout voltage override (see 6328)
+    RobotController.setBrownoutVoltage(Volts.of(6.0));
 
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our autonomous chooser on the dashboard.

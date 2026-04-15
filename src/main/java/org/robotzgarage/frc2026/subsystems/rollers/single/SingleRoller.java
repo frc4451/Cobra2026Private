@@ -115,6 +115,11 @@ public class SingleRoller {
     io.setGoal(position);
   }
 
+  public void setGoalTorque(Angle position) {
+    this.goalPosition = position;
+    io.setGoalTorque(position);
+  }
+
   public boolean isNear(Angle angle, Angle tolerance) {
     return inputs.position.isNear(angle, tolerance);
   }

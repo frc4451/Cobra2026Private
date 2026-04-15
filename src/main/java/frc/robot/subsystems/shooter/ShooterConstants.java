@@ -23,7 +23,7 @@ import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfigFollower;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXConfigFollowerSim;
 
 public class ShooterConstants {
-  public static final double shooterReduction = 22.0 / 24.0;
+  public static final double shooterReduction = 24.0 / 24.0;
 
   public static final AngularVelocity maximumShooterVelocity = RotationsPerSecond.of(80);
   public static final AngularAcceleration maximumShooterAcceleration =
@@ -64,8 +64,8 @@ public class ShooterConstants {
           .slot0Config(
               new Slot0Configs()
                   // feedforward
-                  .withKS(5.0)
-                  .withKV(0.0625)
+                  .withKS(16.0)
+                  .withKV(0.125)
                   .withKA(0.0)
                   // feedback
                   .withKP(5.0)

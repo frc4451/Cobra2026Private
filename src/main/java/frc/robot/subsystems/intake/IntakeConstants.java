@@ -1,16 +1,20 @@
 package frc.robot.subsystems.intake;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Inches;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.Constants;
@@ -27,11 +31,17 @@ public class IntakeConstants {
 
   public static final Angle zeroOffset = Degrees.of(120);
 
-  public static final double endeffectorReductionRotorToSensor = (5.0 * 5.0);
+  public static final double endeffectorReductionRotorToSensor = (5.0 * 4.0);
   public static final double endeffectorReductionSensorToMechanism = 3.0;
 
   public static final double endeffectorReduction =
       endeffectorReductionRotorToSensor * endeffectorReductionSensorToMechanism;
+
+  public static final Current rollerSupplyCurrentLimit = Amps.of(40.0);
+  public static final Current rollerStatorCurrentLimit = Amps.of(80.0);
+
+  public static final Current endeffectorSupplyCurrentLimit = Amps.of(40.0);
+  public static final Current endeffectorStatorCurrentLimit = Amps.of(100.0);
 
   public static final FlywheelConfig flywheelConfig =
       FlywheelConfig.builder()
@@ -48,9 +58,21 @@ public class IntakeConstants {
           .phoenixUpdateFreqHz(50)
           .reduction(intakeReduction)
           .currentLimitAmps(40)
+          .currentLimitConfig(
+              new CurrentLimitsConfigs()
+                  .withStatorCurrentLimit(rollerStatorCurrentLimit)
+                  .withStatorCurrentLimitEnable(true)
+                  .withSupplyCurrentLimit(rollerSupplyCurrentLimit)
+                  .withSupplyCurrentLimitEnable(true)
+                  .withSupplyCurrentLowerLimit(rollerSupplyCurrentLimit)
+                  .withSupplyCurrentLowerTime(0.1))
+          .torqueCurrentConfigs(
+              new TorqueCurrentConfigs()
+                  .withPeakForwardTorqueCurrent(rollerStatorCurrentLimit)
+                  .withPeakReverseTorqueCurrent(rollerStatorCurrentLimit.unaryMinus()))
           .invert(false)
           .isBrakeMode(true)
-          .foc(false)
+          .foc(true)
           .slot0Config(
               new Slot0Configs()
                   // feedforward
@@ -94,12 +116,13 @@ public class IntakeConstants {
           .canBus(Constants.susBus)
           .rotorToSensorReduction(endeffectorReductionRotorToSensor)
           .sensorToMechanismReduction(endeffectorReductionSensorToMechanism)
-          .isClockwisePositive(false)
+          .isClockwisePositive(true)
           // Set the Pivot to "DEPLOYED", keep this as Zero, then assign
           // the Absolute Position of the CANCoder to this magnetOffset
-          .magnetOffset(Degrees.of(-147.128906))
-          //   .calcOffset(Degrees.of(240))
-          .discontinuity(0.0)
+          //   .magnetOffset(Radians.of(0.75))
+          .magnetOffset(Degrees.of(11.42))
+          .discontinuity(0.875)
+          //   .discontinuity(MathUtil.inputModulus(Units.degreesToRotations(90), 0, 1) / 2.0)
           //   .magnetOffset(Rotations.of(0.1728515625).plus(Rotations.of(0.668945)))
           //   .minAngle(Degrees.of(0.0))
           //   .maxAngle(Degrees.of(90.0))
@@ -111,7 +134,18 @@ public class IntakeConstants {
           .canBus(Constants.susBus)
           .phoenixUpdateFreqHz(50)
           .reduction(endeffectorReduction)
-          .currentLimitAmps(40)
+          .currentLimitConfig(
+              new CurrentLimitsConfigs()
+                  .withStatorCurrentLimit(endeffectorStatorCurrentLimit)
+                  .withStatorCurrentLimitEnable(true)
+                  .withSupplyCurrentLimit(endeffectorSupplyCurrentLimit)
+                  .withSupplyCurrentLimitEnable(true)
+                  .withSupplyCurrentLowerLimit(endeffectorSupplyCurrentLimit)
+                  .withSupplyCurrentLowerTime(1.0))
+          .torqueCurrentConfigs(
+              new TorqueCurrentConfigs()
+                  .withPeakForwardTorqueCurrent(endeffectorStatorCurrentLimit)
+                  .withPeakReverseTorqueCurrent(endeffectorStatorCurrentLimit.unaryMinus()))
           .invert(false)
           .isBrakeMode(true)
           .foc(true)

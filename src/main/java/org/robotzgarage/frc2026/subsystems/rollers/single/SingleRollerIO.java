@@ -49,6 +49,9 @@ public interface SingleRollerIO {
   /** Set goal position of roller to position */
   public default void setGoal(Angle goal) {}
 
+  /** Set goal position of roller to position */
+  public default void setGoalTorque(Angle goal) {}
+
   /** Reset encoder to position */
   public default void resetPosition(Angle position) {}
 

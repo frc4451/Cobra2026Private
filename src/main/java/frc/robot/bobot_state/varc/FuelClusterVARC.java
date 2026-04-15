@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import org.littletonrobotics.LoggedTunableNumber;
-import org.robotzgarage.frc2026.math.varc.TargetAngleTracker;
+import org.robotzgarage.frc2026.math.varc.TargetVARC;
 
-public class FuelClusterVARC extends TargetAngleTracker {
+public class FuelClusterVARC extends TargetVARC {
   private static final LoggedTunableNumber clusteringThresholdDegrees =
       new LoggedTunableNumber("VARC/FuelCluster/ClusteringThresholdDegrees", 5.0);
 

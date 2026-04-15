@@ -10,6 +10,7 @@ package org.littletonrobotics;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
@@ -31,6 +32,10 @@ public class FieldConstants {
   // Field dimensions
   public static final double fieldLength = aprilTagFieldLayout.getFieldLength();
   public static final double fieldWidth = aprilTagFieldLayout.getFieldWidth();
+
+  /** added by The Joshua Jenkins */
+  public static final Pose2d origin =
+      new Pose2d(Units.inchesToMeters(0), Units.inchesToMeters(0), Rotation2d.kZero);
 
   /**
    * Officially defined and relevant vertical lines found on the field (defined by X-axis offset)
