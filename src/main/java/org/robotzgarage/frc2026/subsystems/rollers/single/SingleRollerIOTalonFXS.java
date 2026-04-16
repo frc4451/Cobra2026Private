@@ -121,7 +121,7 @@ public class SingleRollerIOTalonFXS implements SingleRollerIO {
     inputs.torqueCurrentAmps = torqueCurrentAmps.getValueAsDouble();
     inputs.temperatureCelsius = tempCelsius.getValueAsDouble();
 
-    inputs.positionGoal = positionGoal.div(reduction);
+    inputs.positionGoal = positionGoal;
     inputs.positionSetpoint = Rotations.of(positionSetpointRotations.getValue());
     inputs.velocitySetpoint =
         RotationsPerSecond.of(velocitySetpointRotationsPerSec.getValueAsDouble());
