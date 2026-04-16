@@ -22,11 +22,11 @@ public class Hood extends SubsystemBase {
   }
 
   private static final LoggedTunableNumber angleDown =
-      new LoggedTunableNumber(name + "/Angle/Down", 28.0);
+      new LoggedTunableNumber(name + "/Angle/Down", 0.0);
   private static final LoggedTunableNumber angleMid =
-      new LoggedTunableNumber(name + "/Angle/Mid", 35.0);
+      new LoggedTunableNumber(name + "/Angle/Mid", 1.0);
   private static final LoggedTunableNumber angleUp =
-      new LoggedTunableNumber(name + "/Angle/Up", 45.0);
+      new LoggedTunableNumber(name + "/Angle/Up", 2.0);
 
   private final Pivot hood;
   private HoodState currentState = HoodState.DOWN;

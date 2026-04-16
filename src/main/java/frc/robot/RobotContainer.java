@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.autonomous.AutonomousManager;
 import frc.robot.bobot_state.BobotState;
-import frc.robot.bobot_state.BobotState.FieldZone;
 import frc.robot.bobot_state.dashboard.TeleopShiftManager;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.DriveFieldRelativePerpendicularToPoseCommand;
@@ -289,19 +288,19 @@ public class RobotContainer {
   private void configureHoodBindings(Hood hood) {
     Trigger nearTrench = BobotState.isNearTrench();
 
-    BobotState.inNearAllianceZone()
-        .and(nearTrench.negate())
-        .onTrue(hood.setHoodState(HoodState.DOWN));
+    // BobotState.inNearAllianceZone()
+    //     .and(nearTrench.negate())
+    //     .onTrue(hood.setHoodState(HoodState.DOWN));
 
-    new Trigger(() -> BobotState.getCurrentFieldZone() == FieldZone.NEUTRAL)
-        .and(nearTrench.negate())
-        .onTrue(hood.setHoodState(HoodState.MID));
+    // new Trigger(() -> BobotState.getCurrentFieldZone() == FieldZone.NEUTRAL)
+    //     .and(nearTrench.negate())
+    //     .onTrue(hood.setHoodState(HoodState.MID));
 
-    new Trigger(() -> BobotState.getCurrentFieldZone() == FieldZone.FAR_ALLIANCE)
-        .and(nearTrench.negate())
-        .onTrue(hood.setHoodState(HoodState.UP));
+    // new Trigger(() -> BobotState.getCurrentFieldZone() == FieldZone.FAR_ALLIANCE)
+    //     .and(nearTrench.negate())
+    //     .onTrue(hood.setHoodState(HoodState.UP));
 
-    nearTrench.onTrue(hood.setHoodState(HoodState.DOWN));
+    // nearTrench.onTrue(hood.setHoodState(HoodState.DOWN));
   }
 
   /**
@@ -477,6 +476,8 @@ public class RobotContainer {
         .leftTrigger()
         .whileTrue(shooter.runShooterVelocityTorqueCurrent())
         .onFalse(shooter.stop());
+
+    controller.x().onTrue(hood.setHoodState(HoodState.MID));
   }
 
   /**

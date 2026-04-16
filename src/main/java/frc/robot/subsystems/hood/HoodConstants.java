@@ -44,7 +44,11 @@ public class HoodConstants {
           // Set the Pivot to "DEPLOYED", keep this as Zero, then assign
           // the Absolute Position of the CANCoder to this magnetOffset
           //   .magnetOffset(Radians.of(0.75))
-          .magnetOffset(Degrees.of(-37.5).plus(Degrees.of(28.0)))
+          .magnetOffset(
+              Degrees.of(-37.5)
+              //   .plus(Degrees.of(28.0))
+              )
+
           //   .calcOffset(Degrees.of(240))
           .discontinuity(0.783333)
           // .discontinuity(pivotConfig.minAngle().plus(pivotConfig.maxAngle()).div(2.0).in(Rotations) + 0.5)
@@ -61,7 +65,7 @@ public class HoodConstants {
           .phoenixUpdateFreqHz(50)
           .reduction(hoodReduction)
           .currentLimitAmps(40)
-          .invert(false)
+          .invert(true)
           .isBrakeMode(true)
           .foc(true)
           .slot0Config(
@@ -69,21 +73,21 @@ public class HoodConstants {
               // https://v6.docs.ctr-electronics.com/en/latest/docs/api-reference/device-specific/talonfx/motion-magic.html
               new Slot0Configs()
                   // feedforward
-                  .withKS(0.05)
+                  .withKS(0.35)
                   .withGravityType(GravityTypeValue.Arm_Cosine)
                   .withKG(0.0)
                   .withKV(0.0)
                   //   .withKV(MotionMagicHelpers.getRotationsVelocity(0.5))
                   // .withKA(MotionMagicHelpers.getRotationsAcceleration(0.12))
                   // feedback
-                  .withKP(1.0)
+                  .withKP(0.5)
                   // .withKI(MotionMagicHelpers.getRotationsVelocity(3.0))
                   .withKD(0.0))
           .mmConfig(
               new MotionMagicConfigs()
-                  .withMotionMagicCruiseVelocity(1.0 * hoodReduction)
-                  .withMotionMagicAcceleration(4.0 * hoodReduction)
-                  .withMotionMagicJerk(16.0 * hoodReduction))
+                  .withMotionMagicCruiseVelocity(4.0)
+                  .withMotionMagicAcceleration(16.0)
+                  .withMotionMagicJerk(64.0))
           .build();
 
   public static final TalonFXSConfigSim hoodConfigSim =
