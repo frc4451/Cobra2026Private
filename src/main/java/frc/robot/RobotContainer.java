@@ -51,7 +51,7 @@ import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOSimTalo
 import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOTalonFX;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFX;
-import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFXS;
+import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFXSWithCANCoder;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFX;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFXSWithCANCoder;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFXWithCANCoder;
@@ -143,7 +143,9 @@ public class RobotContainer {
             //         IntakeConstants.endeffectorConfigSim, IntakeConstants.cancoderConfig);
             new SingleRollerIOSimTalonFX(IntakeConstants.endeffectorConfigSim);
 
-        hoodIO = new SingleRollerIOSimTalonFXS(HoodConstants.hoodConfigSim);
+        hoodIO =
+            new SingleRollerIOSimTalonFXSWithCANCoder(
+                HoodConstants.hoodConfigSim, HoodConstants.cancoderConfig);
         shooterIO = new FollowRollersIOSimTalonFX(ShooterConstants.flywheelFollowersConfigSim);
 
         towerIO = new SingleRollerIOSimTalonFX(FeederConstants.towerConfigSim);

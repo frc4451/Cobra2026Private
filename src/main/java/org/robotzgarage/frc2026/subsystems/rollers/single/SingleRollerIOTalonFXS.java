@@ -20,6 +20,9 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.util.PhoenixUtil;
+import org.robotzgarage.frc2026.util.MotorConfigs.GenericFeedForwardConfig;
+import org.robotzgarage.frc2026.util.MotorConfigs.GenericFeedbackConfig;
 import org.robotzgarage.frc2026.util.MotorConfigs.TalonFXSConfig;
 
 public class SingleRollerIOTalonFXS implements SingleRollerIO {
@@ -44,6 +47,7 @@ public class SingleRollerIOTalonFXS implements SingleRollerIO {
   protected final NeutralOut neutralOut = new NeutralOut();
 
   protected Angle positionGoal = Rotations.zero();
+  protected TalonFXSConfiguration cfg;
 
   public SingleRollerIOTalonFXS(TalonFXSConfig config) {
     this.reduction = config.reduction();
@@ -65,7 +69,7 @@ public class SingleRollerIOTalonFXS implements SingleRollerIO {
     positionSetpointRotations = talon.getClosedLoopReference();
     velocitySetpointRotationsPerSec = talon.getClosedLoopReferenceSlope();
 
-    TalonFXSConfiguration cfg = new TalonFXSConfiguration();
+    cfg = new TalonFXSConfiguration();
     // spotless:off
     cfg.MotorOutput
         .withInverted(config.invert() ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive)
@@ -152,5 +156,34 @@ public class SingleRollerIOTalonFXS implements SingleRollerIO {
   @Override
   public void stop() {
     talon.setControl(neutralOut);
+  }
+
+  @Override
+  public GenericFeedbackConfig readFeedBack() {
+    return new GenericFeedbackConfig(cfg.Slot0.kP, cfg.Slot0.kI, cfg.Slot0.kD);
+  }
+
+  @Override
+  public void updateFeedBack(GenericFeedbackConfig fbConfig) {
+    cfg.Slot0.kP = fbConfig.p();
+    cfg.Slot0.kI = fbConfig.i();
+    cfg.Slot0.kD = fbConfig.d();
+
+    PhoenixUtil.tryUntilOk(5, () -> talon.getConfigurator().apply(cfg));
+  }
+
+  @Override
+  public GenericFeedForwardConfig readFeedForward() {
+    return new GenericFeedForwardConfig(cfg.Slot0.kS, cfg.Slot0.kG, cfg.Slot0.kV, cfg.Slot0.kA);
+  }
+
+  @Override
+  public void updateFeedForward(GenericFeedForwardConfig ffConfig) {
+    cfg.Slot0.kS = ffConfig.s();
+    cfg.Slot0.kG = ffConfig.g();
+    cfg.Slot0.kV = ffConfig.v();
+    cfg.Slot0.kA = ffConfig.a();
+
+    PhoenixUtil.tryUntilOk(5, () -> talon.getConfigurator().apply(cfg));
   }
 }
