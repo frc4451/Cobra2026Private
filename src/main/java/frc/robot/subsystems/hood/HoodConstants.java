@@ -73,14 +73,14 @@ public class HoodConstants {
               // https://v6.docs.ctr-electronics.com/en/latest/docs/api-reference/device-specific/talonfx/motion-magic.html
               new Slot0Configs()
                   // feedforward
-                  .withKS(0.35)
+                  .withKS(0.25)
                   .withGravityType(GravityTypeValue.Arm_Cosine)
-                  .withKG(0.0)
+                  .withKG(0.1)
                   .withKV(0.0)
                   //   .withKV(MotionMagicHelpers.getRotationsVelocity(0.5))
                   // .withKA(MotionMagicHelpers.getRotationsAcceleration(0.12))
                   // feedback
-                  .withKP(0.5)
+                  .withKP(150)
                   // .withKI(MotionMagicHelpers.getRotationsVelocity(3.0))
                   .withKD(0.0))
           .mmConfig(

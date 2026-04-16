@@ -288,19 +288,15 @@ public class RobotContainer {
   private void configureHoodBindings(Hood hood) {
     Trigger nearTrench = BobotState.isNearTrench();
 
-    // BobotState.inNearAllianceZone()
-    //     .and(nearTrench.negate())
-    //     .onTrue(hood.setHoodState(HoodState.DOWN));
+    BobotState.inNearAllianceZone()
+        .and(nearTrench.negate())
+        .onTrue(hood.setHoodState(HoodState.DOWN));
 
-    // new Trigger(() -> BobotState.getCurrentFieldZone() == FieldZone.NEUTRAL)
-    //     .and(nearTrench.negate())
-    //     .onTrue(hood.setHoodState(HoodState.MID));
+    BobotState.inNeutralZone().and(nearTrench.negate()).onTrue(hood.setHoodState(HoodState.MID));
 
-    // new Trigger(() -> BobotState.getCurrentFieldZone() == FieldZone.FAR_ALLIANCE)
-    //     .and(nearTrench.negate())
-    //     .onTrue(hood.setHoodState(HoodState.UP));
+    BobotState.inFarAllianceZone().and(nearTrench.negate()).onTrue(hood.setHoodState(HoodState.UP));
 
-    // nearTrench.onTrue(hood.setHoodState(HoodState.DOWN));
+    nearTrench.onTrue(hood.setHoodState(HoodState.DOWN));
   }
 
   /**
@@ -452,7 +448,7 @@ public class RobotContainer {
 
     controller.leftBumper().whileTrue(shooter.runShooterToPoop()).onFalse(shooter.stop());
 
-    spindexerReverse.onTrue(feeder.runSpindexerReverse()).onFalse(feeder.stop());
+    // spindexerReverse.onTrue(feeder.runSpindexerReverse()).onFalse(feeder.stop());
 
     // Should stop feeding when we are too close behind the HUB in the neutral zone
     // or when we are directly in front of the HUB on the far alliance. Still allow
@@ -478,6 +474,8 @@ public class RobotContainer {
         .onFalse(shooter.stop());
 
     controller.x().onTrue(hood.setHoodState(HoodState.MID));
+    controller.b().onTrue(hood.setHoodState(HoodState.UP));
+    controller.y().onTrue(hood.setHoodState(HoodState.DOWN));
   }
 
   /**
