@@ -51,7 +51,7 @@ import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOSimTalo
 import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOTalonFX;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFX;
-import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFXSWithCANCoder;
+import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFXS;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFX;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFXSWithCANCoder;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFXWithCANCoder;
@@ -143,9 +143,7 @@ public class RobotContainer {
             //         IntakeConstants.endeffectorConfigSim, IntakeConstants.cancoderConfig);
             new SingleRollerIOSimTalonFX(IntakeConstants.endeffectorConfigSim);
 
-        hoodIO =
-            new SingleRollerIOSimTalonFXSWithCANCoder(
-                HoodConstants.hoodConfigSim, HoodConstants.cancoderConfig);
+        hoodIO = new SingleRollerIOSimTalonFXS(HoodConstants.hoodConfigSim);
         shooterIO = new FollowRollersIOSimTalonFX(ShooterConstants.flywheelFollowersConfigSim);
 
         towerIO = new SingleRollerIOSimTalonFX(FeederConstants.towerConfigSim);
@@ -479,7 +477,20 @@ public class RobotContainer {
         .whileTrue(shooter.runShooterVelocityTorqueCurrent())
         .onFalse(shooter.stop());
 
+    // Handle Hood Controls here instead
+    Trigger nearTrench = BobotState.isNearTrench();
     controller.x().onTrue(hood.setHoodState(HoodState.MID));
+
+    controller
+        .rightBumper()
+        .and(BobotState.inNeutralZone())
+        .onTrue(hood.setHoodState(HoodState.MID))
+        .onFalse(hood.setHoodState(HoodState.DOWN));
+
+    // Make this the last thing you check in hood controls. If you're too close
+    // to the trench and could potentially drive into it you should force the
+    // hood down anyway
+    nearTrench.onTrue(hood.setHoodState(HoodState.DOWN));
   }
 
   /**

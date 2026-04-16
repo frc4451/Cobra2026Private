@@ -142,6 +142,10 @@ public class BobotState extends VirtualSubsystem {
     return new Trigger(() -> BobotState.getCurrentFieldZone() == FieldZone.NEAR_ALLIANCE);
   }
 
+  public static Trigger inNeutralZone() {
+    return new Trigger(() -> BobotState.getCurrentFieldZone() == FieldZone.NEUTRAL);
+  }
+
   /**
    * Returns a Trigger that is true when the robot is within {@code trenchProximityMeters} of a
    * trench opening and within the Y gap of that opening.
