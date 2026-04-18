@@ -376,6 +376,8 @@ public class RobotContainer {
                 () -> BobotState.getTrenchVARC().getTargetPose(),
                 () -> BobotState.getTrenchVARC().getRotationTarget()));
 
+    controller.x().whileTrue(hood.setHoodState(HoodState.DOWN));
+
     // controller
     //     .y()
     //     .whileTrue(
@@ -474,20 +476,28 @@ public class RobotContainer {
 
     // Handles Hood Controls
     Trigger nearTrench = BobotState.isNearTrench();
+    Trigger intakeDown = intake.isNearGoal(Degrees.of(90), Degrees.of(10));
 
     BobotState.inNearAllianceZone()
         .and(nearTrench.negate())
+        .and(intakeDown.negate())
         .onTrue(hood.setHoodState(HoodState.DOWN));
 
-    BobotState.inNeutralZone().and(nearTrench.negate()).onTrue(hood.setHoodState(HoodState.MID));
+    BobotState.inNeutralZone()
+    .and(nearTrench.negate())
+    .and(intakeDown.negate())
+    .onTrue(hood.setHoodState(HoodState.UP));
 
-    BobotState.inFarAllianceZone().and(nearTrench.negate()).onTrue(hood.setHoodState(HoodState.UP));
+    BobotState.inFarAllianceZone()
+    .and(nearTrench.negate())
+    .and(intakeDown.negate())
+    .onTrue(hood.setHoodState(HoodState.MID));
 
-    nearTrench.onTrue(hood.setHoodState(HoodState.DOWN));
+    nearTrench.or(intakeDown).onTrue(hood.setHoodState(HoodState.DOWN));
 
-    controller.x().onTrue(hood.setHoodState(HoodState.MID));
-    controller.b().onTrue(hood.setHoodState(HoodState.UP));
-    controller.y().onTrue(hood.setHoodState(HoodState.DOWN));
+    // controller.x().onTrue(hood.setHoodState(HoodState.MID));
+    // controller.b().onTrue(hood.setHoodState(HoodState.UP));
+    // controller.y().onTrue(hood.setHoodState(HoodState.DOWN));
   }
 
   /**

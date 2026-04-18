@@ -80,7 +80,7 @@ public class BobotState extends VirtualSubsystem {
       new LoggedTunableNumber("NeutralZoneFeedingXDistanceFeet", 5.0);
 
   private static final LoggedTunableNumber trenchProximityFeet =
-      new LoggedTunableNumber("BobotState/TrenchProximityFeet", 3.0);
+      new LoggedTunableNumber("BobotState/TrenchProximityFeet", 4.0);
 
   public static void offerGlobalVisionObservation(PoseObservation observation) {
     BobotState.globalPoseObservations.offer(observation);
