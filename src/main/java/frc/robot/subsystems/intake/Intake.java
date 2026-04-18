@@ -231,6 +231,10 @@ public class Intake extends SubsystemBase {
   //   return runEnd(() -> endeffector.runVolts(-0.5), () -> endeffector.stop());
   // }
 
+  public Trigger isNear(Angle goal, Angle tolerance) {
+    return new Trigger(() -> this.endeffector.isNear(goal, tolerance));
+  }
+
   public Trigger isNearGoal(Angle tolerance) {
     return new Trigger(
         () -> this.endeffector.isNear(this.endeffector.getGoalPosition(), tolerance));
