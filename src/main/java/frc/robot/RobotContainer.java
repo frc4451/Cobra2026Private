@@ -194,7 +194,6 @@ public class RobotContainer {
     // Configure the button bindings
     configureDriverBindings(drivercontroller);
     configureOperatorBindings(operatorcontroller);
-    configureHoodBindings(hood);
     configureAutonomousRoutines();
     configureTuningRoutines();
 
@@ -472,6 +471,19 @@ public class RobotContainer {
         .leftTrigger()
         .whileTrue(shooter.runShooterVelocityTorqueCurrent())
         .onFalse(shooter.stop());
+
+    // Handles Hood Controls
+    Trigger nearTrench = BobotState.isNearTrench();
+
+    BobotState.inNearAllianceZone()
+        .and(nearTrench.negate())
+        .onTrue(hood.setHoodState(HoodState.DOWN));
+
+    BobotState.inNeutralZone().and(nearTrench.negate()).onTrue(hood.setHoodState(HoodState.MID));
+
+    BobotState.inFarAllianceZone().and(nearTrench.negate()).onTrue(hood.setHoodState(HoodState.UP));
+
+    nearTrench.onTrue(hood.setHoodState(HoodState.DOWN));
 
     controller.x().onTrue(hood.setHoodState(HoodState.MID));
     controller.b().onTrue(hood.setHoodState(HoodState.UP));

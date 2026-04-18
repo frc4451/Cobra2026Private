@@ -55,7 +55,7 @@ public class SingleRollerIOTalonFXSWithCANCoder implements SingleRollerIO {
 
   protected Angle positionGoal = Rotations.zero();
 
-  TalonFXSConfiguration cfg = new TalonFXSConfiguration();
+  protected TalonFXSConfiguration cfg;
 
   public SingleRollerIOTalonFXSWithCANCoder(TalonFXSConfig config, CANCoderConfig canCoderConfig) {
     this.rotorToSensorReduction = canCoderConfig.rotorToSensorReduction();
@@ -100,6 +100,8 @@ public class SingleRollerIOTalonFXSWithCANCoder implements SingleRollerIO {
     // / 2.0
 
     PhoenixUtil.tryUntilOk(5, () -> cancoder.getConfigurator().apply(encoderConfig, 0.25));
+
+    cfg = new TalonFXSConfiguration();
     // spotless:off
     cfg.MotorOutput
         .withInverted(config.invert() ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive)
