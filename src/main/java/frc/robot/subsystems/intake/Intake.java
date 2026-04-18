@@ -237,8 +237,7 @@ public class Intake extends SubsystemBase {
   }
 
   public Trigger isNearGoal(Angle angle, Angle tolerance) {
-    return new Trigger(
-        () -> this.endeffector.isNear(angle, tolerance));
+    return new Trigger(() -> this.endeffector.isNear(angle, tolerance));
   }
 
   public void setCurrentState(EndeffectorState state) {

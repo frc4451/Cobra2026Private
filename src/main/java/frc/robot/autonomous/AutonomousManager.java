@@ -262,6 +262,10 @@ public class AutonomousManager {
     return blazikenMegaEvolutionImpl(true);
   }
 
+  public Command beedrillTheMegaEvolution() {
+    return beedrill(false);
+  }
+
   /**
    * Implementation of Blaziken and Swampert that flips based on which Trench it starts from
    *
@@ -302,6 +306,31 @@ public class AutonomousManager {
         intake.endeffectorDeploy(),
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
         BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-5", 18, mirrorVertically));
+  }
+
+  /**
+   * Implementation of Blaziken and Swampert that flips based on which Trench it starts from
+   *
+   * @param mirrorVertically whether to flip the path over the vertical center of the field
+   */
+  private Command beedrill(boolean mirrorVertically) {
+    return Commands.sequence(
+        intake.endeffectorDeploy(),
+        Commands.waitUntil(intake.isNearGoal(Degrees.of(8))),
+        Commands.waitSeconds(1.0),
+        BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Beedrill-1", 18, mirrorVertically),
+        this.rotateToHub(),
+        Commands.deadline(
+            Commands.waitTime(Seconds.of(8.0)),
+            this.handleInterpolateShooter("Shot 1", 8.0),
+            Commands.waitSeconds(1.0)
+                .andThen(
+                    intake.flickIntakeRepeatedly(
+                        Degrees.of(20.0),
+                        Degrees.of(50.0),
+                        Degrees.of(0.0),
+                        Degrees.of(5.0),
+                        Seconds.of(8.0)))));
   }
 
   /**

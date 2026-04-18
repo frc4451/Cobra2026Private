@@ -214,6 +214,7 @@ public class RobotContainer {
     autoChooser.addOption("Bimithy AutoRotateToHub", autonomousManager.bimithySmileyHubRotation());
     autoChooser.addOption("Blaziken", autonomousManager.blazikenTheMegaEvolution());
     autoChooser.addOption("Swampert", autonomousManager.swampertTheMegaEvolution());
+    autoChooser.addOption("Beedrill", autonomousManager.beedrillTheMegaEvolution());
     // autoChooser.addOption("Ean's Path", autonomousManager.eanDemo());
     // autoChooser.addOption("Test", autonomousManager.test());
 
@@ -484,14 +485,14 @@ public class RobotContainer {
         .onTrue(hood.setHoodState(HoodState.DOWN));
 
     BobotState.inNeutralZone()
-    .and(nearTrench.negate())
-    .and(intakeDown.negate())
-    .onTrue(hood.setHoodState(HoodState.UP));
+        .and(nearTrench.negate())
+        .and(intakeDown.negate())
+        .onTrue(hood.setHoodState(HoodState.UP));
 
     BobotState.inFarAllianceZone()
-    .and(nearTrench.negate())
-    .and(intakeDown.negate())
-    .onTrue(hood.setHoodState(HoodState.MID));
+        .and(nearTrench.negate())
+        .and(intakeDown.negate())
+        .onTrue(hood.setHoodState(HoodState.MID));
 
     nearTrench.or(intakeDown).onTrue(hood.setHoodState(HoodState.DOWN));
 
