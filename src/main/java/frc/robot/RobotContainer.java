@@ -26,6 +26,7 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.commands.DriveFieldRelativePerpendicularToPoseCommand;
 import frc.robot.commands.ShootOnTheMoveCommand;
 import frc.robot.generated.TunerConstants;
+import frc.robot.lib.BLine.FollowPath;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -203,6 +204,28 @@ public class RobotContainer {
   private void configureAutonomousRoutines() {
     AutonomousManager autonomousManager = new AutonomousManager(drive, shooter, intake, feeder);
 
+    FollowPath.registerEventTrigger("Hello", Commands.print("Hello"));
+    // Because command composition in AutonomousManager is conflicting with the commands
+    // we want to run during the autonomous routine, we run the commands as proxy to
+    // avoid cancelling the BLine Path. Please confirm that this works in Sim before
+    // running on a real robot as running commands in Proxy breaks the
+    FollowPath.registerEventTrigger(
+        "IntakeDeploy",
+        Commands.sequence(
+            Commands.deadline(
+                Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
+                intake.endeffectorDeploy().asProxy()),
+            Commands.print("Deployed Intake")));
+
+    FollowPath.registerEventTrigger(
+        "IntakeLift", Commands.sequence(intake.endeffectorLift(), Commands.print("Lifted Intake")));
+    FollowPath.registerEventTrigger(
+        "RunFlywheelToHub",
+        Commands.sequence(shooter.runShooterToHub(), Commands.print("Started Shooter Flywheels")));
+    FollowPath.registerEventTrigger(
+        "StopFlywheel",
+        Commands.sequence(shooter.stop(), Commands.print("Stop Shooter Flywheels")));
+
     // autoChooser.addOption("Himithy", autonomousManager.himithy());
     // autoChooser.addOption("Himithyy", autonomousManager.himithyy());
     // autoChooser.addOption("Timithy", autonomousManager.timithy());
@@ -214,6 +237,7 @@ public class RobotContainer {
     autoChooser.addOption("Bimithy AutoRotateToHub", autonomousManager.bimithySmileyHubRotation());
     autoChooser.addOption("Blaziken", autonomousManager.blazikenTheMegaEvolution());
     autoChooser.addOption("Swampert", autonomousManager.swampertTheMegaEvolution());
+    autoChooser.addOption("EventTriggerTesting", autonomousManager.eventTriggerTesting());
     // autoChooser.addOption("Ean's Path", autonomousManager.eanDemo());
     // autoChooser.addOption("Test", autonomousManager.test());
 

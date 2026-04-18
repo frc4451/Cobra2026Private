@@ -304,6 +304,12 @@ public class AutonomousManager {
         BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-5", 18, mirrorVertically));
   }
 
+  public Command eventTriggerTesting() {
+    return Commands.sequence(
+        Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
+        BLineTrajectory("Event-Trigger-Testing"));
+  }
+
   /**
    * Implementation of Blaziken and Swampert that flips based on which Trench it starts from
    *
