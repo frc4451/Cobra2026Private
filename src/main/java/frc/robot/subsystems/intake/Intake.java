@@ -112,7 +112,7 @@ public class Intake extends SubsystemBase {
   //       });
   // }
 
-  public Command endeffectorStart() {
+  public Command endeffectorStashed() {
     return runOnce(() -> endeffector.setGoal(Degrees.of(endeffectorStart.get())));
   }
 

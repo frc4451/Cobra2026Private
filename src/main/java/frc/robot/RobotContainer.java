@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.autonomous.AutonomousManager;
 import frc.robot.bobot_state.BobotState;
 import frc.robot.bobot_state.dashboard.TeleopShiftManager;
@@ -57,7 +56,6 @@ import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFXS
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFXWithCANCoder;
 import org.robotzgarage.frc2026.subsystems.vision.AprilTagVision;
 import org.robotzgarage.frc2026.util.GarageCommandXboxController;
-import org.robotzgarage.frc2026.util.TuningUtils.TuningUnit;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -195,7 +193,7 @@ public class RobotContainer {
     configureDriverBindings(drivercontroller);
     configureOperatorBindings(operatorcontroller);
     configureAutonomousRoutines();
-    configureTuningRoutines();
+    // configureTuningRoutines();
 
     DriverStation.silenceJoystickConnectionWarning(true);
   }
@@ -215,6 +213,13 @@ public class RobotContainer {
     autoChooser.addOption("Blaziken", autonomousManager.blazikenTheMegaEvolution());
     autoChooser.addOption("Swampert", autonomousManager.swampertTheMegaEvolution());
     autoChooser.addOption("Beedrill", autonomousManager.beedrillTheMegaEvolution());
+    autoChooser.addOption("Slowpoke", autonomousManager.slowpokeTheMegaEvolution());
+    autoChooser.addOption("EvilDitto", autonomousManager.evilDitto());
+    autoChooser.addOption("DangerDitto", autonomousManager.dangerDitto());
+    autoChooser.addOption("Sableye", autonomousManager.sableyeTheMegaEvolution());
+    autoChooser.addOption("Gengar", autonomousManager.gengarTheMegaEvolution());
+    autoChooser.addOption("Diglett", autonomousManager.diglett());
+    autoChooser.addOption("Gardevoir", autonomousManager.gardevoirTheMegaEvolution());
     // autoChooser.addOption("Ean's Path", autonomousManager.eanDemo());
     // autoChooser.addOption("Test", autonomousManager.test());
 
@@ -224,60 +229,64 @@ public class RobotContainer {
     // autoChooser.addOption("2ft BLine test", autonomousManager.bline2ft());
   }
 
-  private void configureTuningRoutines() {
-    if (Constants.tuningMode) {
-      // Set up SysId routines
-      autoChooser.addOption(
-          "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-      autoChooser.addOption(
-          "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-      autoChooser.addOption(
-          "Drive SysId (Quasistatic Forward)",
-          drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-      autoChooser.addOption(
-          "Drive SysId (Quasistatic Reverse)",
-          drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-      autoChooser.addOption(
-          "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-      autoChooser.addOption(
-          "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+  //   private void configureTuningRoutines() {
+  //     if (Constants.tuningMode) {
+  //       // Set up SysId routines
+  //       autoChooser.addOption(
+  //           "Drive Wheel Radius Characterization",
+  // DriveCommands.wheelRadiusCharacterization(drive));
+  //       autoChooser.addOption(
+  //           "Drive Simple FF Characterization",
+  // DriveCommands.feedforwardCharacterization(drive));
+  //       autoChooser.addOption(
+  //           "Drive SysId (Quasistatic Forward)",
+  //           drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+  //       autoChooser.addOption(
+  //           "Drive SysId (Quasistatic Reverse)",
+  //           drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+  //       autoChooser.addOption(
+  //           "Drive SysId (Dynamic Forward)",
+  // drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+  //       autoChooser.addOption(
+  //           "Drive SysId (Dynamic Reverse)",
+  // drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-      autoChooser.addOption(
-          "Tune Intake Roller (Volts)",
-          this.intake.rollersFeedForwardCharacterization(TuningUnit.VOLTS));
-      autoChooser.addOption(
-          "Tune Intake Roller (Amps)",
-          this.intake.rollersFeedForwardCharacterization(TuningUnit.AMPS));
+  //       autoChooser.addOption(
+  //           "Tune Intake Roller (Volts)",
+  //           this.intake.rollersFeedForwardCharacterization(TuningUnit.VOLTS));
+  //       autoChooser.addOption(
+  //           "Tune Intake Roller (Amps)",
+  //           this.intake.rollersFeedForwardCharacterization(TuningUnit.AMPS));
 
-      autoChooser.addOption(
-          "Tune Intake Endeffector (Volts)",
-          this.intake.endeffectorFeedForwardCharacterization(TuningUnit.VOLTS));
-      autoChooser.addOption(
-          "Tune Intake Endeffector (Amps)",
-          this.intake.endeffectorFeedForwardCharacterization(TuningUnit.AMPS));
+  //       autoChooser.addOption(
+  //           "Tune Intake Endeffector (Volts)",
+  //           this.intake.endeffectorFeedForwardCharacterization(TuningUnit.VOLTS));
+  //       autoChooser.addOption(
+  //           "Tune Intake Endeffector (Amps)",
+  //           this.intake.endeffectorFeedForwardCharacterization(TuningUnit.AMPS));
 
-      autoChooser.addOption(
-          "Tune Shooter Flywheels (Volts)",
-          this.shooter.steadyStateCharacterization(TuningUnit.VOLTS));
-      autoChooser.addOption(
-          "Tune Shooter Flywheels (Amps)",
-          this.shooter.steadyStateCharacterization(TuningUnit.AMPS));
+  //       autoChooser.addOption(
+  //           "Tune Shooter Flywheels (Volts)",
+  //           this.shooter.steadyStateCharacterization(TuningUnit.VOLTS));
+  //       autoChooser.addOption(
+  //           "Tune Shooter Flywheels (Amps)",
+  //           this.shooter.steadyStateCharacterization(TuningUnit.AMPS));
 
-      autoChooser.addOption(
-          "Tune Spindexer Flywheels (Volts)",
-          this.feeder.kickerFeedForwardCharacterization(TuningUnit.VOLTS));
-      autoChooser.addOption(
-          "Tune Spindexer Flywheels (Amps)",
-          this.feeder.kickerFeedForwardCharacterization(TuningUnit.AMPS));
+  //       autoChooser.addOption(
+  //           "Tune Spindexer Flywheels (Volts)",
+  //           this.feeder.kickerFeedForwardCharacterization(TuningUnit.VOLTS));
+  //       autoChooser.addOption(
+  //           "Tune Spindexer Flywheels (Amps)",
+  //           this.feeder.kickerFeedForwardCharacterization(TuningUnit.AMPS));
 
-      autoChooser.addOption(
-          "Tune Tower Flywheels (Volts)",
-          this.feeder.towerFeedForwardCharacterization(TuningUnit.VOLTS));
-      autoChooser.addOption(
-          "Tune Tower Flywheels (Amps)",
-          this.feeder.towerFeedForwardCharacterization(TuningUnit.AMPS));
-    }
-  }
+  //       autoChooser.addOption(
+  //           "Tune Tower Flywheels (Volts)",
+  //           this.feeder.towerFeedForwardCharacterization(TuningUnit.VOLTS));
+  //       autoChooser.addOption(
+  //           "Tune Tower Flywheels (Amps)",
+  //           this.feeder.towerFeedForwardCharacterization(TuningUnit.AMPS));
+  //     }
+  //   }
 
   /**
    * Configures automatic hood angle adjustments based on field zone and trench proximity.
@@ -377,7 +386,7 @@ public class RobotContainer {
                 () -> BobotState.getTrenchVARC().getTargetPose(),
                 () -> BobotState.getTrenchVARC().getRotationTarget()));
 
-    controller.x().whileTrue(hood.setHoodState(HoodState.DOWN));
+    // controller.x().whileTrue(hood.setHoodState(HoodState.DOWN));
 
     // controller
     //     .y()
@@ -419,7 +428,7 @@ public class RobotContainer {
     // Deploy the Intake as soon as Teleop starts
     teleopActive.onTrue(intake.endeffectorDeploy());
 
-    controller.povLeft().onTrue(intake.endeffectorStart());
+    controller.povLeft().onTrue(intake.endeffectorStashed());
     // controller.povUp().onTrue(intake.endeffectorSqueeze());
 
     controller
@@ -482,19 +491,25 @@ public class RobotContainer {
     BobotState.inNearAllianceZone()
         .and(nearTrench.negate())
         .and(intakeDown.negate())
+        .and(controller.rightBumper())
         .onTrue(hood.setHoodState(HoodState.DOWN));
 
     BobotState.inNeutralZone()
         .and(nearTrench.negate())
         .and(intakeDown.negate())
+        .and(controller.rightBumper())
         .onTrue(hood.setHoodState(HoodState.UP));
 
     BobotState.inFarAllianceZone()
         .and(nearTrench.negate())
         .and(intakeDown.negate())
+        .and(controller.rightBumper())
         .onTrue(hood.setHoodState(HoodState.MID));
 
-    nearTrench.or(intakeDown).onTrue(hood.setHoodState(HoodState.DOWN));
+    nearTrench
+        .or(intakeDown)
+        .or(controller.rightBumper().negate())
+        .onTrue(hood.setHoodState(HoodState.DOWN));
 
     // controller.x().onTrue(hood.setHoodState(HoodState.MID));
     // controller.b().onTrue(hood.setHoodState(HoodState.UP));

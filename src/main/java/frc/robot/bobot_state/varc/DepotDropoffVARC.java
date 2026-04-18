@@ -13,7 +13,7 @@ import org.robotzgarage.frc2026.math.varc.TargetVARC;
 
 public class DepotDropoffVARC extends TargetVARC {
   public static final LoggedTunableNumber parallelOffsetFeet =
-      new LoggedTunableNumber("DepotDropoffParallelOffsetFeet", 23.0);
+      new LoggedTunableNumber("DepotDropoffParallelOffsetFeet", 19.0);
   public static final LoggedTunableNumber perpendicularOffsetFeet =
       new LoggedTunableNumber("DepotDropoffPerpendicularOffsetFeet", 6.0);
 
