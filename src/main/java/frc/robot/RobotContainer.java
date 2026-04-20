@@ -201,29 +201,27 @@ public class RobotContainer {
   private void configureAutonomousRoutines() {
     AutonomousManager autonomousManager = new AutonomousManager(drive, shooter, intake, feeder);
 
-    // autoChooser.addOption("Himithy", autonomousManager.himithy());
-    // autoChooser.addOption("Himithyy", autonomousManager.himithyy());
-    // autoChooser.addOption("Timithy", autonomousManager.timithy());
-    // autoChooser.addOption("Timithyy", autonomousManager.timithyy());
-    // autoChooser.addOption("Timithy-1", autonomousManager.timithy_1());
-    // autoChooser.addOption("Himithy take 1", autonomousManager.himithyTake1());
-    // autoChooser.addOption("Dimithy-1", autonomousManager.dimithy_1());
-    // autoChooser.addOption("Bimithy :)", autonomousManager.bimithySmiley());
-    autoChooser.addOption("Bimithy AutoRotateToHub", autonomousManager.bimithySmileyHubRotation());
+    // double take auto
     autoChooser.addOption("Blaziken", autonomousManager.blazikenTheMegaEvolution());
     autoChooser.addOption("Swampert", autonomousManager.swampertTheMegaEvolution());
+
+    // shadow, one take auto
     autoChooser.addOption("Beedrill", autonomousManager.beedrillTheMegaEvolution());
     autoChooser.addOption("Slowpoke", autonomousManager.slowpokeTheMegaEvolution());
+
+    // ajustible defence auto
     autoChooser.addOption("EvilDitto", autonomousManager.evilDitto());
     autoChooser.addOption("DangerDitto", autonomousManager.dangerDitto());
+    
+    // shadow, stafe center line auto, for transition period
     autoChooser.addOption("Sableye", autonomousManager.sableyeTheMegaEvolution());
     autoChooser.addOption("Gengar", autonomousManager.gengarTheMegaEvolution());
+    
+    // depo auto
     autoChooser.addOption("Diglett", autonomousManager.diglett());
-    autoChooser.addOption("Gardevoir", autonomousManager.gardevoirTheMegaEvolution());
-    // autoChooser.addOption("Ean's Path", autonomousManager.eanDemo());
-    // autoChooser.addOption("Test", autonomousManager.test());
 
-    // autoChooser.addOption("strafe test", autonomousManager.strafeShot());
+    // human player auto
+    autoChooser.addOption("Gardevoir", autonomousManager.gardevoirTheMegaEvolution());
 
     // autoChooser.addOption("1ft BLine test", autonomousManager.bline1ft());
     // autoChooser.addOption("2ft BLine test", autonomousManager.bline2ft());
