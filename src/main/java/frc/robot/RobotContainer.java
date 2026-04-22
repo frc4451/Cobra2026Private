@@ -212,11 +212,11 @@ public class RobotContainer {
     // ajustible defence auto
     autoChooser.addOption("EvilDitto", autonomousManager.evilDitto());
     autoChooser.addOption("DangerDitto", autonomousManager.dangerDitto());
-    
+
     // shadow, stafe center line auto, for transition period
     autoChooser.addOption("Sableye", autonomousManager.sableyeTheMegaEvolution());
     autoChooser.addOption("Gengar", autonomousManager.gengarTheMegaEvolution());
-    
+
     // depo auto
     autoChooser.addOption("Diglett", autonomousManager.diglett());
 

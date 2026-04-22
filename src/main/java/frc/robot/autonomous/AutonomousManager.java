@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.bobot_state.BobotState;
@@ -22,6 +23,8 @@ public class AutonomousManager {
   private final Intake intake;
   private final Feeder feeder;
 
+  private final String shouldStartOnBumpKey = "Autonomous/ShouldOnBump";
+
   private static final double rotationToleranceDegrees = 3.0;
   // private static final Time MAX_TIMEOUT = Seconds.of(20);
 
@@ -30,6 +33,8 @@ public class AutonomousManager {
     this.shooter = shooter;
     this.intake = intake;
     this.feeder = feeder;
+
+    SmartDashboard.putBoolean(shouldStartOnBumpKey, false);
   }
 
   /**
@@ -225,39 +230,6 @@ public class AutonomousManager {
         .andThen(Commands.print(name + ": end"));
   }
 
-  /** Fork of {@link #bimithySmiley} that overrides rotation to face the hub (or attempts to) */
-  public Command bimithySmileyHubRotation() {
-    return Commands.sequence(
-        this.deployIntake(),
-        Commands.waitSeconds(1.0).until(intake.isNearGoal(Degrees.of(8.0))),
-        BLineTrajectorywithIntakeLift("Bimithy-1-SOTM", 3.0),
-        this.deployIntake(),
-        Commands.deadline(
-            Commands.waitTime(Seconds.of(4.0)),
-            BLineTrajectoryWithHubRotation("Bimithy-2-SOTM"),
-            this.handleInterpolateShooter("shot 1", 4.0),
-            intake.flickIntakeRepeatedly(
-                Degrees.of(20.0),
-                Degrees.of(45.0),
-                Degrees.of(0.0),
-                Degrees.of(5.0),
-                Seconds.of(10.0))),
-        this.deployIntake(),
-        BLineTrajectorywithIntakeLift("Bimithy-3-SOTM", 4.25),
-        this.rotateToHub(),
-        Commands.deadline(
-                Commands.waitTime(Seconds.of(20.0)),
-                this.handleInterpolateShooter("shot 2", 20.0),
-                intake.flickIntakeRepeatedly(
-                    Degrees.of(0.0),
-                    Degrees.of(45.0),
-                    Degrees.of(0.0),
-                    Degrees.of(5.0),
-                    Seconds.of(4.0)))
-            .beforeStarting(Commands.print("Path start"))
-            .andThen(Commands.print("Path end")));
-  }
-
   /** Driver Station Right Trench Auto */
   public Command blazikenTheMegaEvolution() {
     return blazikenMegaEvolutionImpl(false);
@@ -430,6 +402,8 @@ public class AutonomousManager {
     return Commands.sequence(
         intake.endeffectorDeploy(),
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8))),
+        // Commands.print("Hey Peyton start on Bump")
+        //     .onlyIf(() -> SmartDashboard.getBoolean(shouldStartOnBumpKey, false)),
         Commands.waitSeconds(0),
         BLineTrajectory("Gardevoir"),
         Commands.waitSeconds(2.0),
