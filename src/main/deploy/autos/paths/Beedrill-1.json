@@ -5,7 +5,7 @@
       "translation_target": {
         "x_meters": 3.58,
         "y_meters": 0.43,
-        "intermediate_handoff_radius_meters": 0.20000000000000007
+        "intermediate_handoff_radius_meters": 0.39999999999999997
       },
       "rotation_target": {
         "rotation_radians": -1.5707963267948966,

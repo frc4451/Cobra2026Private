@@ -39,8 +39,8 @@ public class AutonomousManager {
     // Default that we start in the trench, but optionally shift the starting point to the
     // bump. Then follow the autonomous routine as we expect from BLine.
     SendableChooser<Boolean> bumpChooser = new SendableChooser<>();
-    bumpChooser.setDefaultOption("NO", Boolean.FALSE);
-    bumpChooser.addOption("YES", Boolean.TRUE);
+    bumpChooser.setDefaultOption("Ex", Boolean.FALSE);
+    bumpChooser.addOption("Mega", Boolean.TRUE);
 
     shouldStartOnBumpChooser = new LoggedDashboardChooser<>(shouldStartOnBumpKey, bumpChooser);
   }
@@ -169,11 +169,23 @@ public class AutonomousManager {
     return BLineTrajectory(name, false);
   }
 
-  private Command BLineTrajectorywithIntake(String name) {
-    return Commands.deadline(
-            drive.getBLineBuilder().build(new Path(name)), intake.runRollersTorqueCurrent())
+  private Command BLineTrajectorywithIntake(String name, boolean mirrorVertically) {
+    Path path = new Path(name);
+
+    // Mirror the Path vertically to handle both sides of the driver station POV
+    if (mirrorVertically) {
+      path.mirror();
+    }
+
+    FollowPath followCommand = (FollowPath) drive.getBLineBuilder().build(path);
+
+    return Commands.deadline(followCommand, intake.runRollersTorqueCurrent())
         .beforeStarting(Commands.print(name + ": start"))
         .andThen(Commands.sequence(Commands.print(name + ": end")), intake.stop());
+  }
+
+  private Command BLineTrajectorywithIntake(String name) {
+    return BLineTrajectorywithIntake(name, false);
   }
 
   private Command BLineTrajectorywithIntakeLift(String name, double intaketime) {
@@ -289,7 +301,7 @@ public class AutonomousManager {
   }
 
   public Command diglett() {
-    return diglett(false);
+    return diglettt();
   }
 
   public Command gardevoirTheMegaEvolution() {
@@ -308,7 +320,6 @@ public class AutonomousManager {
   private Command blazikenMegaEvolutionImpl(boolean mirrorVertically) {
     return Commands.sequence(
         intake.endeffectorDeploy(),
-        Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
         BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-1", 14, mirrorVertically),
         intake.endeffectorDeploy(),
         Commands.deadline(
@@ -378,8 +389,10 @@ public class AutonomousManager {
   private Command evilDitto(boolean mirrorVertically) {
     return Commands.sequence(
         intake.endeffectorDeploy(),
-        Commands.waitUntil(intake.isNearGoal(Degrees.of(8))),
+        Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
+            .onlyIf(() -> !this.shouldStartOnBump()),
         Commands.waitSeconds(0),
+        this.BIDOOF(mirrorVertically).onlyIf(() -> this.shouldStartOnBump()),
         BLineTrajectory("Evil-Ditto-1"),
         this.stashedIntake(),
         BLineTrajectory("Evil-Ditto-2"));
@@ -393,9 +406,11 @@ public class AutonomousManager {
   private Command sableye(boolean mirrorVertically) {
     return Commands.sequence(
         intake.endeffectorDeploy(),
-        Commands.waitUntil(intake.isNearGoal(Degrees.of(8))),
+        Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
+            .onlyIf(() -> !this.shouldStartOnBump()),
         Commands.waitSeconds(0),
-        BLineTrajectorywithIntake("Sableye"));
+        this.BIDOOF(mirrorVertically).onlyIf(() -> this.shouldStartOnBump()),
+        BLineTrajectorywithIntake("Sableye", mirrorVertically));
   }
 
   /**
@@ -403,11 +418,13 @@ public class AutonomousManager {
    *
    * @param mirrorVertically whether to flip the path over the vertical center of the field
    */
-  private Command diglett(boolean mirrorVertically) {
+  private Command diglettt() {
     return Commands.sequence(
         intake.endeffectorDeploy(),
-        Commands.waitUntil(intake.isNearGoal(Degrees.of(8))),
+        Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
+            .onlyIf(() -> !this.shouldStartOnBump()),
         Commands.waitSeconds(0),
+        this.BIDOOF(true).onlyIf(() -> this.shouldStartOnBump()),
         BLineTrajectorywithIntake("Diglett"),
         this.rotateToHub(),
         Commands.deadline(
@@ -431,10 +448,10 @@ public class AutonomousManager {
   private Command gardevoir(boolean mirrorVertically) {
     return Commands.sequence(
         intake.endeffectorDeploy(),
-        Commands.waitUntil(intake.isNearGoal(Degrees.of(8))),
-        // Commands.print("Hey Peyton start on Bump")
-        //     .onlyIf(() -> SmartDashboard.getBoolean(shouldStartOnBumpKey, false)),
+        Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
+            .onlyIf(() -> !this.shouldStartOnBump()),
         Commands.waitSeconds(0),
+        this.BIDOOF(mirrorVertically).onlyIf(() -> this.shouldStartOnBump()),
         BLineTrajectory("Gardevoir"),
         Commands.waitSeconds(2.0),
         BLineTrajectory("Gardevoir-2"),
