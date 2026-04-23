@@ -5,7 +5,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.bobot_state.BobotState;
@@ -16,6 +16,7 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class AutonomousManager {
   private final Drive drive;
@@ -23,7 +24,8 @@ public class AutonomousManager {
   private final Intake intake;
   private final Feeder feeder;
 
-  private final String shouldStartOnBumpKey = "Autonomous/ShouldOnBump";
+  private final String shouldStartOnBumpKey = "Autonomous/ShouldStartOnBump";
+  private final LoggedDashboardChooser<Boolean> shouldStartOnBumpChooser;
 
   private static final double rotationToleranceDegrees = 3.0;
   // private static final Time MAX_TIMEOUT = Seconds.of(20);
@@ -34,7 +36,18 @@ public class AutonomousManager {
     this.intake = intake;
     this.feeder = feeder;
 
-    SmartDashboard.putBoolean(shouldStartOnBumpKey, false);
+    // Default that we start in the trench, but optionally shift the starting point to the
+    // bump. Then follow the autonomous routine as we expect from BLine.
+    SendableChooser<Boolean> bumpChooser = new SendableChooser<>();
+    bumpChooser.setDefaultOption("NO", Boolean.FALSE);
+    bumpChooser.addOption("YES", Boolean.TRUE);
+
+    shouldStartOnBumpChooser = new LoggedDashboardChooser<>(shouldStartOnBumpKey, bumpChooser);
+  }
+
+  public boolean shouldStartOnBump() {
+    boolean shouldStartOnBump = Boolean.TRUE.equals(shouldStartOnBumpChooser.get());
+    return shouldStartOnBump;
   }
 
   /**
@@ -139,10 +152,21 @@ public class AutonomousManager {
         .beforeStarting(Commands.print("Intake rollers: stop"));
   }
 
-  private Command BLineTrajectory(String name) {
-    return Commands.sequence(drive.getBLineBuilder().build(new Path(name)))
+  private Command BLineTrajectory(String name, boolean mirrorVertically) {
+    Path path = new Path(name);
+
+    // Mirror the Path vertically to handle both sides of the driver station POV
+    if (mirrorVertically) {
+      path.mirror();
+    }
+
+    return Commands.sequence(drive.getBLineBuilder().build(path))
         .beforeStarting(Commands.print(name + ": start"))
         .andThen(Commands.print(name + ": end"));
+  }
+
+  private Command BLineTrajectory(String name) {
+    return BLineTrajectory(name, false);
   }
 
   private Command BLineTrajectorywithIntake(String name) {
@@ -272,6 +296,10 @@ public class AutonomousManager {
     return gardevoir(false);
   }
 
+  private Command BIDOOF(boolean mirrorVertically) {
+    return BLineTrajectory("Bidoof", mirrorVertically);
+  }
+
   /**
    * Implementation of Blaziken and Swampert that flips based on which Trench it starts from
    *
@@ -323,8 +351,10 @@ public class AutonomousManager {
   private Command beedrill(boolean mirrorVertically) {
     return Commands.sequence(
         intake.endeffectorDeploy(),
-        Commands.waitUntil(intake.isNearGoal(Degrees.of(8))),
+        Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
+            .onlyIf(() -> !this.shouldStartOnBump()),
         Commands.waitSeconds(1.0),
+        this.BIDOOF(mirrorVertically).onlyIf(() -> this.shouldStartOnBump()),
         BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Beedrill-1", 18, mirrorVertically),
         this.rotateToHub(),
         Commands.deadline(

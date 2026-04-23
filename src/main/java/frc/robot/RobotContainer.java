@@ -209,7 +209,7 @@ public class RobotContainer {
     autoChooser.addOption("Beedrill", autonomousManager.beedrillTheMegaEvolution());
     autoChooser.addOption("Slowpoke", autonomousManager.slowpokeTheMegaEvolution());
 
-    // ajustible defence auto
+    // shadow, ajustible defence auto
     autoChooser.addOption("EvilDitto", autonomousManager.evilDitto());
     autoChooser.addOption("DangerDitto", autonomousManager.dangerDitto());
 
