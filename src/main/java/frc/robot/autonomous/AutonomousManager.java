@@ -5,9 +5,9 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.autonomous.AutonomousQuestionaire.Option;
 import frc.robot.bobot_state.BobotState;
 import frc.robot.commands.DriveCommands;
 import frc.robot.lib.BLine.FollowPath;
@@ -16,7 +16,7 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import java.util.List;
 
 public class AutonomousManager {
   private final Drive drive;
@@ -24,8 +24,8 @@ public class AutonomousManager {
   private final Intake intake;
   private final Feeder feeder;
 
-  private final String shouldStartOnBumpKey = "Autonomous/ShouldStartOnBump";
-  private final LoggedDashboardChooser<Boolean> shouldStartOnBumpChooser;
+  private final AutonomousQuestionaire<Boolean> shouldStartOnBump;
+  private final AutonomousQuestionaire<Boolean> shouldEndSableyeInNearAlliance;
 
   private static final double rotationToleranceDegrees = 3.0;
   // private static final Time MAX_TIMEOUT = Seconds.of(20);
@@ -38,16 +38,27 @@ public class AutonomousManager {
 
     // Default that we start in the trench, but optionally shift the starting point to the
     // bump. Then follow the autonomous routine as we expect from BLine.
-    SendableChooser<Boolean> bumpChooser = new SendableChooser<>();
-    bumpChooser.setDefaultOption("Ex", Boolean.FALSE);
-    bumpChooser.addOption("Mega", Boolean.TRUE);
+    shouldStartOnBump =
+        new AutonomousQuestionaire<>(
+            "Autonomous/ShouldStartOnBump",
+            new Option<>("Ex", Boolean.FALSE),
+            List.of(new Option<>("Mega", Boolean.TRUE)));
 
-    shouldStartOnBumpChooser = new LoggedDashboardChooser<>(shouldStartOnBumpKey, bumpChooser);
+    shouldEndSableyeInNearAlliance =
+        new AutonomousQuestionaire<>(
+            "Autonomous/DoesSableyeEndInNearAlliance",
+            new Option<>("Neutral Zone", Boolean.FALSE),
+            List.of(new Option<>("Near Alliance", Boolean.TRUE)));
   }
 
+  /** Check if we should start the autonomous routine on the bump */
   public boolean shouldStartOnBump() {
-    boolean shouldStartOnBump = Boolean.TRUE.equals(shouldStartOnBumpChooser.get());
-    return shouldStartOnBump;
+    return Boolean.TRUE.equals(shouldStartOnBump.get());
+  }
+
+  /** Check if `Sableye` should end in the Neutral Zone (default) or the Near Alliance to score */
+  public boolean shouldSableyeEndInNearAlliance() {
+    return Boolean.TRUE.equals(shouldEndSableyeInNearAlliance.get());
   }
 
   /**
@@ -410,7 +421,23 @@ public class AutonomousManager {
             .onlyIf(() -> !this.shouldStartOnBump()),
         Commands.waitSeconds(0),
         this.BIDOOF(mirrorVertically).onlyIf(() -> this.shouldStartOnBump()),
-        BLineTrajectorywithIntake("Sableye", mirrorVertically));
+        BLineTrajectorywithIntake("Sableye", mirrorVertically),
+        Commands.sequence(
+                BLineTrajectoryIntakeAndLiftAfterTranslationSegment(
+                    "Sableye-2", 2, mirrorVertically),
+                this.rotateToHub(),
+                Commands.deadline(
+                    Commands.waitTime(Seconds.of(8)),
+                    this.handleInterpolateShooter("Shot", 8),
+                    Commands.waitSeconds(1.0)
+                        .andThen(
+                            intake.flickIntakeRepeatedly(
+                                Degrees.of(20.0),
+                                Degrees.of(50.0),
+                                Degrees.of(0.0),
+                                Degrees.of(5.0),
+                                Seconds.of(8.0)))))
+            .onlyIf(this::shouldSableyeEndInNearAlliance));
   }
 
   /**

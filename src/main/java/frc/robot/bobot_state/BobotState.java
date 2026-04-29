@@ -9,6 +9,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.bobot_state.interpolation.DropoffInterpolator;
 import frc.robot.bobot_state.interpolation.HubInterpolator;
@@ -72,9 +74,15 @@ public class BobotState extends VirtualSubsystem {
 
   @Getter @Setter private static Pose2d globalPose = new Pose2d();
   @Getter @Setter private static Pose2d trigPose = new Pose2d();
+
+  private static final Field2d field2d = new Field2d();
   @Getter @Setter private static Pose2d constrainedPose = new Pose2d();
   @Getter @Setter private static Rotation2d rawGyroHeading = new Rotation2d();
   @Getter @Setter private static ChassisSpeeds robotVelocity = new ChassisSpeeds();
+
+  public BobotState() {
+    SmartDashboard.putData("Field", field2d);
+  }
 
   private static final LoggedTunableNumber neutralZoneFeedingXDistanceFeet =
       new LoggedTunableNumber("NeutralZoneFeedingXDistanceFeet", 5.0);
@@ -256,6 +264,8 @@ public class BobotState extends VirtualSubsystem {
   }
 
   public void periodic() {
+    field2d.setRobotPose(globalPose);
+
     // VARCs must update before the hub interpolator so that HubVARC can read
     // hubInterpolator.getLookaheadTranslation() from the previous cycle. The one-loop
     // (~20 ms) staleness is acceptable. Do NOT move hubInterpolator.update() above the VARCs.
