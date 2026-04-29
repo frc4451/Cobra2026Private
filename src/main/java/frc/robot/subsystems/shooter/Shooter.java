@@ -151,6 +151,17 @@ public class Shooter extends SubsystemBase {
                     BobotState.getHubInterpolator().getCalculation().primaryVelocity(), tolerance));
   }
 
+  public Trigger isNearDropoffVelocity(AngularVelocity tolerance) {
+    return new Trigger(
+        () ->
+            this.shooter
+                .getInputs()
+                .leaderVelocity
+                .isNear(
+                    BobotState.getDropoffInterpolator().getCalculation().primaryVelocity(),
+                    tolerance));
+  }
+
   public Command stop() {
     return runOnce(
         () -> {

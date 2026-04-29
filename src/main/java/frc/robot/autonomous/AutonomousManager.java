@@ -24,8 +24,20 @@ public class AutonomousManager {
   private final Intake intake;
   private final Feeder feeder;
 
+  public enum SableyeEndState {
+    END_NEUTRAL_STATIONARY("End in Neutral, Do Nothing"),
+    END_NEUTRAL_FEED("End in Neutral, Feed to Near Alliance"),
+    END_NEAR_ALLIANCE_SCORE("End in Near Alliance, Score in Hub");
+
+    public String value;
+
+    private SableyeEndState(String value) {
+      this.value = value;
+    }
+  }
+
   private final AutonomousQuestionaire<Boolean> shouldStartOnBump;
-  private final AutonomousQuestionaire<Boolean> shouldEndSableyeInNearAlliance;
+  private final AutonomousQuestionaire<SableyeEndState> sableyeQuestionaire;
 
   private static final double rotationToleranceDegrees = 3.0;
   // private static final Time MAX_TIMEOUT = Seconds.of(20);
@@ -41,24 +53,26 @@ public class AutonomousManager {
     shouldStartOnBump =
         new AutonomousQuestionaire<>(
             "Autonomous/ShouldStartOnBump",
-            new Option<>("Ex", Boolean.FALSE),
-            List.of(new Option<>("Mega", Boolean.TRUE)));
+            new Option<>("No", Boolean.FALSE),
+            List.of(new Option<>("Yes", Boolean.TRUE)));
 
-    shouldEndSableyeInNearAlliance =
+    sableyeQuestionaire =
         new AutonomousQuestionaire<>(
-            "Autonomous/DoesSableyeEndInNearAlliance",
-            new Option<>("Neutral Zone", Boolean.FALSE),
-            List.of(new Option<>("Near Alliance", Boolean.TRUE)));
+            "Autonomous/SableyeEndState",
+            new Option<>(
+                SableyeEndState.END_NEUTRAL_STATIONARY.value,
+                SableyeEndState.END_NEUTRAL_STATIONARY),
+            List.of(
+                new Option<>(
+                    SableyeEndState.END_NEUTRAL_FEED.value, SableyeEndState.END_NEUTRAL_FEED),
+                new Option<>(
+                    SableyeEndState.END_NEAR_ALLIANCE_SCORE.value,
+                    SableyeEndState.END_NEAR_ALLIANCE_SCORE)));
   }
 
   /** Check if we should start the autonomous routine on the bump */
   public boolean shouldStartOnBump() {
     return Boolean.TRUE.equals(shouldStartOnBump.get());
-  }
-
-  /** Check if `Sableye` should end in the Neutral Zone (default) or the Near Alliance to score */
-  public boolean shouldSableyeEndInNearAlliance() {
-    return Boolean.TRUE.equals(shouldEndSableyeInNearAlliance.get());
   }
 
   /**
@@ -69,6 +83,11 @@ public class AutonomousManager {
   private Command rotateToHub() {
     return DriveCommands.snapToAngle(
         drive, () -> BobotState.getHubVARC().getRotationTarget(), rotationToleranceDegrees);
+  }
+
+  private Command rotateToClosestDropoff() {
+    return DriveCommands.snapToAngle(
+        drive, () -> BobotState.getClosestDropoff().getRotationTarget(), rotationToleranceDegrees);
   }
 
   /** This uses "snapToAngle" to lock the rotation of the intake towards fuel in the neutral zone */
@@ -91,7 +110,7 @@ public class AutonomousManager {
         .andThen(Commands.print(formattedPrefix + "end"));
   }
 
-  private Command handleInterpolateShooter(String prefix, double emptyTime) {
+  private Command handleInterpolateShooterToHub(String prefix, double emptyTime) {
     String formattedPrefix = prefix + ": ";
 
     return Commands.sequence(
@@ -104,6 +123,23 @@ public class AutonomousManager {
                         BobotState.isTooCloseToHubToScore()
                             .negate()
                             .and(shooter.isNearHubVelocity(RotationsPerSecond.of(2.0))))
+                    .andThen(feeder.runFeederVoltage())),
+            shooter.stop(),
+            feeder.stop())
+        .beforeStarting(Commands.print(formattedPrefix + "start"))
+        .andThen(Commands.print(formattedPrefix + "end"));
+  }
+
+  private Command handleInterpolateShooterToDropoff(String prefix, double emptyTime) {
+    String formattedPrefix = prefix + ": ";
+
+    return Commands.sequence(
+            Commands.print(formattedPrefix + "start shooter"),
+            Commands.deadline(
+                shooter.runShooterDropOff().withTimeout(Seconds.of(emptyTime)),
+                // Don't start shooting until you know you can actually score
+                // in the hub
+                Commands.waitUntil((shooter.isNearDropoffVelocity(RotationsPerSecond.of(2.0))))
                     .andThen(feeder.runFeederVoltage())),
             shooter.stop(),
             feeder.stop())
@@ -336,7 +372,7 @@ public class AutonomousManager {
         Commands.deadline(
             Commands.waitTime(Seconds.of(4.0)),
             BLineTrajectoryWithHubRotation("Blaziken-2", mirrorVertically),
-            this.handleInterpolateShooter("Shot 1", 6.0),
+            this.handleInterpolateShooterToHub("Shot 1", 6.0),
             intake.flickIntakeRepeatedly(
                 Degrees.of(20.0),
                 Degrees.of(35.0),
@@ -357,7 +393,7 @@ public class AutonomousManager {
             Commands.waitTime(Seconds.of(3.5)),
             this.rotateToHub(),
             // BLineTrajectoryWithHubRotation("Blaziken-4", mirrorVertically),
-            this.handleInterpolateShooter("Shot 1", 5.5)));
+            this.handleInterpolateShooterToHub("Shot 1", 5.5)));
     //     intake.runRollersTorqueCurrent()),
     // this.feeder.stop(),
     // intake.endeffectorDeploy(),
@@ -381,7 +417,7 @@ public class AutonomousManager {
         this.rotateToHub(),
         Commands.deadline(
             Commands.waitTime(Seconds.of(8.0)),
-            this.handleInterpolateShooter("Shot 1", 8.0),
+            this.handleInterpolateShooterToHub("Shot 1", 8.0),
             Commands.waitSeconds(1.0)
                 .andThen(
                     intake.flickIntakeRepeatedly(
@@ -415,6 +451,37 @@ public class AutonomousManager {
    * @param mirrorVertically whether to flip the path over the vertical center of the field
    */
   private Command sableye(boolean mirrorVertically) {
+    Command sableyeTravelToNearAlliance =
+        Commands.sequence(
+            BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Sableye-2", 2, mirrorVertically),
+            this.rotateToHub(),
+            Commands.deadline(
+                Commands.waitTime(Seconds.of(8)),
+                this.handleInterpolateShooterToHub("Shot", 8),
+                Commands.waitSeconds(1.0)
+                    .andThen(
+                        intake.flickIntakeRepeatedly(
+                            Degrees.of(20.0),
+                            Degrees.of(50.0),
+                            Degrees.of(0.0),
+                            Degrees.of(5.0),
+                            Seconds.of(8.0)))));
+
+    Command sableyeFeedToNearAlliance =
+        Commands.sequence(
+            this.rotateToClosestDropoff(),
+            Commands.deadline(
+                Commands.waitTime(Seconds.of(8)),
+                this.handleInterpolateShooterToDropoff("Feed-Shot", 8),
+                Commands.waitSeconds(1.0)
+                    .andThen(
+                        intake.flickIntakeRepeatedly(
+                            Degrees.of(20.0),
+                            Degrees.of(50.0),
+                            Degrees.of(0.0),
+                            Degrees.of(5.0),
+                            Seconds.of(8.0)))));
+
     return Commands.sequence(
         intake.endeffectorDeploy(),
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
@@ -422,22 +489,15 @@ public class AutonomousManager {
         Commands.waitSeconds(0),
         this.BIDOOF(mirrorVertically).onlyIf(() -> this.shouldStartOnBump()),
         BLineTrajectorywithIntake("Sableye", mirrorVertically),
-        Commands.sequence(
-                BLineTrajectoryIntakeAndLiftAfterTranslationSegment(
-                    "Sableye-2", 2, mirrorVertically),
-                this.rotateToHub(),
-                Commands.deadline(
-                    Commands.waitTime(Seconds.of(8)),
-                    this.handleInterpolateShooter("Shot", 8),
-                    Commands.waitSeconds(1.0)
-                        .andThen(
-                            intake.flickIntakeRepeatedly(
-                                Degrees.of(20.0),
-                                Degrees.of(50.0),
-                                Degrees.of(0.0),
-                                Degrees.of(5.0),
-                                Seconds.of(8.0)))))
-            .onlyIf(this::shouldSableyeEndInNearAlliance));
+        Commands.none()
+            .onlyIf(
+                () ->
+                    this.sableyeQuestionaire.get().equals(SableyeEndState.END_NEUTRAL_STATIONARY)),
+        sableyeTravelToNearAlliance.onlyIf(
+            () -> this.sableyeQuestionaire.get().equals(SableyeEndState.END_NEAR_ALLIANCE_SCORE)),
+        sableyeFeedToNearAlliance.onlyIf(
+            () -> this.sableyeQuestionaire.get().equals(SableyeEndState.END_NEUTRAL_FEED)));
+    // end of auto
   }
 
   /**
@@ -456,7 +516,7 @@ public class AutonomousManager {
         this.rotateToHub(),
         Commands.deadline(
             Commands.waitTime(Seconds.of(8.0)),
-            this.handleInterpolateShooter("Shot 1", 8.0),
+            this.handleInterpolateShooterToHub("Shot 1", 8.0),
             Commands.waitSeconds(1.0)
                 .andThen(
                     intake.flickIntakeRepeatedly(
@@ -485,7 +545,7 @@ public class AutonomousManager {
         this.rotateToHub(),
         Commands.deadline(
             Commands.waitTime(Seconds.of(8.0)),
-            this.handleInterpolateShooter("Shot 1", 8.0),
+            this.handleInterpolateShooterToHub("Shot 1", 8.0),
             Commands.waitSeconds(1.0)
                 .andThen(
                     intake.flickIntakeRepeatedly(

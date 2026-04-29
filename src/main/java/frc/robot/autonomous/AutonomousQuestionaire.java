@@ -7,9 +7,9 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 /**
  * Class designed to help make dynamic autonomous clear to the technician when they're setting up
  * before the match.
- * 
- * You have to provide a default option, ideally `Boolean.FALSE` if it's a if/else. Then
- * provide a List<T> of what options you should include as additional options.
+ *
+ * <p>You have to provide a default option, ideally `Boolean.FALSE` if it's a if/else. Then provide
+ * a List<T> of what options you should include as additional options.
  */
 public class AutonomousQuestionaire<T> {
   public record Option<T>(String label, T value) {}
