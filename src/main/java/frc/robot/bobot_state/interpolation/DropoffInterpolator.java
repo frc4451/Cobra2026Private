@@ -99,6 +99,12 @@ public class DropoffInterpolator extends TargetInterpolator {
             .primaryVelocity(RotationsPerSecond.of(68))
             .pitch(interpolatorDefaultPitch)
             .timeOfFlight(Seconds.of(1.76))
+            .build(),
+        DistanceAngleSpeedEntry.builder()
+            .distanceToTarget(Feet.of(35))
+            .primaryVelocity(RotationsPerSecond.of(85))
+            .pitch(interpolatorDefaultPitch)
+            .timeOfFlight(Seconds.of(1.76))
             .build());
     // DistanceAngleSpeedEntry.builder()
     //     .distanceToTarget(Feet.of(47))
