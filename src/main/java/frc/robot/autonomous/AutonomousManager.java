@@ -385,7 +385,7 @@ public class AutonomousManager {
     return Commands.sequence(
         intake.endeffectorDeploy(),
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8))),
-        Commands.waitSeconds(getAutoWaitSeconds()),
+        Commands.deferredProxy(() -> Commands.waitSeconds(getAutoWaitSeconds())),
         BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-1", 14, mirrorVertically),
         intake.endeffectorDeploy(),
         Commands.deadline(
@@ -428,7 +428,7 @@ public class AutonomousManager {
   private Command beedrill(boolean mirrorVertically) {
     return Commands.sequence(
         intake.endeffectorDeploy(),
-        Commands.waitSeconds(getAutoWaitSeconds()),
+        Commands.deferredProxy(() -> Commands.waitSeconds(getAutoWaitSeconds())),
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
             .onlyIf(() -> !this.shouldStartOnBump()),
         this.BIDOOF(mirrorVertically).onlyIf(() -> this.shouldStartOnBump()),
@@ -455,14 +455,14 @@ public class AutonomousManager {
   private Command evilDitto(boolean mirrorVertically) {
     return Commands.sequence(
         intake.endeffectorDeploy(),
-        // Commands.waitSeconds(() -> getAutoWaitSeconds()),
+        Commands.deferredProxy(() -> Commands.waitSeconds(getAutoWaitSeconds())),
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
             .onlyIf(() -> !this.shouldStartOnBump()),
         Commands.waitSeconds(0),
         this.BIDOOF(mirrorVertically).onlyIf(() -> this.shouldStartOnBump()),
-        BLineTrajectory("Evil-Ditto-1"),
+        BLineTrajectory("Evil-Ditto-1", mirrorVertically),
         this.stashedIntake(),
-        BLineTrajectory("Evil-Ditto-2"));
+        BLineTrajectory("Evil-Ditto-2", mirrorVertically));
   }
 
   /**
@@ -504,7 +504,7 @@ public class AutonomousManager {
 
     return Commands.sequence(
         intake.endeffectorDeploy(),
-        Commands.waitSeconds(getAutoWaitSeconds()),
+        Commands.deferredProxy(() -> Commands.waitSeconds(getAutoWaitSeconds())),
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
             .onlyIf(() -> !this.shouldStartOnBump()),
         Commands.waitSeconds(0),
@@ -529,7 +529,7 @@ public class AutonomousManager {
   private Command diglettt() {
     return Commands.sequence(
         intake.endeffectorDeploy(),
-        Commands.waitSeconds(getAutoWaitSeconds()),
+        Commands.deferredProxy(() -> Commands.waitSeconds(getAutoWaitSeconds())),
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
             .onlyIf(() -> !this.shouldStartOnBump()),
         Commands.waitSeconds(0),
@@ -557,13 +557,13 @@ public class AutonomousManager {
   private Command gardevoir(boolean mirrorVertically) {
     return Commands.sequence(
         intake.endeffectorDeploy(),
-        Commands.waitSeconds(getAutoWaitSeconds()),
+        Commands.deferredProxy(() -> Commands.waitSeconds(getAutoWaitSeconds())),
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
             .onlyIf(() -> !this.shouldStartOnBump()),
         Commands.waitSeconds(0),
         this.BIDOOF(mirrorVertically).onlyIf(() -> this.shouldStartOnBump()),
         BLineTrajectory("Gardevoir"),
-        Commands.waitSeconds(2.0),
+        Commands.waitSeconds(0.0),
         BLineTrajectory("Gardevoir-2"),
         this.rotateToHub(),
         Commands.deadline(
