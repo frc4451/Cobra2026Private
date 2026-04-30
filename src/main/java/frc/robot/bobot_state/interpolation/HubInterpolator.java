@@ -84,7 +84,7 @@ public class HubInterpolator extends TargetInterpolator {
             .build(),
         DistanceAngleSpeedEntry.builder()
             .distanceToTarget(Feet.of(15))
-            .primaryVelocity(RotationsPerSecond.of(55))
+            .primaryVelocity(RotationsPerSecond.of(54))
             .pitch(interpolatorDefaultPitch)
             .timeOfFlight(Seconds.of(1.37))
             .build(),
