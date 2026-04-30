@@ -38,6 +38,7 @@ public class AutonomousManager {
 
   private final AutonomousQuestionaire<Boolean> shouldStartOnBump;
   private final AutonomousQuestionaire<SableyeEndState> sableyeQuestionaire;
+  private final AutonomousQuestionaire<Double> autoWaitSec;
 
   private static final double rotationToleranceDegrees = 3.0;
   // private static final Time MAX_TIMEOUT = Seconds.of(20);
@@ -68,11 +69,30 @@ public class AutonomousManager {
                 new Option<>(
                     SableyeEndState.END_NEAR_ALLIANCE_SCORE.value,
                     SableyeEndState.END_NEAR_ALLIANCE_SCORE)));
+    autoWaitSec =
+        new AutonomousQuestionaire<>(
+            "Autonomous/AutoWaitSec",
+            new Option<>("0.0 Sec", 0.0),
+            List.of(
+                new Option<>("0.25 Sec", 0.25),
+                new Option<>("0.50 Sec", 0.5),
+                new Option<>("0.75 Sec", 0.75),
+                new Option<>("1.00 Sec", 1.0),
+                new Option<>("1.25 Sec", 1.25),
+                new Option<>("1.50 Sec", 1.5),
+                new Option<>("1.75 Sec", 1.75),
+                new Option<>("2.00 Sec", 2.0)));
   }
 
   /** Check if we should start the autonomous routine on the bump */
   public boolean shouldStartOnBump() {
     return Boolean.TRUE.equals(shouldStartOnBump.get());
+  }
+
+  public double autoWaitSec() {
+    // return autoWaitSec.get();
+    // return autoWaitSec.get().doubleValue();
+    return Double.valueOf(autoWaitSec.get()).doubleValue();
   }
 
   /**
@@ -366,6 +386,7 @@ public class AutonomousManager {
    */
   private Command blazikenMegaEvolutionImpl(boolean mirrorVertically) {
     return Commands.sequence(
+        Commands.waitSeconds(autoWaitSec()),
         intake.endeffectorDeploy(),
         BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-1", 14, mirrorVertically),
         intake.endeffectorDeploy(),
@@ -408,10 +429,10 @@ public class AutonomousManager {
    */
   private Command beedrill(boolean mirrorVertically) {
     return Commands.sequence(
+        Commands.waitSeconds(autoWaitSec()),
         intake.endeffectorDeploy(),
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
             .onlyIf(() -> !this.shouldStartOnBump()),
-        Commands.waitSeconds(1.0),
         this.BIDOOF(mirrorVertically).onlyIf(() -> this.shouldStartOnBump()),
         BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Beedrill-1", 18, mirrorVertically),
         this.rotateToHub(),
@@ -435,6 +456,7 @@ public class AutonomousManager {
    */
   private Command evilDitto(boolean mirrorVertically) {
     return Commands.sequence(
+        Commands.waitSeconds(autoWaitSec()),
         intake.endeffectorDeploy(),
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
             .onlyIf(() -> !this.shouldStartOnBump()),
@@ -483,6 +505,7 @@ public class AutonomousManager {
                             Seconds.of(8.0)))));
 
     return Commands.sequence(
+        Commands.waitSeconds(autoWaitSec()),
         intake.endeffectorDeploy(),
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
             .onlyIf(() -> !this.shouldStartOnBump()),
@@ -507,6 +530,7 @@ public class AutonomousManager {
    */
   private Command diglettt() {
     return Commands.sequence(
+        Commands.waitSeconds(autoWaitSec()),
         intake.endeffectorDeploy(),
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
             .onlyIf(() -> !this.shouldStartOnBump()),
@@ -534,6 +558,7 @@ public class AutonomousManager {
    */
   private Command gardevoir(boolean mirrorVertically) {
     return Commands.sequence(
+        Commands.waitSeconds(autoWaitSec()),
         intake.endeffectorDeploy(),
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
             .onlyIf(() -> !this.shouldStartOnBump()),
