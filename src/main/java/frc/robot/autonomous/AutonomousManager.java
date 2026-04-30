@@ -563,7 +563,7 @@ public class AutonomousManager {
         Commands.waitSeconds(0),
         this.BIDOOF(mirrorVertically).onlyIf(() -> this.shouldStartOnBump()),
         BLineTrajectory("Gardevoir"),
-        Commands.waitSeconds(0.0),
+        Commands.waitSeconds(3.0),
         BLineTrajectory("Gardevoir-2"),
         this.rotateToHub(),
         Commands.deadline(
