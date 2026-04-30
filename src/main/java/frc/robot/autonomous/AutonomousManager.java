@@ -16,7 +16,6 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -385,6 +384,7 @@ public class AutonomousManager {
   private Command blazikenMegaEvolutionImpl(boolean mirrorVertically) {
     return Commands.sequence(
         intake.endeffectorDeploy(),
+        Commands.waitUntil(intake.isNearGoal(Degrees.of(8))),
         Commands.waitSeconds(getAutoWaitSeconds()),
         BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-1", 14, mirrorVertically),
         intake.endeffectorDeploy(),
@@ -455,7 +455,7 @@ public class AutonomousManager {
   private Command evilDitto(boolean mirrorVertically) {
     return Commands.sequence(
         intake.endeffectorDeploy(),
-        Commands.waitSeconds(getAutoWaitSeconds()),
+        // Commands.waitSeconds(() -> getAutoWaitSeconds()),
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
             .onlyIf(() -> !this.shouldStartOnBump()),
         Commands.waitSeconds(0),
@@ -557,9 +557,9 @@ public class AutonomousManager {
   private Command gardevoir(boolean mirrorVertically) {
     return Commands.sequence(
         intake.endeffectorDeploy(),
-        Commands.waitSeconds(getAutoWaitSeconds()),
-        Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
-            .onlyIf(() -> !this.shouldStartOnBump()),
+        // Commands.waitSeconds(getAutoWaitSeconds()),
+        // Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
+        //     .onlyIf(() -> !this.shouldStartOnBump()),
         Commands.waitSeconds(0),
         this.BIDOOF(mirrorVertically).onlyIf(() -> this.shouldStartOnBump()),
         BLineTrajectory("Gardevoir"),
