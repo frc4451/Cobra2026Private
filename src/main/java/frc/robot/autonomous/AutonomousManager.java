@@ -557,9 +557,9 @@ public class AutonomousManager {
   private Command gardevoir(boolean mirrorVertically) {
     return Commands.sequence(
         intake.endeffectorDeploy(),
-        // Commands.waitSeconds(getAutoWaitSeconds()),
-        // Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
-        //     .onlyIf(() -> !this.shouldStartOnBump()),
+        Commands.waitSeconds(getAutoWaitSeconds()),
+        Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
+            .onlyIf(() -> !this.shouldStartOnBump()),
         Commands.waitSeconds(0),
         this.BIDOOF(mirrorVertically).onlyIf(() -> this.shouldStartOnBump()),
         BLineTrajectory("Gardevoir"),
