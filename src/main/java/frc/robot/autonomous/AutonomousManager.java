@@ -16,6 +16,8 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class AutonomousManager {
@@ -69,19 +71,15 @@ public class AutonomousManager {
                 new Option<>(
                     SableyeEndState.END_NEAR_ALLIANCE_SCORE.value,
                     SableyeEndState.END_NEAR_ALLIANCE_SCORE)));
+
+    var waitSecOptions = new ArrayList<Option<Double>>();
+    for (double t = 0.25; t <= 3.0; t += 0.25) {
+      waitSecOptions.add(new Option<>(String.format("%.2f Sec", t), t));
+    }
+
     autoWaitSec =
         new AutonomousQuestionaire<>(
-            "Autonomous/AutoWaitSec",
-            new Option<>("0.0 Sec", 0.0),
-            List.of(
-                new Option<>("0.25 Sec", 0.25),
-                new Option<>("0.50 Sec", 0.5),
-                new Option<>("0.75 Sec", 0.75),
-                new Option<>("1.00 Sec", 1.0),
-                new Option<>("1.25 Sec", 1.25),
-                new Option<>("1.50 Sec", 1.5),
-                new Option<>("1.75 Sec", 1.75),
-                new Option<>("2.00 Sec", 2.0)));
+            "Autonomous/AutoWaitSec", new Option<>("0.0 Sec", 0.0), waitSecOptions);
   }
 
   /** Check if we should start the autonomous routine on the bump */
@@ -89,8 +87,10 @@ public class AutonomousManager {
     return Boolean.TRUE.equals(shouldStartOnBump.get());
   }
 
-  public double autoWaitSec() {
-    return autoWaitSec.get().doubleValue();
+  public double getAutoWaitSeconds() {
+    // This _will_ be null when we first boot robot code, make it default to 0
+    Double val = autoWaitSec.get();
+    return val != null ? val.doubleValue() : 0.0;
   }
 
   /**
@@ -384,8 +384,8 @@ public class AutonomousManager {
    */
   private Command blazikenMegaEvolutionImpl(boolean mirrorVertically) {
     return Commands.sequence(
-        Commands.waitSeconds(autoWaitSec()),
         intake.endeffectorDeploy(),
+        Commands.waitSeconds(getAutoWaitSeconds()),
         BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-1", 14, mirrorVertically),
         intake.endeffectorDeploy(),
         Commands.deadline(
@@ -427,8 +427,8 @@ public class AutonomousManager {
    */
   private Command beedrill(boolean mirrorVertically) {
     return Commands.sequence(
-        Commands.waitSeconds(autoWaitSec()),
         intake.endeffectorDeploy(),
+        Commands.waitSeconds(getAutoWaitSeconds()),
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
             .onlyIf(() -> !this.shouldStartOnBump()),
         this.BIDOOF(mirrorVertically).onlyIf(() -> this.shouldStartOnBump()),
@@ -454,8 +454,8 @@ public class AutonomousManager {
    */
   private Command evilDitto(boolean mirrorVertically) {
     return Commands.sequence(
-        Commands.waitSeconds(autoWaitSec()),
         intake.endeffectorDeploy(),
+        Commands.waitSeconds(getAutoWaitSeconds()),
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
             .onlyIf(() -> !this.shouldStartOnBump()),
         Commands.waitSeconds(0),
@@ -503,8 +503,8 @@ public class AutonomousManager {
                             Seconds.of(8.0)))));
 
     return Commands.sequence(
-        Commands.waitSeconds(autoWaitSec()),
         intake.endeffectorDeploy(),
+        Commands.waitSeconds(getAutoWaitSeconds()),
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
             .onlyIf(() -> !this.shouldStartOnBump()),
         Commands.waitSeconds(0),
@@ -528,8 +528,8 @@ public class AutonomousManager {
    */
   private Command diglettt() {
     return Commands.sequence(
-        Commands.waitSeconds(autoWaitSec()),
         intake.endeffectorDeploy(),
+        Commands.waitSeconds(getAutoWaitSeconds()),
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
             .onlyIf(() -> !this.shouldStartOnBump()),
         Commands.waitSeconds(0),
@@ -556,8 +556,8 @@ public class AutonomousManager {
    */
   private Command gardevoir(boolean mirrorVertically) {
     return Commands.sequence(
-        Commands.waitSeconds(autoWaitSec()),
         intake.endeffectorDeploy(),
+        Commands.waitSeconds(getAutoWaitSeconds()),
         Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
             .onlyIf(() -> !this.shouldStartOnBump()),
         Commands.waitSeconds(0),
