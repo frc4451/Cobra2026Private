@@ -72,9 +72,9 @@ public class AutonomousManager {
     autoWaitSec =
         new AutonomousQuestionaire<>(
             "Autonomous/AutoWaitSec",
-            new Option<>("0.0 Sec", Double.valueOf(0.0)),
+            new Option<>("0.0 Sec", 0.0),
             List.of(
-                new Option<>("0.25 Sec", Double.valueOf(0.25)),
+                new Option<>("0.25 Sec", 0.25),
                 new Option<>("0.50 Sec", 0.5),
                 new Option<>("0.75 Sec", 0.75),
                 new Option<>("1.00 Sec", 1.0),
@@ -90,9 +90,7 @@ public class AutonomousManager {
   }
 
   public double autoWaitSec() {
-    // return autoWaitSec.get();
-    // return autoWaitSec.get().doubleValue();
-    return Double.valueOf(autoWaitSec.get()).doubleValue();
+    return autoWaitSec.get().doubleValue();
   }
 
   /**
