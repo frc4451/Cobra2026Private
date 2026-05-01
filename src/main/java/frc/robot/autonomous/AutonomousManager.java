@@ -72,7 +72,7 @@ public class AutonomousManager {
                     SableyeEndState.END_NEAR_ALLIANCE_SCORE)));
 
     var waitSecOptions = new ArrayList<Option<Double>>();
-    for (double t = 0.25; t <= 3.0; t += 0.25) {
+    for (double t = 0.25; t <= 5.0; t += 0.25) {
       waitSecOptions.add(new Option<>(String.format("%.2f Sec", t), t));
     }
 
