@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.autonomous.AutonomousManager;
 import frc.robot.bobot_state.BobotState;
 import frc.robot.bobot_state.dashboard.TeleopShiftManager;
@@ -36,6 +35,9 @@ import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.feeder.FeederConstants;
 // import frc.robot.subsystems.hood.Hood;
 // import frc.robot.subsystems.hood.HoodConstants;
+import frc.robot.subsystems.hood.Hood;
+import frc.robot.subsystems.hood.Hood.HoodState;
+import frc.robot.subsystems.hood.HoodConstants;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.shooter.Shooter;
@@ -48,11 +50,12 @@ import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOSimTalo
 import org.robotzgarage.frc2026.subsystems.rollers.follow.FollowRollersIOTalonFX;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIO;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFX;
+import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOSimTalonFXS;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFX;
+import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFXSWithCANCoder;
 import org.robotzgarage.frc2026.subsystems.rollers.single.SingleRollerIOTalonFXWithCANCoder;
 import org.robotzgarage.frc2026.subsystems.vision.AprilTagVision;
 import org.robotzgarage.frc2026.util.GarageCommandXboxController;
-import org.robotzgarage.frc2026.util.TuningUtils.TuningUnit;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -70,7 +73,7 @@ public class RobotContainer {
   private final Feeder feeder;
   private final Intake intake;
   private final Shooter shooter;
-  //   private final Hood hood;
+  private final Hood hood;
 
   // Vision testing
   private final AprilTagVision aprilTagVision;
@@ -111,9 +114,9 @@ public class RobotContainer {
             new SingleRollerIOTalonFXWithCANCoder(
                 IntakeConstants.endeffectorConfig, IntakeConstants.cancoderConfig);
 
-        // hoodIO =
-        //     new SingleRollerIOTalonFXSWithCANCoder(
-        //         // HoodConstants.hoodConfig, HoodConstants.cancoderConfig);
+        hoodIO =
+            new SingleRollerIOTalonFXSWithCANCoder(
+                HoodConstants.hoodConfig, HoodConstants.cancoderConfig);
 
         shooterIO = new FollowRollersIOTalonFX(ShooterConstants.flywheelFollowersConfig);
 
@@ -138,7 +141,7 @@ public class RobotContainer {
             //         IntakeConstants.endeffectorConfigSim, IntakeConstants.cancoderConfig);
             new SingleRollerIOSimTalonFX(IntakeConstants.endeffectorConfigSim);
 
-        // hoodIO = new SingleRollerIOSimTalonFXS(HoodConstants.hoodConfigSim);
+        hoodIO = new SingleRollerIOSimTalonFXS(HoodConstants.hoodConfigSim);
         shooterIO = new FollowRollersIOSimTalonFX(ShooterConstants.flywheelFollowersConfigSim);
 
         towerIO = new SingleRollerIOSimTalonFX(FeederConstants.towerConfigSim);
@@ -159,7 +162,7 @@ public class RobotContainer {
         intakeIO = new SingleRollerIO() {};
         endeffectorIO = new SingleRollerIO() {};
 
-        // hoodIO = new SingleRollerIO() {};
+        hoodIO = new SingleRollerIO() {};
         shooterIO = new FollowRollersIO() {};
 
         towerIO = new SingleRollerIO() {};
@@ -177,7 +180,7 @@ public class RobotContainer {
 
     feeder = new Feeder(towerIO, spindexerIO);
     intake = new Intake(intakeIO, endeffectorIO);
-    // hood = new Hood(hoodIO);
+    hood = new Hood(hoodIO);
     shooter = new Shooter(shooterIO);
     aprilTagVision = new AprilTagVision(VisionConstants.visionSubsystemConfig);
     objectDetectionVision = new ObjectDetectionVision();
@@ -190,7 +193,7 @@ public class RobotContainer {
     configureDriverBindings(drivercontroller);
     configureOperatorBindings(operatorcontroller);
     configureAutonomousRoutines();
-    configureTuningRoutines();
+    // configureTuningRoutines();
 
     DriverStation.silenceJoystickConnectionWarning(true);
   }
@@ -198,79 +201,109 @@ public class RobotContainer {
   private void configureAutonomousRoutines() {
     AutonomousManager autonomousManager = new AutonomousManager(drive, shooter, intake, feeder);
 
-    // autoChooser.addOption("Himithy", autonomousManager.himithy());
-    // autoChooser.addOption("Himithyy", autonomousManager.himithyy());
-    // autoChooser.addOption("Timithy", autonomousManager.timithy());
-    // autoChooser.addOption("Timithyy", autonomousManager.timithyy());
-    // autoChooser.addOption("Timithy-1", autonomousManager.timithy_1());
-    // autoChooser.addOption("Himithy take 1", autonomousManager.himithyTake1());
-    // autoChooser.addOption("Dimithy-1", autonomousManager.dimithy_1());
-    // autoChooser.addOption("Bimithy :)", autonomousManager.bimithySmiley());
-    autoChooser.addOption("Bimithy AutoRotateToHub", autonomousManager.bimithySmileyHubRotation());
+    // double take auto
     autoChooser.addOption("Blaziken", autonomousManager.blazikenTheMegaEvolution());
     autoChooser.addOption("Swampert", autonomousManager.swampertTheMegaEvolution());
-    // autoChooser.addOption("Ean's Path", autonomousManager.eanDemo());
-    // autoChooser.addOption("Test", autonomousManager.test());
 
-    // autoChooser.addOption("strafe test", autonomousManager.strafeShot());
+    // shadow, one take auto
+    autoChooser.addOption("Beedrill", autonomousManager.beedrillTheMegaEvolution());
+    autoChooser.addOption("Slowpoke", autonomousManager.slowpokeTheMegaEvolution());
+
+    // shadow, ajustible defence auto
+    autoChooser.addOption("EvilDitto", autonomousManager.evilDitto());
+    autoChooser.addOption("DangerDitto", autonomousManager.dangerDitto());
+
+    // shadow, stafe center line auto, for transition period
+    autoChooser.addOption("Sableye", autonomousManager.sableyeTheMegaEvolution());
+    autoChooser.addOption("Gengar", autonomousManager.gengarTheMegaEvolution());
+
+    // depo auto
+    autoChooser.addOption("Diglett", autonomousManager.diglett());
+
+    // human player auto
+    autoChooser.addOption("Gardevoir", autonomousManager.gardevoirTheMegaEvolution());
 
     // autoChooser.addOption("1ft BLine test", autonomousManager.bline1ft());
     // autoChooser.addOption("2ft BLine test", autonomousManager.bline2ft());
   }
 
-  private void configureTuningRoutines() {
-    if (Constants.tuningMode) {
-      // Set up SysId routines
-      autoChooser.addOption(
-          "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-      autoChooser.addOption(
-          "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-      autoChooser.addOption(
-          "Drive SysId (Quasistatic Forward)",
-          drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-      autoChooser.addOption(
-          "Drive SysId (Quasistatic Reverse)",
-          drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-      autoChooser.addOption(
-          "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-      autoChooser.addOption(
-          "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+  //   private void configureTuningRoutines() {
+  //     if (Constants.tuningMode) {
+  //       // Set up SysId routines
+  //       autoChooser.addOption(
+  //           "Drive Wheel Radius Characterization",
+  // DriveCommands.wheelRadiusCharacterization(drive));
+  //       autoChooser.addOption(
+  //           "Drive Simple FF Characterization",
+  // DriveCommands.feedforwardCharacterization(drive));
+  //       autoChooser.addOption(
+  //           "Drive SysId (Quasistatic Forward)",
+  //           drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+  //       autoChooser.addOption(
+  //           "Drive SysId (Quasistatic Reverse)",
+  //           drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+  //       autoChooser.addOption(
+  //           "Drive SysId (Dynamic Forward)",
+  // drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+  //       autoChooser.addOption(
+  //           "Drive SysId (Dynamic Reverse)",
+  // drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-      autoChooser.addOption(
-          "Tune Intake Roller (Volts)",
-          this.intake.rollersFeedForwardCharacterization(TuningUnit.VOLTS));
-      autoChooser.addOption(
-          "Tune Intake Roller (Amps)",
-          this.intake.rollersFeedForwardCharacterization(TuningUnit.AMPS));
+  //       autoChooser.addOption(
+  //           "Tune Intake Roller (Volts)",
+  //           this.intake.rollersFeedForwardCharacterization(TuningUnit.VOLTS));
+  //       autoChooser.addOption(
+  //           "Tune Intake Roller (Amps)",
+  //           this.intake.rollersFeedForwardCharacterization(TuningUnit.AMPS));
 
-      autoChooser.addOption(
-          "Tune Intake Endeffector (Volts)",
-          this.intake.endeffectorFeedForwardCharacterization(TuningUnit.VOLTS));
-      autoChooser.addOption(
-          "Tune Intake Endeffector (Amps)",
-          this.intake.endeffectorFeedForwardCharacterization(TuningUnit.AMPS));
+  //       autoChooser.addOption(
+  //           "Tune Intake Endeffector (Volts)",
+  //           this.intake.endeffectorFeedForwardCharacterization(TuningUnit.VOLTS));
+  //       autoChooser.addOption(
+  //           "Tune Intake Endeffector (Amps)",
+  //           this.intake.endeffectorFeedForwardCharacterization(TuningUnit.AMPS));
 
-      autoChooser.addOption(
-          "Tune Shooter Flywheels (Volts)",
-          this.shooter.steadyStateCharacterization(TuningUnit.VOLTS));
-      autoChooser.addOption(
-          "Tune Shooter Flywheels (Amps)",
-          this.shooter.steadyStateCharacterization(TuningUnit.AMPS));
+  //       autoChooser.addOption(
+  //           "Tune Shooter Flywheels (Volts)",
+  //           this.shooter.steadyStateCharacterization(TuningUnit.VOLTS));
+  //       autoChooser.addOption(
+  //           "Tune Shooter Flywheels (Amps)",
+  //           this.shooter.steadyStateCharacterization(TuningUnit.AMPS));
 
-      autoChooser.addOption(
-          "Tune Spindexer Flywheels (Volts)",
-          this.feeder.kickerFeedForwardCharacterization(TuningUnit.VOLTS));
-      autoChooser.addOption(
-          "Tune Spindexer Flywheels (Amps)",
-          this.feeder.kickerFeedForwardCharacterization(TuningUnit.AMPS));
+  //       autoChooser.addOption(
+  //           "Tune Spindexer Flywheels (Volts)",
+  //           this.feeder.kickerFeedForwardCharacterization(TuningUnit.VOLTS));
+  //       autoChooser.addOption(
+  //           "Tune Spindexer Flywheels (Amps)",
+  //           this.feeder.kickerFeedForwardCharacterization(TuningUnit.AMPS));
 
-      autoChooser.addOption(
-          "Tune Tower Flywheels (Volts)",
-          this.feeder.towerFeedForwardCharacterization(TuningUnit.VOLTS));
-      autoChooser.addOption(
-          "Tune Tower Flywheels (Amps)",
-          this.feeder.towerFeedForwardCharacterization(TuningUnit.AMPS));
-    }
+  //       autoChooser.addOption(
+  //           "Tune Tower Flywheels (Volts)",
+  //           this.feeder.towerFeedForwardCharacterization(TuningUnit.VOLTS));
+  //       autoChooser.addOption(
+  //           "Tune Tower Flywheels (Amps)",
+  //           this.feeder.towerFeedForwardCharacterization(TuningUnit.AMPS));
+  //     }
+  //   }
+
+  /**
+   * Configures automatic hood angle adjustments based on field zone and trench proximity.
+   *
+   * <p>Each zone trigger is ANDed with {@code isNearTrench().negate()} so that exiting the trench
+   * re-fires the zone trigger and restores the correct state.
+   */
+  private void configureHoodBindings(Hood hood) {
+    Trigger nearTrench = BobotState.isNearTrench();
+
+    BobotState.inNearAllianceZone()
+        .and(nearTrench.negate())
+        .onTrue(hood.setHoodState(HoodState.DOWN));
+
+    BobotState.inNeutralZone().and(nearTrench.negate()).onTrue(hood.setHoodState(HoodState.MID));
+
+    BobotState.inFarAllianceZone().and(nearTrench.negate()).onTrue(hood.setHoodState(HoodState.UP));
+
+    nearTrench.onTrue(hood.setHoodState(HoodState.DOWN));
   }
 
   /**
@@ -351,6 +384,8 @@ public class RobotContainer {
                 () -> BobotState.getTrenchVARC().getTargetPose(),
                 () -> BobotState.getTrenchVARC().getRotationTarget()));
 
+    // controller.x().whileTrue(hood.setHoodState(HoodState.DOWN));
+
     // controller
     //     .y()
     //     .whileTrue(
@@ -391,7 +426,7 @@ public class RobotContainer {
     // Deploy the Intake as soon as Teleop starts
     teleopActive.onTrue(intake.endeffectorDeploy());
 
-    controller.povLeft().onTrue(intake.endeffectorStart());
+    controller.povLeft().onTrue(intake.endeffectorStashed());
     // controller.povUp().onTrue(intake.endeffectorSqueeze());
 
     controller
@@ -422,7 +457,7 @@ public class RobotContainer {
 
     controller.leftBumper().whileTrue(shooter.runShooterToPoop()).onFalse(shooter.stop());
 
-    spindexerReverse.onTrue(feeder.runSpindexerReverse()).onFalse(feeder.stop());
+    // spindexerReverse.onTrue(feeder.runSpindexerReverse()).onFalse(feeder.stop());
 
     // Should stop feeding when we are too close behind the HUB in the neutral zone
     // or when we are directly in front of the HUB on the far alliance. Still allow
@@ -446,6 +481,37 @@ public class RobotContainer {
         .leftTrigger()
         .whileTrue(shooter.runShooterVelocityTorqueCurrent())
         .onFalse(shooter.stop());
+
+    // Handles Hood Controls
+    Trigger nearTrench = BobotState.isNearTrench();
+    Trigger intakeDown = intake.isNearGoal(Degrees.of(90), Degrees.of(10));
+
+    BobotState.inNearAllianceZone()
+        .and(nearTrench.negate())
+        .and(intakeDown.negate())
+        .and(controller.rightBumper())
+        .onTrue(hood.setHoodState(HoodState.DOWN));
+
+    BobotState.inNeutralZone()
+        .and(nearTrench.negate())
+        .and(intakeDown.negate())
+        .and(controller.rightBumper())
+        .onTrue(hood.setHoodState(HoodState.UP));
+
+    BobotState.inFarAllianceZone()
+        .and(nearTrench.negate())
+        .and(intakeDown.negate())
+        .and(controller.rightBumper())
+        .onTrue(hood.setHoodState(HoodState.MID));
+
+    nearTrench
+        .or(intakeDown)
+        .or(controller.rightBumper().negate())
+        .onTrue(hood.setHoodState(HoodState.DOWN));
+
+    // controller.x().onTrue(hood.setHoodState(HoodState.MID));
+    // controller.b().onTrue(hood.setHoodState(HoodState.UP));
+    // controller.y().onTrue(hood.setHoodState(HoodState.DOWN));
   }
 
   /**

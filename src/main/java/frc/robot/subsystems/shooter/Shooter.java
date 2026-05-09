@@ -28,7 +28,7 @@ public class Shooter extends SubsystemBase {
   private static final LoggedTunableNumber shooterPercent =
       new LoggedTunableNumber(name + "/ShooterPercent", 0.78);
   private static final LoggedTunableNumber shooterVelocity =
-      new LoggedTunableNumber(name + "/ShooterVelocity", 60.0);
+      new LoggedTunableNumber(name + "/ShooterVelocity", 85.0);
 
   private static final LoggedTunableNumber shooterPoopVelocity =
       new LoggedTunableNumber(name + "/ShooterPoopVelocityRPS", 10.0);
@@ -149,6 +149,17 @@ public class Shooter extends SubsystemBase {
                 .leaderVelocity
                 .isNear(
                     BobotState.getHubInterpolator().getCalculation().primaryVelocity(), tolerance));
+  }
+
+  public Trigger isNearDropoffVelocity(AngularVelocity tolerance) {
+    return new Trigger(
+        () ->
+            this.shooter
+                .getInputs()
+                .leaderVelocity
+                .isNear(
+                    BobotState.getDropoffInterpolator().getCalculation().primaryVelocity(),
+                    tolerance));
   }
 
   public Command stop() {

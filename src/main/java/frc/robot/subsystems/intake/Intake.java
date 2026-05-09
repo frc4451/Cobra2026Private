@@ -112,7 +112,7 @@ public class Intake extends SubsystemBase {
   //       });
   // }
 
-  public Command endeffectorStart() {
+  public Command endeffectorStashed() {
     return runOnce(() -> endeffector.setGoal(Degrees.of(endeffectorStart.get())));
   }
 
@@ -234,6 +234,10 @@ public class Intake extends SubsystemBase {
   public Trigger isNearGoal(Angle tolerance) {
     return new Trigger(
         () -> this.endeffector.isNear(this.endeffector.getGoalPosition(), tolerance));
+  }
+
+  public Trigger isNearGoal(Angle angle, Angle tolerance) {
+    return new Trigger(() -> this.endeffector.isNear(angle, tolerance));
   }
 
   public void setCurrentState(EndeffectorState state) {

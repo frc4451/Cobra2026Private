@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.Seconds;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.autonomous.AutonomousQuestionaire.Option;
 import frc.robot.bobot_state.BobotState;
 import frc.robot.commands.DriveCommands;
 import frc.robot.lib.BLine.FollowPath;
@@ -15,12 +16,30 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AutonomousManager {
   private final Drive drive;
   private final Shooter shooter;
   private final Intake intake;
   private final Feeder feeder;
+
+  public enum SableyeEndState {
+    END_NEUTRAL_STATIONARY("End in Neutral, Do Nothing"),
+    END_NEUTRAL_FEED("End in Neutral, Feed to Near Alliance"),
+    END_NEAR_ALLIANCE_SCORE("End in Near Alliance, Score in Hub");
+
+    public String value;
+
+    private SableyeEndState(String value) {
+      this.value = value;
+    }
+  }
+
+  private final AutonomousQuestionaire<Boolean> shouldStartOnBump;
+  private final AutonomousQuestionaire<SableyeEndState> sableyeQuestionaire;
+  private final AutonomousQuestionaire<Double> autoWaitSec;
 
   private static final double rotationToleranceDegrees = 3.0;
   // private static final Time MAX_TIMEOUT = Seconds.of(20);
@@ -30,6 +49,47 @@ public class AutonomousManager {
     this.shooter = shooter;
     this.intake = intake;
     this.feeder = feeder;
+
+    // Default that we start in the trench, but optionally shift the starting point to the
+    // bump. Then follow the autonomous routine as we expect from BLine.
+    shouldStartOnBump =
+        new AutonomousQuestionaire<>(
+            "Autonomous/ShouldStartOnBump",
+            new Option<>("No", Boolean.FALSE),
+            List.of(new Option<>("Yes", Boolean.TRUE)));
+
+    sableyeQuestionaire =
+        new AutonomousQuestionaire<>(
+            "Autonomous/SableyeEndState",
+            new Option<>(
+                SableyeEndState.END_NEUTRAL_STATIONARY.value,
+                SableyeEndState.END_NEUTRAL_STATIONARY),
+            List.of(
+                new Option<>(
+                    SableyeEndState.END_NEUTRAL_FEED.value, SableyeEndState.END_NEUTRAL_FEED),
+                new Option<>(
+                    SableyeEndState.END_NEAR_ALLIANCE_SCORE.value,
+                    SableyeEndState.END_NEAR_ALLIANCE_SCORE)));
+
+    var waitSecOptions = new ArrayList<Option<Double>>();
+    for (double t = 0.25; t <= 5.0; t += 0.25) {
+      waitSecOptions.add(new Option<>(String.format("%.2f Sec", t), t));
+    }
+
+    autoWaitSec =
+        new AutonomousQuestionaire<>(
+            "Autonomous/AutoWaitSec", new Option<>("0.0 Sec", 0.0), waitSecOptions);
+  }
+
+  /** Check if we should start the autonomous routine on the bump */
+  public boolean shouldStartOnBump() {
+    return Boolean.TRUE.equals(shouldStartOnBump.get());
+  }
+
+  public double getAutoWaitSeconds() {
+    // This _will_ be null when we first boot robot code, make it default to 0
+    Double val = autoWaitSec.get();
+    return val != null ? val.doubleValue() : 0.0;
   }
 
   /**
@@ -40,6 +100,11 @@ public class AutonomousManager {
   private Command rotateToHub() {
     return DriveCommands.snapToAngle(
         drive, () -> BobotState.getHubVARC().getRotationTarget(), rotationToleranceDegrees);
+  }
+
+  private Command rotateToClosestDropoff() {
+    return DriveCommands.snapToAngle(
+        drive, () -> BobotState.getClosestDropoff().getRotationTarget(), rotationToleranceDegrees);
   }
 
   /** This uses "snapToAngle" to lock the rotation of the intake towards fuel in the neutral zone */
@@ -62,7 +127,7 @@ public class AutonomousManager {
         .andThen(Commands.print(formattedPrefix + "end"));
   }
 
-  private Command handleInterpolateShooter(String prefix, double emptyTime) {
+  private Command handleInterpolateShooterToHub(String prefix, double emptyTime) {
     String formattedPrefix = prefix + ": ";
 
     return Commands.sequence(
@@ -82,9 +147,32 @@ public class AutonomousManager {
         .andThen(Commands.print(formattedPrefix + "end"));
   }
 
+  private Command handleInterpolateShooterToDropoff(String prefix, double emptyTime) {
+    String formattedPrefix = prefix + ": ";
+
+    return Commands.sequence(
+            Commands.print(formattedPrefix + "start shooter"),
+            Commands.deadline(
+                shooter.runShooterDropOff().withTimeout(Seconds.of(emptyTime)),
+                // Don't start shooting until you know you can actually score
+                // in the hub
+                Commands.waitUntil((shooter.isNearDropoffVelocity(RotationsPerSecond.of(2.0))))
+                    .andThen(feeder.runFeederVoltage())),
+            shooter.stop(),
+            feeder.stop())
+        .beforeStarting(Commands.print(formattedPrefix + "start"))
+        .andThen(Commands.print(formattedPrefix + "end"));
+  }
+
   /** deploys intake to set position to intake at */
   private Command deployIntake() {
     return Commands.sequence(intake.endeffectorDeploy().until(intake.isNearGoal(Degrees.of(3))))
+        .beforeStarting(Commands.print("deploy: start"))
+        .andThen(Commands.print("deploy: end"));
+  }
+
+  private Command stashedIntake() {
+    return Commands.sequence(intake.endeffectorStashed().until(intake.isNearGoal(Degrees.of(8))))
         .beforeStarting(Commands.print("deploy: start"))
         .andThen(Commands.print("deploy: end"));
   }
@@ -128,17 +216,40 @@ public class AutonomousManager {
         .beforeStarting(Commands.print("Intake rollers: stop"));
   }
 
-  private Command BLineTrajectory(String name) {
-    return Commands.sequence(drive.getBLineBuilder().build(new Path(name)))
+  private Command BLineTrajectory(String name, boolean mirrorVertically) {
+    Path path = new Path(name);
+
+    // Mirror the Path vertically to handle both sides of the driver station POV
+    if (mirrorVertically) {
+      path.mirror();
+    }
+
+    return Commands.sequence(drive.getBLineBuilder().build(path))
         .beforeStarting(Commands.print(name + ": start"))
         .andThen(Commands.print(name + ": end"));
   }
 
-  private Command BLineTrajectorywithIntake(String name) {
-    return Commands.deadline(
-            drive.getBLineBuilder().build(new Path(name)), intake.runRollersTorqueCurrent())
+  private Command BLineTrajectory(String name) {
+    return BLineTrajectory(name, false);
+  }
+
+  private Command BLineTrajectorywithIntake(String name, boolean mirrorVertically) {
+    Path path = new Path(name);
+
+    // Mirror the Path vertically to handle both sides of the driver station POV
+    if (mirrorVertically) {
+      path.mirror();
+    }
+
+    FollowPath followCommand = (FollowPath) drive.getBLineBuilder().build(path);
+
+    return Commands.deadline(followCommand, intake.runRollersTorqueCurrent())
         .beforeStarting(Commands.print(name + ": start"))
         .andThen(Commands.sequence(Commands.print(name + ": end")), intake.stop());
+  }
+
+  private Command BLineTrajectorywithIntake(String name) {
+    return BLineTrajectorywithIntake(name, false);
   }
 
   private Command BLineTrajectorywithIntakeLift(String name, double intaketime) {
@@ -219,39 +330,6 @@ public class AutonomousManager {
         .andThen(Commands.print(name + ": end"));
   }
 
-  /** Fork of {@link #bimithySmiley} that overrides rotation to face the hub (or attempts to) */
-  public Command bimithySmileyHubRotation() {
-    return Commands.sequence(
-        this.deployIntake(),
-        Commands.waitSeconds(1.0).until(intake.isNearGoal(Degrees.of(8.0))),
-        BLineTrajectorywithIntakeLift("Bimithy-1-SOTM", 3.0),
-        this.deployIntake(),
-        Commands.deadline(
-            Commands.waitTime(Seconds.of(4.0)),
-            BLineTrajectoryWithHubRotation("Bimithy-2-SOTM"),
-            this.handleInterpolateShooter("shot 1", 4.0),
-            intake.flickIntakeRepeatedly(
-                Degrees.of(20.0),
-                Degrees.of(45.0),
-                Degrees.of(0.0),
-                Degrees.of(5.0),
-                Seconds.of(10.0))),
-        this.deployIntake(),
-        BLineTrajectorywithIntakeLift("Bimithy-3-SOTM", 4.25),
-        this.rotateToHub(),
-        Commands.deadline(
-                Commands.waitTime(Seconds.of(20.0)),
-                this.handleInterpolateShooter("shot 2", 20.0),
-                intake.flickIntakeRepeatedly(
-                    Degrees.of(0.0),
-                    Degrees.of(45.0),
-                    Degrees.of(0.0),
-                    Degrees.of(5.0),
-                    Seconds.of(4.0)))
-            .beforeStarting(Commands.print("Path start"))
-            .andThen(Commands.print("Path end")));
-  }
-
   /** Driver Station Right Trench Auto */
   public Command blazikenTheMegaEvolution() {
     return blazikenMegaEvolutionImpl(false);
@@ -262,6 +340,42 @@ public class AutonomousManager {
     return blazikenMegaEvolutionImpl(true);
   }
 
+  public Command beedrillTheMegaEvolution() {
+    return beedrill(false);
+  }
+
+  public Command slowpokeTheMegaEvolution() {
+    return beedrill(true);
+  }
+
+  public Command evilDitto() {
+    return evilDitto(false);
+  }
+
+  public Command dangerDitto() {
+    return evilDitto(true);
+  }
+
+  public Command sableyeTheMegaEvolution() {
+    return sableye(false);
+  }
+
+  public Command gengarTheMegaEvolution() {
+    return sableye(true);
+  }
+
+  public Command diglett() {
+    return diglettt();
+  }
+
+  public Command gardevoirTheMegaEvolution() {
+    return gardevoir(false);
+  }
+
+  private Command BIDOOF(boolean mirrorVertically) {
+    return BLineTrajectory("Bidoof", mirrorVertically);
+  }
+
   /**
    * Implementation of Blaziken and Swampert that flips based on which Trench it starts from
    *
@@ -270,13 +384,14 @@ public class AutonomousManager {
   private Command blazikenMegaEvolutionImpl(boolean mirrorVertically) {
     return Commands.sequence(
         intake.endeffectorDeploy(),
-        Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
+        Commands.waitUntil(intake.isNearGoal(Degrees.of(8))),
+        Commands.deferredProxy(() -> Commands.waitSeconds(getAutoWaitSeconds())),
         BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-1", 14, mirrorVertically),
         intake.endeffectorDeploy(),
         Commands.deadline(
             Commands.waitTime(Seconds.of(4.0)),
             BLineTrajectoryWithHubRotation("Blaziken-2", mirrorVertically),
-            this.handleInterpolateShooter("Shot 1", 6.0),
+            this.handleInterpolateShooterToHub("Shot 1", 6.0),
             intake.flickIntakeRepeatedly(
                 Degrees.of(20.0),
                 Degrees.of(35.0),
@@ -295,13 +410,14 @@ public class AutonomousManager {
         BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-3-Alt", 18, mirrorVertically),
         Commands.deadline(
             Commands.waitTime(Seconds.of(3.5)),
-            BLineTrajectoryWithHubRotation("Blaziken-4", mirrorVertically),
-            this.handleInterpolateShooter("Shot 1", 3.5),
-            intake.runRollersTorqueCurrent()),
-        this.feeder.stop(),
-        intake.endeffectorDeploy(),
-        Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
-        BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-5", 18, mirrorVertically));
+            this.rotateToHub(),
+            // BLineTrajectoryWithHubRotation("Blaziken-4", mirrorVertically),
+            this.handleInterpolateShooterToHub("Shot 1", 5.5)));
+    //     intake.runRollersTorqueCurrent()),
+    // this.feeder.stop(),
+    // intake.endeffectorDeploy(),
+    // Commands.waitUntil(intake.isNearGoal(Degrees.of(8.0))),
+    // BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Blaziken-5", 18, mirrorVertically));
   }
 
   /**
@@ -309,20 +425,158 @@ public class AutonomousManager {
    *
    * @param mirrorVertically whether to flip the path over the vertical center of the field
    */
-  public Command bimithySmiley() {
+  private Command beedrill(boolean mirrorVertically) {
     return Commands.sequence(
-            Commands.sequence(
-                this.deployIntake(),
-                BLineTrajectorywithIntakeLift("Bimithy-1", 5.0),
-                this.rotateToHub(),
-                this.handleShotInterpolation("shot 1", 4.0, 2.0)),
-            this.deployIntake(),
-            BLineTrajectorywithIntake("Bimithy-2"),
-            BLineTrajectorywithIntake("Bimithy-3"),
+        intake.endeffectorDeploy(),
+        Commands.deferredProxy(() -> Commands.waitSeconds(getAutoWaitSeconds())),
+        Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
+            .onlyIf(() -> !this.shouldStartOnBump()),
+        this.BIDOOF(mirrorVertically).onlyIf(() -> this.shouldStartOnBump()),
+        BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Beedrill-1", 18, mirrorVertically),
+        this.rotateToHub(),
+        Commands.deadline(
+            Commands.waitTime(Seconds.of(8.0)),
+            this.handleInterpolateShooterToHub("Shot 1", 8.0),
+            Commands.waitSeconds(1.0)
+                .andThen(
+                    intake.flickIntakeRepeatedly(
+                        Degrees.of(20.0),
+                        Degrees.of(50.0),
+                        Degrees.of(0.0),
+                        Degrees.of(5.0),
+                        Seconds.of(8.0)))));
+  }
+
+  /**
+   * Implementation of Blaziken and Swampert that flips based on which Trench it starts from
+   *
+   * @param mirrorVertically whether to flip the path over the vertical center of the field
+   */
+  private Command evilDitto(boolean mirrorVertically) {
+    return Commands.sequence(
+        intake.endeffectorDeploy(),
+        Commands.deferredProxy(() -> Commands.waitSeconds(getAutoWaitSeconds())),
+        Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
+            .onlyIf(() -> !this.shouldStartOnBump()),
+        Commands.waitSeconds(0),
+        this.BIDOOF(mirrorVertically).onlyIf(() -> this.shouldStartOnBump()),
+        BLineTrajectory("Evil-Ditto-1", mirrorVertically),
+        this.stashedIntake(),
+        BLineTrajectory("Evil-Ditto-2", mirrorVertically));
+  }
+
+  /**
+   * Implementation of Blaziken and Swampert that flips based on which Trench it starts from
+   *
+   * @param mirrorVertically whether to flip the path over the vertical center of the field
+   */
+  private Command sableye(boolean mirrorVertically) {
+    Command sableyeTravelToNearAlliance =
+        Commands.sequence(
+            BLineTrajectoryIntakeAndLiftAfterTranslationSegment("Sableye-2", 2, mirrorVertically),
             this.rotateToHub(),
-            this.handleShotInterpolation("shot 2", 4.0, 2.0))
-        .beforeStarting(Commands.print("Path start"))
-        .andThen(Commands.print("Path end"));
+            Commands.deadline(
+                Commands.waitTime(Seconds.of(8)),
+                this.handleInterpolateShooterToHub("Shot", 8),
+                Commands.waitSeconds(1.0)
+                    .andThen(
+                        intake.flickIntakeRepeatedly(
+                            Degrees.of(20.0),
+                            Degrees.of(50.0),
+                            Degrees.of(0.0),
+                            Degrees.of(5.0),
+                            Seconds.of(8.0)))));
+
+    Command sableyeFeedToNearAlliance =
+        Commands.sequence(
+            this.rotateToClosestDropoff(),
+            Commands.deadline(
+                Commands.waitTime(Seconds.of(8)),
+                this.handleInterpolateShooterToDropoff("Feed-Shot", 8),
+                Commands.waitSeconds(1.0)
+                    .andThen(
+                        intake.flickIntakeRepeatedly(
+                            Degrees.of(20.0),
+                            Degrees.of(50.0),
+                            Degrees.of(0.0),
+                            Degrees.of(5.0),
+                            Seconds.of(8.0)))));
+
+    return Commands.sequence(
+        intake.endeffectorDeploy(),
+        Commands.deferredProxy(() -> Commands.waitSeconds(getAutoWaitSeconds())),
+        Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
+            .onlyIf(() -> !this.shouldStartOnBump()),
+        Commands.waitSeconds(0),
+        this.BIDOOF(mirrorVertically).onlyIf(() -> this.shouldStartOnBump()),
+        BLineTrajectorywithIntake("Sableye", mirrorVertically),
+        Commands.none()
+            .onlyIf(
+                () ->
+                    this.sableyeQuestionaire.get().equals(SableyeEndState.END_NEUTRAL_STATIONARY)),
+        sableyeTravelToNearAlliance.onlyIf(
+            () -> this.sableyeQuestionaire.get().equals(SableyeEndState.END_NEAR_ALLIANCE_SCORE)),
+        sableyeFeedToNearAlliance.onlyIf(
+            () -> this.sableyeQuestionaire.get().equals(SableyeEndState.END_NEUTRAL_FEED)));
+    // end of auto
+  }
+
+  /**
+   * Implementation of Blaziken and Swampert that flips based on which Trench it starts from
+   *
+   * @param mirrorVertically whether to flip the path over the vertical center of the field
+   */
+  private Command diglettt() {
+    return Commands.sequence(
+        intake.endeffectorDeploy(),
+        Commands.deferredProxy(() -> Commands.waitSeconds(getAutoWaitSeconds())),
+        Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
+            .onlyIf(() -> !this.shouldStartOnBump()),
+        Commands.waitSeconds(0),
+        this.BIDOOF(true).onlyIf(() -> this.shouldStartOnBump()),
+        BLineTrajectorywithIntake("Diglett"),
+        this.rotateToHub(),
+        Commands.deadline(
+            Commands.waitTime(Seconds.of(8.0)),
+            this.handleInterpolateShooterToHub("Shot 1", 8.0),
+            Commands.waitSeconds(1.0)
+                .andThen(
+                    intake.flickIntakeRepeatedly(
+                        Degrees.of(20.0),
+                        Degrees.of(50.0),
+                        Degrees.of(0.0),
+                        Degrees.of(5.0),
+                        Seconds.of(8.0)))));
+  }
+
+  /**
+   * Implementation of Blaziken and Swampert that flips based on which Trench it starts from
+   *
+   * @param mirrorVertically whether to flip the path over the vertical center of the field
+   */
+  private Command gardevoir(boolean mirrorVertically) {
+    return Commands.sequence(
+        intake.endeffectorDeploy(),
+        Commands.deferredProxy(() -> Commands.waitSeconds(getAutoWaitSeconds())),
+        Commands.waitUntil(intake.isNearGoal(Degrees.of(8)))
+            .onlyIf(() -> !this.shouldStartOnBump()),
+        Commands.waitSeconds(0),
+        this.BIDOOF(mirrorVertically).onlyIf(() -> this.shouldStartOnBump()),
+        BLineTrajectory("Gardevoir"),
+        Commands.waitSeconds(3.0),
+        BLineTrajectory("Gardevoir-2"),
+        this.rotateToHub(),
+        Commands.deadline(
+            Commands.waitTime(Seconds.of(8.0)),
+            this.handleInterpolateShooterToHub("Shot 1", 8.0),
+            Commands.waitSeconds(1.0)
+                .andThen(
+                    intake.flickIntakeRepeatedly(
+                        Degrees.of(20.0),
+                        Degrees.of(50.0),
+                        Degrees.of(0.0),
+                        Degrees.of(5.0),
+                        Seconds.of(8.0)))));
   }
 
   public Command bline1ft() {

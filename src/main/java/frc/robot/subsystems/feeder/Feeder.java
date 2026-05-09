@@ -14,14 +14,14 @@ public class Feeder extends SubsystemBase {
   private static final String name = "/Feeder";
 
   private static final LoggedTunableNumber towerAmps =
-      new LoggedTunableNumber(name + "/TowerAmps", 20.0);
+      new LoggedTunableNumber(name + "/TowerAmps", 50.0);
   private static final LoggedTunableNumber towerVoltage =
       new LoggedTunableNumber(name + "/TowerVoltage", 10);
   private static final LoggedTunableNumber towerPercent =
       new LoggedTunableNumber(name + "/TowerPercent", 0.5);
 
   private static final LoggedTunableNumber spindexerAmps =
-      new LoggedTunableNumber(name + "/SpindexerAmps", 20.0);
+      new LoggedTunableNumber(name + "/SpindexerAmps", 50.0);
   private static final LoggedTunableNumber spindexerVoltage =
       new LoggedTunableNumber(name + "/SpindexerVoltage", 6.0);
   private static final LoggedTunableNumber spindexerPercent =
@@ -49,6 +49,14 @@ public class Feeder extends SubsystemBase {
         () -> {
           tower.runVolts(towerVoltage.get());
           spindexer.runVolts(spindexerVoltage.get());
+        });
+  }
+
+  public Command runFeederCurrent() {
+    return run(
+        () -> {
+          tower.setTorque(Amps.of(towerVoltage.get()));
+          spindexer.setTorque(Amps.of(spindexerVoltage.get()));
         });
   }
 
