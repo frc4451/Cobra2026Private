@@ -115,12 +115,13 @@ public class ShootOnTheMoveCommand extends Command {
     // Square the magnitude for finer low-speed control while keeping full-speed reachable.
     linearMagnitude *= linearMagnitude;
 
-    // Step 2: Geometry-based speed limit (hub shots only)
+    // Step 2: Geometry-based speed limit
     // At close range, even a small robot velocity can sweep a large angle around the
     // hub during fuel flight, making the lookahead aim angle unstable or flip directions.
-    // To compat this, cap the robot's linear speed so it can sweep at most
-    // MAX_POLAR_VELOCITY_RAD_PER_SEC
-    // around the hub during the ball's time of flight (TOF).
+    // To combat this, clamp the robot's linear speed so it can sweep at most
+    // MAX_POLAR_VELOCITY_RAD_PER_SEC around the hub during the ball's time of flight (TOF).
+    // This will result in the robot slowing down as it approaches the point of interest and
+    // be more accurate when it is close to the target.
     //
     // We model this as a triangle R-H-P where:
     //   R = robot's current position
@@ -128,13 +129,13 @@ public class ShootOnTheMoveCommand extends Command {
     //   P = robot's projected position after traveling for one TOF
     //
     // The three interior angles are:
-    //   robotAngle    (at R) = angle between the direction we're driving and the line R→H
+    //   robotAngle    (at R) = angle between the direction we're driving and the line R->H
     //   hubAngle      (at H) = maxPolarVelocity × TOF  — the max arc we're allowed to sweep
-    //   lookaheadAngle (at P) = π − robotAngle − hubAngle  (triangle angle sum)
+    //   lookaheadAngle (at P) = 180deg − robotAngle − hubAngle  (triangle angle sum)
     //
-    // By the sine rule:  R→P / sin(hubAngle) = R→H / sin(lookaheadAngle)
-    // → maxDistance = hubDistance × sin(hubAngle) / sin(lookaheadAngle)
-    // → maxVelocity = maxDistance / TOF
+    // By the sine rule:  R->P / sin(hubAngle) = R->H / sin(lookaheadAngle)
+    // -> maxDistance = hubDistance * sin(hubAngle) / sin(lookaheadAngle)
+    // -> maxVelocity = maxDistance / TOF
     //
     // If lookaheadAngle <= 0 the triangle is degenerate (driving away from hub).
     if (linearMagnitude > 0.0) {
@@ -162,10 +163,10 @@ public class ShootOnTheMoveCommand extends Command {
                 MathUtil.angleModulus(
                     robotToTarget.getAngle().minus(linearDirection).getRadians()));
 
-        // Remaining angle at P (triangle must sum to π).
+        // Remaining angle at P (triangle must sum to 180deg or Pi).
         double lookaheadAngle = Math.PI - robotAngle - targetAngle;
         if (lookaheadAngle > 0) {
-          // Sine rule → max distance the robot may travel in one TOF.
+          // Sine rule gives us the max distance the robot may travel in one TOF.
           double maxDistanceMeters =
               targetDistance.in(Meters) * Math.sin(targetAngle) / Math.sin(lookaheadAngle);
           // Convert to a normalized magnitude (0–1) relative to the drive's top speed.
@@ -175,13 +176,14 @@ public class ShootOnTheMoveCommand extends Command {
       }
     }
 
-    // ── Step 3: Reconstruct the velocity vector from clamped magnitude + original direction ─
+    // Step 3: Rebuild the new velocity vector by using the linear direction and linear
+    // distance derived from our TOF calculation
     Translation2d linearVelocity =
         new Pose2d(Translation2d.kZero, linearDirection)
             .transformBy(new Transform2d(linearMagnitude, 0.0, Rotation2d.kZero))
             .getTranslation();
 
-    // ── Step 4: SOTM angle tracking with velocity feed-forward ──────────────────────────────
+    // Step 4: SOTM angle tracking with velocity feed-forward
     // The rotation target moves every loop as the robot drives and the lookahead updates.
     // A plain ProfiledPIDController would plan to *stop* at the goal, causing lag when the
     // setpoint is moving. Instead we estimate how fast the target is rotating this loop
@@ -204,7 +206,6 @@ public class ShootOnTheMoveCommand extends Command {
             omega,
             AllianceFlipUtil.apply(BobotState.getGlobalPose().getRotation())));
 
-    // ── Logging ─────────────────────────────────────────────────────────────────────────────
     Logger.recordOutput(
         "Commands/" + getName() + "/TargetAngleDeg", Units.radiansToDegrees(currentTarget));
     Logger.recordOutput(
