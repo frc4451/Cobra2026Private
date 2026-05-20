@@ -96,7 +96,7 @@ public abstract class TargetInterpolator {
       }
 
       // If the converged lookahead has overshot past the target (robot moving toward
-      // target faster than ball flight time allows), the aim angle would flip ~180°. Detect
+      // target faster than ball flight time allows), the aim angle would flip ~180deg. Detect
       // this with a dot-product sign check and fall back to direct aim in that case.
       Translation2d currentToTarget = target.minus(shooterTranslation);
       Translation2d lookaheadToTarget = target.minus(lookaheadTranslation);
